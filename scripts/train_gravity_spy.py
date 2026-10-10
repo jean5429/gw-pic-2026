@@ -21,7 +21,7 @@ from gwproject.gravity_spy import (
     GravitySpyImageDataset,
     RandomIntensityScale,
 )
-from gwproject.plotting import FIGURE_DPI
+from gwproject.plotting import plot_confusion_matrix
 from gwproject.provenance import accelerator_manifest, write_manifest
 
 
@@ -56,9 +56,6 @@ def main() -> int:
         confusion_matrix,
         f1_score,
     )
-    import matplotlib
-    matplotlib.use("Agg")
-    import matplotlib.pyplot as plt
 
     cfg = load_toml(args.config)
     training_cfg = cfg["training"]
@@ -316,20 +313,9 @@ def main() -> int:
     cm = confusion_matrix(
         test["y_true"], test["y_pred"], labels=list(range(len(classes)))
     )
-    cm_norm = cm / np.maximum(cm.sum(axis=1, keepdims=True), 1)
     np.save(run_dir / "confusion_matrix.npy", cm)
 
-    fig, axis = plt.subplots(figsize=(11, 9))
-    image = axis.imshow(cm_norm, vmin=0, vmax=1)
-    axis.set_xticks(range(len(classes)), labels=classes, rotation=90, fontsize=7)
-    axis.set_yticks(range(len(classes)), labels=classes, fontsize=7)
-    axis.set_xlabel("Classe prevista")
-    axis.set_ylabel("Classe verdadeira")
-    axis.set_title("Gravity Spy — matriz de confusao normalizada")
-    fig.colorbar(image, ax=axis, label="Fracao")
-    fig.tight_layout()
-    fig.savefig(run_dir / "confusion_matrix.png", dpi=FIGURE_DPI)
-    plt.close(fig)
+    plot_confusion_matrix(cm, classes, run_dir / "confusion_matrix.png")
 
     baseline_metrics = None
     if run_baseline:
