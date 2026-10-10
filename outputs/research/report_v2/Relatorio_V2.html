@@ -58,6 +58,7 @@ li { margin: 2px 0; }
 <li><b>Escala de intensidade incompatível com o treino.</b> O estiramento por percentis deixava os Q-grams reais com fundo preto e ruído muito contrastado, enquanto as imagens de treino têm fundo cinza (escala viridis 0–25,5).</li>
 </ol>
 <p>Com os três defeitos corrigidos, o comportamento da rede muda qualitativamente: o Grad-CAM mostra que <b>a rede olha diretamente para o glitch ou o sinal</b>, e nos dados reais ela passa de 2 para 15 classes previstas, reconhecendo como <i>Chirp</i>, com confiança acima de 95%, os eventos mais intensos do catálogo (GW150914, GW170814, GW190521_074359, GW190630 etc.). Por outro lado, os resultados de dados reais do V1 (38 discordâncias “Extremely_Loud × None_of_the_Above” e o estudo de caso GW151012) <b>não se sustentam</b>, e todos os 150 canais ainda ficam acima do limiar de detecção fora de distribuição (OOD). O projeto não está pronto para a redação; está numa posição metodologicamente muito mais sólida para chegar lá.</p>
+<p>Além disso, o filtro casado do kit didático (<code>gw_student_kit</code>) foi corrigido (PR #1, Daniel Tedesco): ele produzia SNRs da ordem de 10<sup>11</sup> e agora dá ρ ≈ 10,8 para o GW150914 no detector L1, no instante correto da fusão (seção 6.5).</p>
 
 <h2>3. Contexto e Objetivo da Pesquisa</h2>
 <h3>Problema investigado</h3>
@@ -88,6 +89,7 @@ li { margin: 2px 0; }
 <tr><td>8. Correção da orientação</td><td>Eixos corretos</td><td>Parâmetro <code>layout="gwpy"</code>; testes com GW150914 (pico em t ≈ +0,016 s, ≈ 160 Hz).</td><td><span class="tag t-ok">Concluído</span></td></tr>
 <tr><td>9. Correção de cores</td><td>Grad-CAM legível</td><td>Conversão BGR → RGB; figuras refeitas.</td><td><span class="tag t-ok">Concluído</span></td></tr>
 <tr><td>10. Escala Gravity Spy</td><td>Reduzir a diferença de domínio</td><td><code>render_mode="gravity_spy"</code> como padrão; ensemble reprocessado.</td><td><span class="tag t-ok">Concluído</span></td></tr>
+<tr><td>11. Kit didático</td><td>Filtro casado com SNR correta</td><td>Normalização FINDCHIRP, template newtoniano, injeção pela SNR ótima (PR #1, Daniel Tedesco); 6 testes novos.</td><td><span class="tag t-ok">Concluído</span></td></tr>
 </table>
 
 <h2>5. Metodologia</h2>
@@ -171,6 +173,27 @@ li { margin: 2px 0; }
 <figure><img src="gc_gw151012_L1.png" style="width:88%"><figcaption><b>Figura 10 – GW151012, L1 (seed 42): Scratchy.</b></figcaption></figure>
 <p>O GW151012 é um evento de baixa significância. O filtro casado do próprio projeto obtém <b>SNR de rede de 5,5</b> e reprova nos critérios de detecção (o valor publicado é ≈ 10). Nenhuma das versões mostra um glitch claro em H1 com L1 “limpo”, e a classificação muda conforme a renderização e o seed. <b>A conclusão do V1 – “a IA isolou cirurgicamente um defeito no H1 e atestou a limpeza do L1” – não se sustenta.</b> Também não há registro conhecido de glitch que tenha “sufocado” o sinal em H1, e o atraso máximo entre H1 e L1 é de ~10 ms, não “no milissegundo seguinte, em continente distinto”.</p>
 
+<h3 class="pb">6.5 Kit didático: correção do filtro casado</h3>
+<p>O <code>gw_student_kit</code> é um kit independente do pacote <code>gwproject</code>, usado para ensinar filtragem, espectrogramas e filtro casado. A versão anterior produzia SNRs sem sentido físico: ~1,6 × 10<sup>9</sup> na demonstração sintética e ~1,1 × 10<sup>11</sup> no GW150914, com o pico fora do instante do evento. A correção, de autoria de <b>Daniel Tedesco</b> (PR #1, mesclado em 10/10/2026), atacou quatro causas:</p>
+<ol>
+<li><b>Normalização da transformada de Fourier:</b> faltavam os fatores Δt da DFT, o que inflava a SNR por um fator da ordem da taxa de amostragem. O cálculo passou a seguir as convenções de Allen et al. (2012, FINDCHIRP): σ² = 4Δf Σ|h̃|²/S e ρ = |z|/σ.</li>
+<li><b>Divisão por PSD quase nula:</b> fora de 30–400 Hz a PSD dos dados filtrados é praticamente zero e o template não era filtrado. Agora o template recebe o mesmo passa-banda, e a soma fica restrita à banda.</li>
+<li><b>Instante do pico:</b> o índice do máximo da correlação é um atraso em relação ao início do template, não o instante de fusão. A nova função <code>align_to_merger</code> faz a conversão.</li>
+<li><b>Injeção sintética:</b> a “SNR” era uma razão entre valores RMS; com 16 mil amostras, “SNR = 14” equivalia a ρ ≈ 1.800. A injeção agora usa a SNR ótima do filtro casado, ρ = √Σh²/σ.</li>
+</ol>
+<p>O template passou a ser um chirp de ordem dominante (“newtoniano”) calculado a partir da massa de chirp no referencial do detector, e o kit ganhou leitura dos arquivos HDF5 oficiais do GWOSC e semente fixa para o ruído sintético.</p>
+<table>
+<tr><th>Verificação (reproduzida localmente)</th><th>Resultado</th></tr>
+<tr><td>⟨ρ²⟩ em ruído gaussiano (valor teórico 2)</td><td>≈ 2 (teste automatizado)</td></tr>
+<tr><td>Demonstração sintética, ρ ótima injetada = 14, semente 2026</td><td>ρ = 12,91 no instante da injeção (3,000 s); parte do chirp fica fora de 30–400 Hz</td></tr>
+<tr><td>GW150914, L1, 𝓜 = 30,69 M☉ (detector)</td><td>ρ = 10,80, fusão em +16,021 s</td></tr>
+<tr><td>GW151012, L1, 𝓜 = 18,72 M☉</td><td>ρ = 5,29, fusão em +16,046 s</td></tr>
+<tr><td>GW151012, H1</td><td>pico global ρ = 5,04 em +1,8 s, no ruído (sem detecção)</td></tr>
+<tr><td>Suíte de testes do projeto</td><td>66 testes passando (6 novos para o kit)</td></tr>
+</table>
+<figure><img src="kit_snr_antes_depois.png" style="width:80%"><figcaption><b>Figura 11 – Série de SNR do filtro casado do kit para o GW150914 (L1).</b> (a) Antes da correção, o pico chegava a ~1,1 × 10<sup>11</sup>. (b) Depois da correção, ρ = 10,8 destaca-se claramente do ruído (ρ ≈ 1–3), com o eixo indexado pelo instante de fusão do template.</figcaption></figure>
+<div class="callout"><b>Limites.</b> O template não tem correções pós-newtonianas, spins, fusão nem ringdown, e a PSD é estimada nos mesmos dados. Por isso a SNR do kit é indicativa e menor que a publicada pela colaboração; não há banco de templates, teste χ² nem taxa de falso alarme. O kit tem fim didático e não substitui o filtro casado do <code>gwproject</code> (seção 8).</div>
+
 <h2>7. Decisões Metodológicas Consolidadas</h2>
 <table>
 <tr><th style="width:22%">Decisão</th><th>Justificativa</th><th style="width:13%">Estado</th></tr>
@@ -179,6 +202,7 @@ li { margin: 2px 0; }
 <tr><td>Grad-CAM em RGB</td><td>Corrige a troca de cores; vermelho = atenção máxima.</td><td><span class="tag t-ok">Em uso</span></td></tr>
 <tr><td>Normalização [−1, 1]</td><td>Mantida, igual ao treino. A interpretação “molde de contraste” associada a ela no V1 foi descartada.</td><td><span class="tag t-ok">Em uso</span></td></tr>
 <tr><td>Ensemble de 5 seeds + OOD</td><td>Reduz a dependência de um único modelo (o GW151012 mostra divergência entre seed 42 e ensemble).</td><td><span class="tag t-ok">Em uso</span></td></tr>
+<tr><td>Kit didático com normalização FINDCHIRP</td><td>SNR fisicamente interpretável (ρ² ~ χ²₂ em ruído); comportamento protegido por 6 testes.</td><td><span class="tag t-ok">Em uso</span></td></tr>
 <tr><td>Figuras V1 arquivadas</td><td>Mantidas em <code>outputs/research/gradcam_legacy_bgr/</code> para rastreabilidade.</td><td><span class="tag t-ok">Concluído</span></td></tr>
 </table>
 
@@ -188,7 +212,7 @@ li { margin: 2px 0; }
 <li><b>Referência OOD de um só modelo:</b> construída com o seed 42 e reutilizada para o ensemble.</li>
 <li><b>Grad-CAM de baixa resolução</b> (9 × 11) e avaliado apenas qualitativamente.</li>
 <li><b>Amostras de treino do V1 não registradas:</b> as figuras de treino foram refeitas com outras amostras.</li>
-<li><b>Código duplicado:</b> existem cópias idênticas do pacote em <code>gwproject/</code> e <code>src/gwproject/</code>; apenas a segunda é importada pelos scripts e testes.</li>
+<li><b>Kit didático:</b> template de ordem dominante e PSD estimada nos próprios dados; a SNR é indicativa e não estabelece detecção.</li>
 <li><b>Filtro casado:</b> o SNR do GW151012 (5,5) não reproduz o valor publicado (≈ 10), o que precisa ser investigado antes de usar SNR como covariável.</li>
 </ul>
 
@@ -197,7 +221,8 @@ li { margin: 2px 0; }
 <tr><th style="width:32%">Item</th><th style="width:16%">Status</th><th>Observações</th></tr>
 <tr><td>Configuração e banco de dados (M4)</td><td><span class="tag t-ok">Concluído</span></td><td>Gravity Spy harmonizado; 61 eventos GWTC, 150 canais.</td></tr>
 <tr><td>Treino da rede (M12)</td><td><span class="tag t-ok">Concluído</span></td><td>5 seeds, macro-F1 0,856 ± 0,006. Não precisa ser refeito.</td></tr>
-<tr><td>Pipeline de Q-grams reais</td><td><span class="tag t-ok">Corrigido</span></td><td>Orientação e escala corrigidas; 59 testes automatizados passando.</td></tr>
+<tr><td>Pipeline de Q-grams reais</td><td><span class="tag t-ok">Corrigido</span></td><td>Orientação e escala corrigidas; 66 testes automatizados passando.</td></tr>
+<tr><td>Kit didático (<code>gw_student_kit</code>)</td><td><span class="tag t-ok">Corrigido</span></td><td>Filtro casado com SNR correta (PR #1); figuras refeitas.</td></tr>
 <tr><td>Interpretabilidade / viés (M16)</td><td><span class="tag t-pend">Em andamento</span></td><td>Qualitativo coerente; faltam testes quantitativos.</td></tr>
 <tr><td>Análise GWTC / OOD</td><td><span class="tag t-pend">Em andamento</span></td><td>Controle positivo recuperado; diferença de domínio ainda aberta.</td></tr>
 <tr><td>Estudo de caso GW151012</td><td><span class="tag t-no">Revogado</span></td><td>Conclusão do V1 não se sustenta.</td></tr>
@@ -254,9 +279,10 @@ li { margin: 2px 0; }
 <tr><th style="width:38%">Artefato</th><th>Local</th></tr>
 <tr><td>Correções de código</td><td><code>src/gwproject/qgram_inference.py</code> (<code>layout</code>, <code>render_mode</code>), <code>scripts/run_gradcam.py</code>, <code>scripts/temp_npy_to_png.py</code>, <code>scripts/classify_catalog_qgrams*.py</code></td></tr>
 <tr><td>Configuração</td><td><code>configs/research_program.toml</code> e <code>configs/catalog_analysis.toml</code> (<code>flip_frequency = true</code>, <code>render_mode = "gravity_spy"</code>)</td></tr>
-<tr><td>Testes</td><td><code>tests/test_qgram_orientation.py</code> (suíte completa: 59 testes passando)</td></tr>
+<tr><td>Testes</td><td><code>tests/test_qgram_orientation.py</code>, <code>tests/test_student_kit.py</code> (suíte completa: 66 testes passando)</td></tr>
 <tr><td>Ensembles</td><td><code>outputs/research/gravity_spy_ensemble</code> (V1), <code>…_fixed</code>, <code>…_gsrender</code> (atual)</td></tr>
-<tr><td>Grad-CAM</td><td><code>gradcam_*.png</code> (raiz), <code>outputs/research/gradcam_fixed/</code>, <code>outputs/research/gradcam_legacy_bgr/</code></td></tr>
+<tr><td>Grad-CAM</td><td><code>docs/figuras/gradcam_*.png</code>, <code>outputs/research/gradcam_fixed/</code>, <code>outputs/research/gradcam_legacy_bgr/</code></td></tr>
+<tr><td>Kit didático</td><td><code>gw_student_kit/matched_filter.py</code>, <code>synthetic.py</code>, <code>main_demo.py</code>; figuras em <code>gw_student_kit/results/</code></td></tr>
 <tr><td>Figuras deste relatório</td><td><code>outputs/research/report_v2/</code></td></tr>
 </table>
 <p class="small">Amostras de treino usadas nas Figuras 3–5: Chirp/H1_0fp5wZUWD7, Koi_Fish/H1_08APXWraeY, 1400Ripples/L1_1ljZNes7gG (conjunto harmonizado). Ensemble: seeds 101, 11, 23, 42, 71; referência OOD <code>outputs/research/ood_reference_seed42.npz</code>.</p>
