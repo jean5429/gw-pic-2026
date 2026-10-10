@@ -122,13 +122,14 @@ li { margin: 2px 0; }
 <tr><td>Acurácia</td><td class="n">0,909</td><td class="n">0,004</td><td class="n">0,904</td><td class="n">0,914</td></tr>
 <tr><td>Kappa de Cohen</td><td class="n">0,900</td><td class="n">0,004</td><td class="n">0,894</td><td class="n">0,905</td></tr>
 </table>
-<p>As classes mais difíceis são <b>No_Glitch</b> (F1 0,47–0,56), <b>1400Ripples</b> (0,50–0,64) e <b>Paired_Doves</b> (0,57–0,67). <i>Chirp</i> tem F1 = 1,00 em todos os seeds. No seed 42 (usado no Grad-CAM), a menor F1 é No_Glitch (0,526), e não 1400Ripples (0,600) como afirmava o V1. Matrizes de confusão: <code>outputs/gravity_spy_harmonized/seed_*/confusion_matrix.png</code>.</p>
+<p>As classes mais difíceis são <b>No_Glitch</b> (F1 0,47–0,56), <b>1400Ripples</b> (0,50–0,64) e <b>Paired_Doves</b> (0,57–0,67). <i>Chirp</i> tem F1 = 1,00 em todos os seeds. No seed 42 (usado no Grad-CAM), a menor F1 é No_Glitch (0,526), e não 1400Ripples (0,600) como afirmava o V1. A matriz de confusão do seed 42 está na Figura 1; as dos demais seeds ficam em <code>outputs/gravity_spy_harmonized/seed_*/confusion_matrix.png</code>.</p>
+<figure><img src="confusion_matrix_seed42.png" style="width:84%"><figcaption><b>Figura 1 – Matriz de confusão normalizada no conjunto de teste (seed 42).</b> Cada linha soma 1 (fração da classe verdadeira). As maiores confusões são Paired_Doves → Extremely_Loud (2 de 4 amostras), No_Glitch → Low_Frequency_Lines (6 de 21) e Wandering_Line → No_Glitch (2 de 7) – classes com poucas amostras de teste, o que torna essas frações instáveis; Chirp, Helix, Power_Line e Scratchy ficam praticamente na diagonal.</figcaption></figure>
 
 <h3>6.2 Grad-CAM nas classes de treino (cores corrigidas)</h3>
-<figure><img src="legacy_chirp_bgr.png" style="width:88%"><figcaption><b>Figura 1 – Figura do V1 (cores trocadas).</b> O azul sobre a onda era, na verdade, a região de atenção máxima. A leitura “a rede foca no fundo vazio” e o cálculo (−5)·(−1) = +5 do V1 decorrem desse erro.</figcaption></figure>
-<figure><img src="gradcam_Chirp.png" style="width:88%"><figcaption><b>Figura 2 – Chirp (treino), cores corretas.</b> A atenção máxima (vermelho) está sobre o próprio chirp, na parte de menor frequência e maior energia da trilha.</figcaption></figure>
-<figure><img src="gradcam_Koi_Fish.png" style="width:88%"><figcaption><b>Figura 3 – Koi_Fish (treino).</b> A atenção se concentra no “corpo” do glitch de banda larga.</figcaption></figure>
-<figure><img src="gradcam_1400Ripples.png" style="width:88%"><figcaption><b>Figura 4 – 1400Ripples (treino).</b> A atenção se concentra na textura de alta frequência do topo, com um foco secundário no canto inferior esquerdo.</figcaption></figure>
+<figure><img src="legacy_chirp_bgr.png" style="width:88%"><figcaption><b>Figura 2 – Figura do V1 (cores trocadas).</b> O azul sobre a onda era, na verdade, a região de atenção máxima. A leitura “a rede foca no fundo vazio” e o cálculo (−5)·(−1) = +5 do V1 decorrem desse erro.</figcaption></figure>
+<figure><img src="gradcam_Chirp.png" style="width:88%"><figcaption><b>Figura 3 – Chirp (treino), cores corretas.</b> A atenção máxima (vermelho) está sobre o próprio chirp, na parte de menor frequência e maior energia da trilha.</figcaption></figure>
+<figure><img src="gradcam_Koi_Fish.png" style="width:88%"><figcaption><b>Figura 4 – Koi_Fish (treino).</b> A atenção se concentra no “corpo” do glitch de banda larga.</figcaption></figure>
+<figure><img src="gradcam_1400Ripples.png" style="width:88%"><figcaption><b>Figura 5 – 1400Ripples (treino).</b> A atenção se concentra na textura de alta frequência do topo, com um foco secundário no canto inferior esquerdo.</figcaption></figure>
 <div class="callout"><b>Interpretação.</b> Nos três exemplos, a rede se apoia na região do transiente, e não no fundo. Isso é <b>compatível</b> com aprendizado morfológico, mas três exemplos escolhidos não constituem prova de ausência de viés: o mapa tem resolução de 9 × 11 células e as amostras não são as mesmas do V1 (os identificadores originais não foram registrados). Testes quantitativos estão na seção 10.</div>
 
 <h3 class="pb">6.3 Aplicação aos eventos GWTC (ensemble de 5 modelos)</h3>
@@ -141,8 +142,8 @@ li { margin: 2px 0; }
 <tr><td>Mediana da distância de Mahalanobis</td><td class="n">18 424</td><td class="n">11 670</td><td class="n">2 228</td></tr>
 <tr><td>Canais acima do limiar OOD q99 (638)</td><td class="n">150</td><td class="n">150</td><td class="n">150</td></tr>
 </table>
-<figure><img src="fig_mahalanobis.png" style="width:92%"><figcaption><b>Figura 5 – Distância de Mahalanobis por canal nas três renderizações.</b> Cada ponto é um canal; o traço preto é a mediana. A correção aproxima os dados reais do domínio de treino em cerca de 8×, mas todos os canais permanecem à direita do limiar q99.</figcaption></figure>
-<figure><img src="fig_classes_gsrender.png" style="width:78%"><figcaption><b>Figura 6 – Classes previstas pelo ensemble com a escala Gravity Spy.</b> Nenhum canal do Virgo (V1) é classificado como Chirp, o que é consistente com a menor sensibilidade desse detector nos eventos analisados.</figcaption></figure>
+<figure><img src="fig_mahalanobis.png" style="width:92%"><figcaption><b>Figura 6 – Distância de Mahalanobis por canal nas três renderizações.</b> Cada ponto é um canal; o traço preto é a mediana. A correção aproxima os dados reais do domínio de treino em cerca de 8×, mas todos os canais permanecem à direita do limiar q99.</figcaption></figure>
+<figure><img src="fig_classes_gsrender.png" style="width:78%"><figcaption><b>Figura 7 – Classes previstas pelo ensemble com a escala Gravity Spy.</b> Nenhum canal do Virgo (V1) é classificado como Chirp, o que é consistente com a menor sensibilidade desse detector nos eventos analisados.</figcaption></figure>
 
 <p><b>Controle positivo.</b> Os 11 canais classificados como Chirp com confiança ≥ 0,95 (todos com 5/5 votos) pertencem a eventos reconhecidamente intensos:</p>
 <table>
@@ -154,7 +155,7 @@ li { margin: 2px 0; }
 <tr><td>GW190828_063405</td><td>H1</td><td class="n">0,9977</td><td>GW190519_153544</td><td>L1</td><td class="n">0,981</td></tr>
 <tr><td>GW190727_060333</td><td>H1</td><td class="n">0,960</td><td></td><td></td><td></td></tr>
 </table>
-<figure><img src="gc_gw150914_L1.png" style="width:88%"><figcaption><b>Figura 7 – GW150914, L1, renderização Gravity Spy (seed 42): Chirp.</b> A atenção máxima coincide com a trilha do sinal astrofísico.</figcaption></figure>
+<figure><img src="gc_gw150914_L1.png" style="width:88%"><figcaption><b>Figura 8 – GW150914, L1, renderização Gravity Spy (seed 42): Chirp.</b> A atenção máxima coincide com a trilha do sinal astrofísico.</figcaption></figure>
 <div class="warn"><b>Cautela.</b> A classe <i>Chirp</i> do Gravity Spy descreve morfologia, não origem astrofísica, e a softmax não é probabilidade física. Como todos os canais continuam acima do limiar OOD, os resultados em dados reais são <b>exploratórios</b>. A concordância com os eventos mais intensos é um indício favorável, não uma validação.</div>
 
 <h3 class="pb">6.4 Estudo de caso GW151012 (revisado)</h3>
@@ -166,8 +167,8 @@ li { margin: 2px 0; }
 <tr><td>Ensemble, escala Gravity Spy</td><td>Violin_Mode (0,64)</td><td>Scratchy (0,76)</td></tr>
 <tr><td>Seed 42 isolado, escala Gravity Spy</td><td>1080Lines</td><td>Scratchy</td></tr>
 </table>
-<figure><img src="gc_gw151012_H1.png" style="width:88%"><figcaption><b>Figura 8 – GW151012, H1 (seed 42): 1080Lines.</b> Imagem dominada por ruído de fundo; a atenção fica em uma região de baixa frequência, sem transiente evidente.</figcaption></figure>
-<figure><img src="gc_gw151012_L1.png" style="width:88%"><figcaption><b>Figura 9 – GW151012, L1 (seed 42): Scratchy.</b></figcaption></figure>
+<figure><img src="gc_gw151012_H1.png" style="width:88%"><figcaption><b>Figura 9 – GW151012, H1 (seed 42): 1080Lines.</b> Imagem dominada por ruído de fundo; a atenção fica em uma região de baixa frequência, sem transiente evidente.</figcaption></figure>
+<figure><img src="gc_gw151012_L1.png" style="width:88%"><figcaption><b>Figura 10 – GW151012, L1 (seed 42): Scratchy.</b></figcaption></figure>
 <p>O GW151012 é um evento de baixa significância. O filtro casado do próprio projeto obtém <b>SNR de rede de 5,5</b> e reprova nos critérios de detecção (o valor publicado é ≈ 10). Nenhuma das versões mostra um glitch claro em H1 com L1 “limpo”, e a classificação muda conforme a renderização e o seed. <b>A conclusão do V1 – “a IA isolou cirurgicamente um defeito no H1 e atestou a limpeza do L1” – não se sustenta.</b> Também não há registro conhecido de glitch que tenha “sufocado” o sinal em H1, e o atraso máximo entre H1 e L1 é de ~10 ms, não “no milissegundo seguinte, em continente distinto”.</p>
 
 <h2>7. Decisões Metodológicas Consolidadas</h2>
@@ -258,6 +259,6 @@ li { margin: 2px 0; }
 <tr><td>Grad-CAM</td><td><code>gradcam_*.png</code> (raiz), <code>outputs/research/gradcam_fixed/</code>, <code>outputs/research/gradcam_legacy_bgr/</code></td></tr>
 <tr><td>Figuras deste relatório</td><td><code>outputs/research/report_v2/</code></td></tr>
 </table>
-<p class="small">Amostras de treino usadas nas Figuras 2–4: Chirp/H1_0fp5wZUWD7, Koi_Fish/H1_08APXWraeY, 1400Ripples/L1_1ljZNes7gG (conjunto harmonizado). Ensemble: seeds 101, 11, 23, 42, 71; referência OOD <code>outputs/research/ood_reference_seed42.npz</code>.</p>
+<p class="small">Amostras de treino usadas nas Figuras 3–5: Chirp/H1_0fp5wZUWD7, Koi_Fish/H1_08APXWraeY, 1400Ripples/L1_1ljZNes7gG (conjunto harmonizado). Ensemble: seeds 101, 11, 23, 42, 71; referência OOD <code>outputs/research/ood_reference_seed42.npz</code>.</p>
 
 </body></html>
