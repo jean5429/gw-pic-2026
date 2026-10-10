@@ -69,14 +69,37 @@ Nenhum dado bruto fica no repositório. Cada conjunto é baixado apenas quando v
 
 ### 1. Modelos treinados (Git LFS)
 
-Os checkpoints `outputs/gravity_spy_harmonized/seed_*/best_model.pt` usam [Git LFS](https://git-lfs.com/).
+Os 5 checkpoints `outputs/gravity_spy_harmonized/seed_*/best_model.pt` (~45 MB cada) ficam no [Git LFS](https://git-lfs.com/). No repositório git fica só um "ponteiro" de poucos bytes para cada um; o arquivo real fica no servidor LFS do GitHub e é baixado à parte.
+
+**Antes de clonar**, instale o Git LFS uma única vez na máquina. O Git for Windows já o inclui; no Linux, use `sudo apt install git-lfs`; no macOS, `brew install git-lfs`. Depois rode:
+
+```powershell
+git lfs install
+```
+
+Com isso, o `git clone` da seção [Instalação](#instalação) baixa os modelos automaticamente.
+
+**Se você clonou sem o Git LFS**, os `.pt` serão ponteiros de texto (~130 bytes), e o PyTorch falha ao carregá-los com um erro como `invalid load key, 'v'`. Para baixar os arquivos reais, rode dentro do repositório:
 
 ```powershell
 git lfs install
 git lfs pull
 ```
 
-Para clonar sem baixar os modelos (PowerShell): `$env:GIT_LFS_SKIP_SMUDGE = "1"; git clone ...`. Se precisar deles depois, rode `git lfs pull`.
+**Baixar só parte dos modelos.** Por exemplo, só o seed 42, usado no Grad-CAM:
+
+```powershell
+$env:GIT_LFS_SKIP_SMUDGE = "1"
+git clone https://github.com/jean5429/gw-pic-2026.git
+cd gw-pic-2026
+git lfs pull --include="outputs/gravity_spy_harmonized/seed_42_cuda_balanced/best_model.pt"
+```
+
+Para conferir se os modelos estão baixados, rode `git lfs ls-files`. Um `*` indica arquivo presente; um `-` indica que só o ponteiro está no disco.
+
+> **Atenção:** o botão *Code → Download ZIP* do GitHub não inclui os arquivos LFS por padrão. Use `git clone`.
+>
+> O plano gratuito do GitHub tem cota mensal de banda para LFS, e cada download completo dos 5 modelos consome ~225 MB. Se a cota acabar, os downloads ficam bloqueados até o mês seguinte; nesse caso, use o treino próprio (seção [Treino completo](#treino-completo-opcional)).
 
 ### 2. Gravity Spy
 
@@ -136,6 +159,14 @@ No mapa, **vermelho = atenção máxima**. As figuras são salvas em 300 DPI.
 
 O script harmoniza os painéis, treina 5 seeds, agrega as métricas, constrói a referência OOD e roda o ensemble.
 
+### Matrizes de confusão
+
+O treino salva, em cada `outputs/gravity_spy_harmonized/seed_*/`, a matriz em `confusion_matrix.npy` (contagens) e em `confusion_matrix.png` (normalizada por linha, 300 DPI). Para gerar os PNGs de novo a partir dos `.npy`, sem treinar:
+
+```powershell
+python -m scripts.replot_confusion_matrices
+```
+
 ---
 
 ## Testes
@@ -156,6 +187,12 @@ Os testes que dependem de dados baixados (por exemplo, o Q-gram do GW150914) sã
 | Grad-CAM nas classes de treino | atenção concentrada no próprio transiente |
 | GWTC, renderização Gravity Spy | 15 classes previstas; 11 canais Chirp com confiança ≥ 0,95, todos de eventos intensos (GW150914, GW170814, …) |
 | Domínio | os 150 canais ainda ficam acima do limiar OOD q99; resultados em dados reais são exploratórios |
+
+### Matriz de confusão (seed 42, conjunto de teste)
+
+![Matriz de confusão normalizada do seed 42](outputs/gravity_spy_harmonized/seed_42_cuda_balanced/confusion_matrix.png)
+
+Cada linha soma 1, ou seja, é a fração da classe verdadeira. As classes mais difíceis são No_Glitch (F1 0,47–0,56 entre seeds), 1400Ripples (0,50–0,64) e Paired_Doves (0,57–0,67). As maiores confusões ocorrem em classes com poucas amostras de teste: Paired_Doves → Extremely_Loud (2 de 4), No_Glitch → Low_Frequency_Lines (6 de 21) e Wandering_Line → No_Glitch (2 de 7). As matrizes das outras seeds estão em [`outputs/gravity_spy_harmonized/`](outputs/gravity_spy_harmonized/).
 
 Detalhes, errata do V1 e próximos passos estão no [Relatório V2](docs/relatorios/Relatorio_PIC_Ondas_Gravitacionais_V2.pdf).
 
