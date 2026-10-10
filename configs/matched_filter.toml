@@ -1,0 +1,23 @@
+[signal]
+sample_rate = 4096.0
+segment_seconds = 32.0
+f_low_hz = 25.0
+analysis_f_high_hz = 250.0
+max_template_seconds = 14.0
+extension_factor = 2.5
+
+[gate]
+expected_template = "BBH GW150914 36+29"
+network_snr_min = 8.0
+peak_window_seconds = 0.10
+require_expected_template_rank_1 = true
+minimum_template_bandwidth_hz = 20.0
+minimum_top2_snr_ratio = 1.50
+ranking_series = "inspiral"
+
+[templates]
+"BNS 1.4+1.4" = [1.4, 1.4]
+"NSBH 10+1.4" = [10.0, 1.4]
+"BBH leve 10+10" = [10.0, 10.0]
+"BBH GW150914 36+29" = [36.0, 29.0]
+"BBH assimetrico 30+10" = [30.0, 10.0]

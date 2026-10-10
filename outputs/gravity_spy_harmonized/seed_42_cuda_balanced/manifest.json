@@ -1,0 +1,188 @@
+{
+  "created_at_utc": "2026-09-20T18:31:53.844128+00:00",
+  "python": "3.12.13 | packaged by conda-forge | (main, Mar  5 2026, 16:36:12) [MSC v.1944 64 bit (AMD64)]",
+  "python_executable": "~\\miniforge3\\envs\\gw\\python.exe",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "processor": "AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD",
+  "git_commit": null,
+  "packages": {
+    "numpy": "1.26.4",
+    "scipy": "1.11.4",
+    "pandas": "2.3.3",
+    "matplotlib": "3.10.9",
+    "h5py": "3.16.0",
+    "requests": "2.34.2",
+    "gwpy": "3.0.14",
+    "gwosc": "0.8.2",
+    "torch": "2.5.1+cu121",
+    "torchvision": "0.20.1+cu121",
+    "scikit-learn": "1.8.0",
+    "pillow": "12.3.0"
+  },
+  "accelerator": {
+    "torch_cuda_available": true,
+    "torch_cuda_runtime": "12.1",
+    "cudnn_version": 90100,
+    "device_index": 0,
+    "device_name": "NVIDIA GeForce RTX 3060",
+    "total_memory_bytes": 12884246528,
+    "compute_capability": [
+      8,
+      6
+    ]
+  },
+  "environment": {
+    "PYTHONNOUSERSITE": null,
+    "CONDA_PREFIX": "~\\miniforge3\\envs\\gw"
+  },
+  "config": {
+    "data": {
+      "record_id": 1486046,
+      "metadata_filename": "trainingset_v1d1_metadata.csv",
+      "archive_filename": "trainingsetv1d1.tar.gz",
+      "image_duration": "1.0",
+      "use_official_splits": true,
+      "allow_synthetic_data": false
+    },
+    "training": {
+      "default_profile": "auto",
+      "seeds": [
+        11,
+        23,
+        42,
+        71,
+        101
+      ],
+      "epochs": 30,
+      "freeze_epochs": 5,
+      "patience": 7,
+      "learning_rate_head": 0.001,
+      "learning_rate_backbone": 0.0001,
+      "weight_decay": 0.0001,
+      "pretrained": true,
+      "deterministic": true,
+      "run_baseline": true
+    },
+    "profiles": {
+      "cpu": {
+        "conv1_stride": 2,
+        "use_maxpool": true,
+        "batch_size": 16,
+        "num_workers": 2,
+        "amp": false
+      },
+      "cuda_balanced": {
+        "conv1_stride": 2,
+        "use_maxpool": false,
+        "batch_size": 32,
+        "num_workers": 4,
+        "amp": true
+      },
+      "cuda_highres": {
+        "conv1_stride": 1,
+        "use_maxpool": false,
+        "batch_size": 24,
+        "num_workers": 4,
+        "amp": true
+      }
+    },
+    "evaluation": {
+      "macro_f1_min": 0.8,
+      "balanced_accuracy_min": 0.8,
+      "kappa_min": 0.8,
+      "per_class_f1_min": 0.4
+    }
+  },
+  "seed": 42,
+  "device": "cuda",
+  "profile": {
+    "name": "cuda_balanced",
+    "conv1_stride": 2,
+    "use_maxpool": false,
+    "batch_size": 32,
+    "num_workers": 4,
+    "amp": true
+  },
+  "batch_size": 32,
+  "num_workers": 4,
+  "amp_enabled": true,
+  "classes": [
+    "1080Lines",
+    "1400Ripples",
+    "Air_Compressor",
+    "Blip",
+    "Chirp",
+    "Extremely_Loud",
+    "Helix",
+    "Koi_Fish",
+    "Light_Modulation",
+    "Low_Frequency_Burst",
+    "Low_Frequency_Lines",
+    "No_Glitch",
+    "None_of_the_Above",
+    "Paired_Doves",
+    "Power_Line",
+    "Repeating_Blips",
+    "Scattered_Light",
+    "Scratchy",
+    "Tomte",
+    "Violin_Mode",
+    "Wandering_Line",
+    "Whistle"
+  ],
+  "n_classes": 22,
+  "split_sizes": {
+    "test": 1179,
+    "train": 5586,
+    "val": 1200
+  },
+  "pretrained": true,
+  "synthetic_data_allowed": false,
+  "best_epoch": 13,
+  "best_val_macro_f1": 0.8346519258233457,
+  "test_metrics": {
+    "macro_f1": 0.8570954744584235,
+    "balanced_accuracy": 0.8406679819674173,
+    "kappa": 0.898741062546074,
+    "accuracy": 0.9083969465648855,
+    "minimum_per_class_f1": 0.5263157894736842
+  },
+  "per_class_f1": {
+    "1080Lines": 0.8163265306122449,
+    "1400Ripples": 0.6,
+    "Air_Compressor": 0.9411764705882353,
+    "Blip": 0.9688073394495413,
+    "Chirp": 1.0,
+    "Extremely_Loud": 0.9172932330827067,
+    "Helix": 1.0,
+    "Koi_Fish": 0.9463414634146341,
+    "Light_Modulation": 0.8930817610062893,
+    "Low_Frequency_Burst": 0.8648648648648649,
+    "Low_Frequency_Lines": 0.7571428571428571,
+    "No_Glitch": 0.5263157894736842,
+    "None_of_the_Above": 0.8181818181818182,
+    "Paired_Doves": 0.6666666666666666,
+    "Power_Line": 0.9855072463768116,
+    "Repeating_Blips": 0.8285714285714286,
+    "Scattered_Light": 0.9538461538461539,
+    "Scratchy": 0.970873786407767,
+    "Tomte": 0.9230769230769231,
+    "Violin_Mode": 0.9606299212598425,
+    "Wandering_Line": 0.7272727272727273,
+    "Whistle": 0.7901234567901234
+  },
+  "baseline_metrics": {
+    "macro_f1": 0.5983398817611479,
+    "balanced_accuracy": 0.6472207747380595,
+    "kappa": 0.6668694650216126,
+    "accuracy": 0.6955046649703138
+  },
+  "gates": {
+    "macro_f1": true,
+    "balanced_accuracy": true,
+    "kappa": true,
+    "per_class_f1": true
+  },
+  "overall_passed": true,
+  "cnn_minus_baseline_macro_f1": 0.25875559269727555
+}

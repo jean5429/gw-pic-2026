@@ -1,0 +1,142 @@
+{
+  "config_sha256": "60ddbc6ca41138776f0010018e37c7acf7b4f3627693921ff0a3b85f7a203e1d",
+  "event": "GW190412_053044-v4",
+  "status": "ok",
+  "status_reason": null,
+  "catalog_m1_solar": 31.854999999999997,
+  "catalog_m2_solar": 10.35,
+  "mass_frame": "detector_from_source_redshift",
+  "catalog_redshift": 0.15,
+  "analysis_mass_frame_required": "detector",
+  "detectors": [
+    "H1",
+    "L1",
+    "V1"
+  ],
+  "series": "inspiral",
+  "ranking": [
+    {
+      "template": "catalog_central",
+      "m1": 31.854999999999997,
+      "m2": 10.35,
+      "central": true,
+      "f_low": 20.0,
+      "f_isco": 104.182959236179,
+      "f_high_inspiral": 104.182959236179,
+      "f_high_extended": 260.4573980904475,
+      "bandwidth_inspiral": 84.182959236179,
+      "bandwidth_extended": 240.4573980904475,
+      "detectors": {
+        "H1": 4.237942089304154,
+        "L1": 5.530529361112564,
+        "V1": 2.707554927472485
+      },
+      "active": true,
+      "network_snr": 7.475142931857848,
+      "snr_H1": 4.237942089304154,
+      "snr_L1": 5.530529361112564,
+      "snr_V1": 2.707554927472485
+    },
+    {
+      "template": "scale_1.100",
+      "m1": 35.0405,
+      "m2": 11.385,
+      "central": false,
+      "f_low": 20.0,
+      "f_isco": 94.71178112379907,
+      "f_high_inspiral": 94.71178112379907,
+      "f_high_extended": 236.77945280949768,
+      "bandwidth_inspiral": 74.71178112379907,
+      "bandwidth_extended": 216.77945280949768,
+      "detectors": {
+        "H1": 4.311097463347719,
+        "L1": 4.68938915569186,
+        "V1": 2.9244616275134856
+      },
+      "active": true,
+      "network_snr": 7.009165984823185,
+      "snr_H1": 4.311097463347719,
+      "snr_L1": 4.68938915569186,
+      "snr_V1": 2.9244616275134856
+    },
+    {
+      "template": "scale_0.900",
+      "m1": 28.6695,
+      "m2": 9.315,
+      "central": false,
+      "f_low": 20.0,
+      "f_isco": 115.75884359575444,
+      "f_high_inspiral": 115.75884359575444,
+      "f_high_extended": 289.3971089893861,
+      "bandwidth_inspiral": 95.75884359575444,
+      "bandwidth_extended": 269.3971089893861,
+      "detectors": {
+        "H1": 3.3742074353114404,
+        "L1": 5.245255566524498,
+        "V1": 2.853235516012979
+      },
+      "active": true,
+      "network_snr": 6.85849361627647,
+      "snr_H1": 3.3742074353114404,
+      "snr_L1": 5.245255566524498,
+      "snr_V1": 2.853235516012979
+    },
+    {
+      "template": "same_total_more_asymmetric",
+      "m1": 35.609983544017986,
+      "m2": 6.595016455982012,
+      "central": false,
+      "f_low": 20.0,
+      "f_isco": 104.182959236179,
+      "f_high_inspiral": 104.182959236179,
+      "f_high_extended": 260.4573980904475,
+      "bandwidth_inspiral": 84.182959236179,
+      "bandwidth_extended": 240.4573980904475,
+      "detectors": {
+        "H1": 3.733195282897527,
+        "L1": 5.1858566456311,
+        "V1": 2.466059614857818
+      },
+      "active": true,
+      "network_snr": 6.8491828850832475,
+      "snr_H1": 3.733195282897527,
+      "snr_L1": 5.1858566456311,
+      "snr_V1": 2.466059614857818
+    },
+    {
+      "template": "same_total_more_equal",
+      "m1": 26.882019206091865,
+      "m2": 15.322980793908133,
+      "central": false,
+      "f_low": 20.0,
+      "f_isco": 104.182959236179,
+      "f_high_inspiral": 104.182959236179,
+      "f_high_extended": 260.4573980904475,
+      "bandwidth_inspiral": 84.182959236179,
+      "bandwidth_extended": 240.4573980904475,
+      "detectors": {
+        "H1": 3.7285050850585955,
+        "L1": 4.840336789133074,
+        "V1": 2.903362776902598
+      },
+      "active": true,
+      "network_snr": 6.764623109667415,
+      "snr_H1": 3.7285050850585955,
+      "snr_L1": 4.840336789133074,
+      "snr_V1": 2.903362776902598
+    }
+  ],
+  "inactive_templates": [],
+  "gate": {
+    "central_rank": 1,
+    "central_rank_passed": true,
+    "network_snr": 7.475142931857848,
+    "network_snr_passed": true,
+    "top2_snr_ratio": 1.0664810832049967,
+    "top2_ratio_passed": true,
+    "detection_gate_passed": true,
+    "catalog_consistency_passed": true,
+    "passed": true
+  },
+  "scope_warning": "Banco TaylorF2 local e diagnostico, construido em detector-frame. Nao ha FAR, chi2 ou busca cega. O gate de deteccao usa SNR e margem; a consistencia com o template central e reportada separadamente."
+}

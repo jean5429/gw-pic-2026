@@ -1,0 +1,63 @@
+[catalog_ridge]
+allow_source_frame_fallback = false
+q = 5.0
+fmin_hz = 25.0
+fmax_hz = 300.0
+n_frequency_bins = 72
+max_time_bins = 384
+max_window_before_seconds = 14.0
+minimum_seconds_before_merger = 0.012
+padding_seconds = 0.50
+isco_fraction = 0.95
+minimum_bandwidth_hz = 12.0
+maximum_jump_bins = 5
+downward_tolerance_bins = 1
+jump_penalty = 0.12
+downward_penalty = 0.50
+path_energy_quantile = 0.55
+path_energy_quantile_fallback = [0.55, 0.40, 0.25, 0.0]
+minimum_fit_time_fraction = 0.55
+minimum_unique_frequencies = 3
+minimum_frequency_span_hz = 3.0
+max_fit_points = 100
+minimum_fit_points = 12
+bootstrap_samples = 300
+relative_error_max = 0.30
+detector_disagreement_max = 0.30
+base_seed = 2026
+workers = 2
+save_ridge_arrays = true
+
+[catalog_matched_filter]
+allow_source_frame_fallback = false
+series = "inspiral"
+f_low_hz = 20.0
+analysis_f_high_hz = 512.0
+max_template_seconds = 14.0
+extension_factor = 2.5
+minimum_template_bandwidth_hz = 8.0
+peak_window_seconds = 0.15
+scale_factors = [0.90, 1.10]
+minimum_component_mass_solar = 0.5
+network_snr_min = 6.0
+minimum_top2_snr_ratio = 1.05
+require_central_rank_1 = false
+workers = 1
+save_snr_series = false
+
+[qgram_classification]
+resize_height = 140
+resize_width = 170
+lower_percentile = 1.0
+upper_percentile = 99.5
+batch_size = 32
+num_workers = 2
+source_outseg_seconds = 4.0
+target_duration_seconds = 1.0
+# Q-grams salvos sao (tempo, frequencia) com frequencia crescente; apos a
+# transposicao, o flip coloca as altas frequencias no topo como no Gravity Spy.
+flip_frequency = true
+# "gravity_spy" reproduz a escala dos PNGs de treino (energia 0-25,5 em viridis -> cinza);
+# "percentile" usa baseline_mode + log1p + percentis (renderizacao anterior).
+render_mode = "gravity_spy"
+minimum_confidence = 0.50

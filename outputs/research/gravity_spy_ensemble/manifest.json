@@ -1,0 +1,165 @@
+{
+  "created_at_utc": "2026-09-20T19:20:57.529286+00:00",
+  "python": "3.12.13 | packaged by conda-forge | (main, Mar  5 2026, 16:36:12) [MSC v.1944 64 bit (AMD64)]",
+  "python_executable": "~\\miniforge3\\envs\\gw\\python.exe",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "processor": "AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD",
+  "git_commit": null,
+  "packages": {
+    "numpy": "1.26.4",
+    "scipy": "1.11.4",
+    "pandas": "2.3.3",
+    "matplotlib": "3.10.9",
+    "h5py": "3.16.0",
+    "requests": "2.34.2",
+    "gwpy": "3.0.14",
+    "gwosc": "0.8.2",
+    "torch": "2.5.1+cu121",
+    "torchvision": "0.20.1+cu121",
+    "scikit-learn": "1.8.0",
+    "pillow": "12.3.0"
+  },
+  "accelerator": {
+    "torch_cuda_available": true,
+    "torch_cuda_runtime": "12.1",
+    "cudnn_version": 90100,
+    "device_index": 0,
+    "device_name": "NVIDIA GeForce RTX 3060",
+    "total_memory_bytes": 12884246528,
+    "compute_capability": [
+      8,
+      6
+    ]
+  },
+  "environment": {
+    "PYTHONNOUSERSITE": null,
+    "CONDA_PREFIX": "~\\miniforge3\\envs\\gw"
+  },
+  "config": {
+    "metadata": {
+      "program_name": "GW Open-World Robustness Program",
+      "version": "0.9.0",
+      "status": "exploratory_preregistered",
+      "base_seed": 2026
+    },
+    "gravity_spy_panel": {
+      "source_fmin_hz": 10.0,
+      "source_fmax_hz": 2048.0,
+      "target_fmin_hz": 20.0,
+      "target_fmax_hz": 512.0,
+      "frequency_scale": "log",
+      "remove_axes": true,
+      "remove_ticks": true,
+      "remove_titles": true,
+      "remove_colorbar": true,
+      "output_height": 140,
+      "output_width": 170,
+      "normalize_after_crop": false
+    },
+    "harmonized_inference": {
+      "resize_height": 140,
+      "resize_width": 170,
+      "lower_percentile": 1.0,
+      "upper_percentile": 99.5,
+      "source_outseg_seconds": 4.0,
+      "target_duration_seconds": 1.0,
+      "baseline_mode": "per_frequency_median",
+      "flip_frequency": true,
+      "batch_size": 32,
+      "num_workers": 2,
+      "minimum_vote_fraction": 0.8
+    },
+    "domain_audit": {
+      "group_column": "event",
+      "features": [
+        "minimum",
+        "p01",
+        "p10",
+        "median",
+        "p90",
+        "p99",
+        "maximum",
+        "mean",
+        "std"
+      ],
+      "positive_label": "Scattered_Light",
+      "minimum_acceptable_balanced_accuracy_for_trivial_probe": 0.6,
+      "failure_if_balanced_accuracy_above": 0.75
+    },
+    "open_world": {
+      "reference_split": "val",
+      "energy_quantiles": [
+        0.95,
+        0.99
+      ],
+      "mahalanobis_quantiles": [
+        0.95,
+        0.99
+      ],
+      "ensemble_seeds": [
+        11,
+        23,
+        42,
+        71,
+        101
+      ],
+      "minimum_vote_fraction": 0.8,
+      "maximum_mutual_information": 0.1
+    },
+    "phase_counterfactual": {
+      "fractions": [
+        0.0,
+        0.25,
+        0.5,
+        0.75,
+        1.0
+      ],
+      "preserve_magnitude_spectrum": true,
+      "primary_metric": "prediction_stability_curve"
+    },
+    "validation": {
+      "primary_internal_metric": "macro_f1",
+      "primary_transfer_metric": "renderer_holdout_macro_f1",
+      "primary_ood_metric": "auroc",
+      "minimum_internal_macro_f1": 0.85,
+      "maximum_pixel_probe_balanced_accuracy": 0.7,
+      "maximum_expected_calibration_error": 0.08,
+      "minimum_ood_auroc": 0.8,
+      "minimum_detector_holdout_macro_f1": 0.65
+    }
+  },
+  "summary": {
+    "checkpoints": [
+      "outputs\\gravity_spy_harmonized\\seed_101_cuda_balanced\\best_model.pt",
+      "outputs\\gravity_spy_harmonized\\seed_11_cuda_balanced\\best_model.pt",
+      "outputs\\gravity_spy_harmonized\\seed_23_cuda_balanced\\best_model.pt",
+      "outputs\\gravity_spy_harmonized\\seed_42_cuda_balanced\\best_model.pt",
+      "outputs\\gravity_spy_harmonized\\seed_71_cuda_balanced\\best_model.pt"
+    ],
+    "n_models": 5,
+    "channels": 150,
+    "events": 61,
+    "class_counts": {
+      "Extremely_Loud": 77,
+      "None_of_the_Above": 73
+    },
+    "open_world_counts": {
+      "reject_ood": 150
+    },
+    "detector_disagreement_events": 38,
+    "preprocessing": {
+      "resize_height": 140,
+      "resize_width": 170,
+      "lower_percentile": 1.0,
+      "upper_percentile": 99.5,
+      "source_outseg_seconds": 4.0,
+      "target_duration_seconds": 1.0,
+      "baseline_mode": "per_frequency_median",
+      "flip_frequency": true,
+      "batch_size": 32,
+      "num_workers": 2,
+      "minimum_vote_fraction": 0.8
+    },
+    "interpretation_warning": "in_domain_candidate nao e prova de classe fisica. OOD e ensemble medem compatibilidade estatistica com o dominio harmonizado, nao origem causal do transiente."
+  }
+}

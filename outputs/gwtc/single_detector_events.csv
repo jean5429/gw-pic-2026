@@ -1,0 +1,7 @@
+event,channels_total,channels_approved,channels_rejected,detectors_available,detectors_approved,detectors_rejected,network_ready,single_detector_usable,event_status,base_name,version,catalog,gps,chirp_mass,chirp_mass_source,mass_1,mass_2,mass_1_source,mass_2_source,chirp_mass_detector,mass_1_detector,mass_2_detector,chirp_mass_detector_origin,component_mass_detector_origin,redshift,luminosity_distance,snr,far,metadata_status,metadata_api,parameter_estimation_name,parameter_waveform_family,metadata_refreshed_at_utc
+GW150914-v4,3,1,2,L1,L1,"H1,V1",False,True,single_detector,GW150914,4,GWTC-2.1-confident,1126259462.4,,27.9,,,34.6,30.0,,,,,,0.1,470.0,26.0,,ok,,,,
+GW191127_050227-v1,3,1,2,H1,H1,"L1,V1",False,True,single_detector,GW191127_050227,1,GWTC-3-confident,1258866165.5,,29.9,,,53.0,24.0,,,,,,0.57,3400.0,9.2,0.25,ok,,,,
+GW191204_110529-v1,3,1,2,L1,L1,"H1,V1",False,True,single_detector,GW191204_110529,1,GWTC-3-confident,1259492747.5,,19.8,,,27.3,19.2,,,,,,0.34,1900.0,8.9,3.3,ok,,,,
+GW200208_130117-v1,3,1,2,H1,H1,"L1,V1",False,True,single_detector,GW200208_130117,1,GWTC-3-confident,1265202095.9,,27.7,,,37.7,27.4,,,,,,0.4,2230.0,10.8,0.00031,ok,,,,
+GW200208_222617-v1,3,1,2,V1,V1,"H1,L1",False,True,single_detector,GW200208_222617,1,GWTC-3-confident,1265235995.9,,19.8,,,51.0,12.3,,,,,,0.66,4100.0,7.4,4.8,ok,,,,
+GW200311_115853-v1,3,1,2,H1,H1,"L1,V1",False,True,single_detector,GW200311_115853,1,GWTC-3-confident,1267963151.3,,26.6,,,34.2,27.7,,,,,,0.23,1170.0,17.8,1e-05,ok,,,,

@@ -1,0 +1,131 @@
+{
+  "config_sha256": "60ddbc6ca41138776f0010018e37c7acf7b4f3627693921ff0a3b85f7a203e1d",
+  "event": "GW190630_185205-v2",
+  "status": "ok",
+  "status_reason": null,
+  "catalog_m1_solar": 41.418,
+  "catalog_m2_solar": 28.32,
+  "mass_frame": "detector_from_source_redshift",
+  "catalog_redshift": 0.18,
+  "analysis_mass_frame_required": "detector",
+  "detectors": [
+    "L1",
+    "V1"
+  ],
+  "series": "inspiral",
+  "ranking": [
+    {
+      "template": "scale_1.100",
+      "m1": 45.5598,
+      "m2": 31.152000000000005,
+      "central": false,
+      "f_low": 20.0,
+      "f_isco": 57.31897562777739,
+      "f_high_inspiral": 57.31897562777739,
+      "f_high_extended": 143.29743906944347,
+      "bandwidth_inspiral": 37.31897562777739,
+      "bandwidth_extended": 123.29743906944347,
+      "detectors": {
+        "L1": 5.081129531139967,
+        "V1": 3.8411187030393106
+      },
+      "active": true,
+      "network_snr": 6.369620883778018,
+      "snr_L1": 5.081129531139967,
+      "snr_V1": 3.8411187030393106
+    },
+    {
+      "template": "scale_0.900",
+      "m1": 37.2762,
+      "m2": 25.488,
+      "central": false,
+      "f_low": 20.0,
+      "f_isco": 70.05652576728349,
+      "f_high_inspiral": 70.05652576728349,
+      "f_high_extended": 175.1413144182087,
+      "bandwidth_inspiral": 50.05652576728349,
+      "bandwidth_extended": 155.1413144182087,
+      "detectors": {
+        "L1": 5.105340662634714,
+        "V1": 2.2458019490018706
+      },
+      "active": true,
+      "network_snr": 5.577466241555574,
+      "snr_L1": 5.105340662634714,
+      "snr_V1": 2.2458019490018706
+    },
+    {
+      "template": "same_total_more_equal",
+      "m1": 38.17289810242889,
+      "m2": 31.56510189757111,
+      "central": false,
+      "f_low": 20.0,
+      "f_isco": 63.05087319055513,
+      "f_high_inspiral": 63.05087319055513,
+      "f_high_extended": 157.62718297638781,
+      "bandwidth_inspiral": 43.05087319055513,
+      "bandwidth_extended": 137.62718297638781,
+      "detectors": {
+        "L1": 4.49250251370436,
+        "V1": 2.4491792730952278
+      },
+      "active": true,
+      "network_snr": 5.116742904172464,
+      "snr_L1": 4.49250251370436,
+      "snr_V1": 2.4491792730952278
+    },
+    {
+      "template": "same_total_more_asymmetric",
+      "m1": 44.54962165909656,
+      "m2": 25.18837834090344,
+      "central": false,
+      "f_low": 20.0,
+      "f_isco": 63.05087319055513,
+      "f_high_inspiral": 63.05087319055513,
+      "f_high_extended": 157.62718297638781,
+      "bandwidth_inspiral": 43.05087319055513,
+      "bandwidth_extended": 137.62718297638781,
+      "detectors": {
+        "L1": 4.418713744376234,
+        "V1": 2.560645891082029
+      },
+      "active": true,
+      "network_snr": 5.107047927546277,
+      "snr_L1": 4.418713744376234,
+      "snr_V1": 2.560645891082029
+    },
+    {
+      "template": "catalog_central",
+      "m1": 41.418,
+      "m2": 28.32,
+      "central": true,
+      "f_low": 20.0,
+      "f_isco": 63.05087319055513,
+      "f_high_inspiral": 63.05087319055513,
+      "f_high_extended": 157.62718297638781,
+      "bandwidth_inspiral": 43.05087319055513,
+      "bandwidth_extended": 137.62718297638781,
+      "detectors": {
+        "L1": 4.472450442419757,
+        "V1": 2.445478184970028
+      },
+      "active": true,
+      "network_snr": 5.097369568028689,
+      "snr_L1": 4.472450442419757,
+      "snr_V1": 2.445478184970028
+    }
+  ],
+  "inactive_templates": [],
+  "gate": {
+    "central_rank": 5,
+    "central_rank_passed": true,
+    "network_snr": 6.369620883778018,
+    "network_snr_passed": true,
+    "top2_snr_ratio": 1.1420276892615506,
+    "top2_ratio_passed": true,
+    "detection_gate_passed": true,
+    "catalog_consistency_passed": false,
+    "passed": true
+  },
+  "scope_warning": "Banco TaylorF2 local e diagnostico, construido em detector-frame. Nao ha FAR, chi2 ou busca cega. O gate de deteccao usa SNR e margem; a consistencia com o template central e reportada separadamente."
+}

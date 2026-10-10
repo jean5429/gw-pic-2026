@@ -1,0 +1,81 @@
+{
+  "gate_q_transform_self_test": {
+    "flatness_ratio": 1.1930710232372639,
+    "maximum": 1.5,
+    "passed": true
+  },
+  "gate_whitening": {
+    "detectors": {
+      "H1": {
+        "white_std_core": 0.9888862398074661,
+        "zero_fraction": 0.0,
+        "longest_zero_run_seconds": 0.0,
+        "passed": true
+      },
+      "L1": {
+        "white_std_core": 0.9865407851023634,
+        "zero_fraction": 0.0,
+        "longest_zero_run_seconds": 0.0,
+        "passed": true
+      }
+    },
+    "passed": true
+  },
+  "gate_morphology": {
+    "detectors": {
+      "H1": {
+        "correlation": 0.4418900904756288,
+        "lag_ms": 0.0,
+        "sign": 1.0,
+        "gain": 1.2216786062447644,
+        "normalized_residual_rms": 0.8970692525779876,
+        "passed": false
+      },
+      "L1": {
+        "correlation": 0.45686086371639884,
+        "lag_ms": 0.0,
+        "sign": 1.0,
+        "gain": 1.0392267172273062,
+        "normalized_residual_rms": 0.889538167683384,
+        "passed": false
+      }
+    },
+    "passed": false
+  },
+  "gate_chirp_mass": {
+    "detectors": {
+      "H1": {
+        "mass_solar": 35.47451067994215,
+        "ridge_bootstrap_dispersion_solar": [
+          34.2810718878928,
+          37.1115074813049
+        ],
+        "relative_error": 0.15552152051928828,
+        "ridge_q": 5.0,
+        "n_points": 80,
+        "n_bootstrap": 500,
+        "passed_individual": false
+      },
+      "L1": {
+        "mass_solar": 41.60356811559103,
+        "ridge_bootstrap_dispersion_solar": [
+          40.013648793555795,
+          43.06241737432257
+        ],
+        "relative_error": 0.35516508519840495,
+        "ridge_q": 5.0,
+        "n_points": 80,
+        "n_bootstrap": 500,
+        "passed_individual": false
+      }
+    },
+    "relative_detector_disagreement": 0.1590350338624183,
+    "passed": false
+  },
+  "reference_sha256": {
+    "fig1-observed-H.txt": "3ce5475160fd6b39c41205c2055bfaf4e507981721a2eb4c5df0c99e2fa48d94",
+    "fig1-observed-L.txt": "dc41302512f3e28336680030a255cc1f4fb3ec43ea5267cc044c9015051ecd85"
+  },
+  "overall_passed": false,
+  "scope_warning": "Validacao pedagogica de condicionamento, morfologia e ridge. O intervalo do bootstrap mede dispersao do ridge, nao cobertura completa."
+}

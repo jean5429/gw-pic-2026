@@ -1,0 +1,18 @@
+{
+  "samples": 1200,
+  "embedding_dimension": 512,
+  "energy_q95": -2.8135958249066633,
+  "energy_q99": -1.2839748006007208,
+  "mahalanobis_q95": 563.1371001468721,
+  "mahalanobis_q99": 637.7847868941426,
+  "checkpoint": "outputs\\gravity_spy_harmonized\\seed_42_cuda_balanced\\best_model.pt",
+  "output": "outputs\\research\\ood_reference_seed42.npz",
+  "profile": {
+    "name": "cuda_balanced",
+    "conv1_stride": 2,
+    "use_maxpool": false,
+    "batch_size": 32,
+    "num_workers": 4,
+    "amp": true
+  }
+}

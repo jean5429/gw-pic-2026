@@ -1,0 +1,181 @@
+{
+  "created_at_utc": "2026-07-27T14:03:50.529671+00:00",
+  "python": "3.12.13 | packaged by conda-forge | (main, Mar  5 2026, 16:36:12) [MSC v.1944 64 bit (AMD64)]",
+  "python_executable": "~\\miniforge3\\envs\\gw\\python.exe",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "processor": "AMD64 Family 25 Model 80 Stepping 0, AuthenticAMD",
+  "git_commit": null,
+  "packages": {
+    "numpy": "1.26.4",
+    "scipy": "1.11.4",
+    "pandas": "3.0.3",
+    "matplotlib": "3.10.9",
+    "h5py": "3.16.0",
+    "requests": "2.34.2",
+    "gwpy": "3.0.14",
+    "gwosc": "0.8.2",
+    "torch": "2.5.1",
+    "torchvision": "0.20.1",
+    "scikit-learn": "1.8.0",
+    "pillow": "12.2.0"
+  },
+  "accelerator": {
+    "torch_cuda_available": false,
+    "torch_cuda_runtime": null,
+    "cudnn_version": null
+  },
+  "environment": {
+    "PYTHONNOUSERSITE": null,
+    "CONDA_PREFIX": "~\\miniforge3\\envs\\gw"
+  },
+  "config": {
+    "signal": {
+      "sample_rate": 4096.0,
+      "edge_crop_seconds": 2.0
+    },
+    "data_quality": {
+      "max_zero_fraction": 0.01,
+      "max_zero_run_seconds": 0.25,
+      "allow_edge_nonfinite_trim": true,
+      "reject_internal_nonfinite": true,
+      "min_valid_before_event_seconds": 8.0,
+      "min_valid_after_event_seconds": 8.0,
+      "min_contiguous_valid_seconds": 20.0
+    },
+    "psd": {
+      "segment_seconds": 4.0,
+      "overlap_fraction": 0.5,
+      "average": "median"
+    },
+    "whitening": {
+      "fmin_hz": 10.0,
+      "fmax_hz": 2000.0,
+      "tukey_alpha": 0.125
+    },
+    "bandpass": {
+      "fmin_hz": 20.0,
+      "fmax_hz": 1024.0,
+      "order": 4
+    },
+    "morphology": {
+      "fmin_hz": 35.0,
+      "fmax_hz": 350.0,
+      "notches_hz": [
+        60.0,
+        120.0,
+        180.0,
+        331.0
+      ],
+      "notch_q": 30.0,
+      "max_lag_seconds": 0.001,
+      "allow_sign_flip": false
+    },
+    "qtransform": {
+      "fmin_hz": 20.0,
+      "fmax_hz": 512.0,
+      "n_bins": 64,
+      "display_q": 12.0,
+      "ridge_q": 5.0,
+      "self_test_seconds": 32.0,
+      "self_test_seed": 2026
+    },
+    "ridge": {
+      "fmin_hz": 35.0,
+      "fmax_hz": 300.0,
+      "n_bins": 96,
+      "window_start_seconds": -0.14,
+      "window_stop_seconds": -0.012,
+      "min_quantile": 0.7,
+      "max_points": 80
+    },
+    "gates": {
+      "white_std_min": 0.9,
+      "white_std_max": 1.1,
+      "q_flatness_max_ratio": 1.5,
+      "morphology_correlation_min": 0.95,
+      "chirp_relative_error_max": 0.15,
+      "chirp_detector_disagreement_max": 0.2,
+      "chirp_reference_mass_solar": 30.7,
+      "chirp_bootstrap_samples": 500
+    }
+  },
+  "gate_q_transform_self_test": {
+    "flatness_ratio": 1.1930710232372639,
+    "maximum": 1.5,
+    "passed": true
+  },
+  "gate_whitening": {
+    "detectors": {
+      "H1": {
+        "white_std_core": 0.9888862398074661,
+        "zero_fraction": 0.0,
+        "longest_zero_run_seconds": 0.0,
+        "passed": true
+      },
+      "L1": {
+        "white_std_core": 0.9865407851023634,
+        "zero_fraction": 0.0,
+        "longest_zero_run_seconds": 0.0,
+        "passed": true
+      }
+    },
+    "passed": true
+  },
+  "gate_morphology": {
+    "detectors": {
+      "H1": {
+        "correlation": 0.4418900904756288,
+        "lag_ms": 0.0,
+        "sign": 1.0,
+        "gain": 1.2216786062447644,
+        "normalized_residual_rms": 0.8970692525779876,
+        "passed": false
+      },
+      "L1": {
+        "correlation": 0.45686086371639884,
+        "lag_ms": 0.0,
+        "sign": 1.0,
+        "gain": 1.0392267172273062,
+        "normalized_residual_rms": 0.889538167683384,
+        "passed": false
+      }
+    },
+    "passed": false
+  },
+  "gate_chirp_mass": {
+    "detectors": {
+      "H1": {
+        "mass_solar": 35.47451067994215,
+        "ridge_bootstrap_dispersion_solar": [
+          34.2810718878928,
+          37.1115074813049
+        ],
+        "relative_error": 0.15552152051928828,
+        "ridge_q": 5.0,
+        "n_points": 80,
+        "n_bootstrap": 500,
+        "passed_individual": false
+      },
+      "L1": {
+        "mass_solar": 41.60356811559103,
+        "ridge_bootstrap_dispersion_solar": [
+          40.013648793555795,
+          43.06241737432257
+        ],
+        "relative_error": 0.35516508519840495,
+        "ridge_q": 5.0,
+        "n_points": 80,
+        "n_bootstrap": 500,
+        "passed_individual": false
+      }
+    },
+    "relative_detector_disagreement": 0.1590350338624183,
+    "passed": false
+  },
+  "reference_sha256": {
+    "fig1-observed-H.txt": "3ce5475160fd6b39c41205c2055bfaf4e507981721a2eb4c5df0c99e2fa48d94",
+    "fig1-observed-L.txt": "dc41302512f3e28336680030a255cc1f4fb3ec43ea5267cc044c9015051ecd85"
+  },
+  "overall_passed": false,
+  "scope_warning": "Validacao pedagogica de condicionamento, morfologia e ridge. O intervalo do bootstrap mede dispersao do ridge, nao cobertura completa."
+}

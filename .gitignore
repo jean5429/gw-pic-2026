@@ -1,0 +1,42 @@
+# --- Python / ferramentas ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
+.venv/
+venv/
+.vscode/
+.idea/
+*.part
+
+# --- Dados baixados sob demanda (ver README, secao "Dados") ---
+# Gravity Spy (Zenodo, ~11 GB): scripts/download_gravity_spy.py
+data/
+# Cache GWOSC dos scripts camada1_v14/v15 (~28 GB, recriado automaticamente)
+camada1_gwtc3/
+
+# --- Saidas regeneraveis do pipeline ---
+# Strain bruto, processado e Q-grams do GWTC (~540 MB): scripts/run_catalog.py
+outputs/gwtc/raw/
+outputs/gwtc/processed/
+outputs/gwtc/qgrams/
+outputs/gwtc/snapshots/
+outputs/gwtc/gravity_spy_predictions/
+# Modelos do experimento de 60 epocas (nao usados pelo ensemble)
+outputs/gravity_spy_60epochs/**/*.pt
+# Copia autocontida (base64) do relatorio V2; o PDF fica em docs/relatorios/
+outputs/research/report_v2/Relatorio_V2_autocontido.html
+
+# Os modelos do ensemble (outputs/gravity_spy_harmonized/seed_*/best_model.pt)
+# sao versionados via Git LFS (ver .gitattributes). Qualquer outro .pt fica fora.
+*.pt
+!outputs/gravity_spy_harmonized/seed_*/best_model.pt
+
+# --- Arquivos locais / pessoais ---
+LOG Treino de IA.txt
+Listed directory GW.md
+~$*
+*.tmp
+Thumbs.db
+desktop.ini

@@ -1,0 +1,65 @@
+[metadata]
+program_name = "GW Open-World Robustness Program"
+version = "0.9.0"
+status = "exploratory_preregistered"
+base_seed = 2026
+
+[gravity_spy_panel]
+source_fmin_hz = 10.0
+source_fmax_hz = 2048.0
+target_fmin_hz = 20.0
+target_fmax_hz = 512.0
+frequency_scale = "log"
+remove_axes = true
+remove_ticks = true
+remove_titles = true
+remove_colorbar = true
+output_height = 140
+output_width = 170
+normalize_after_crop = false
+
+[harmonized_inference]
+resize_height = 140
+resize_width = 170
+lower_percentile = 1.0
+upper_percentile = 99.5
+source_outseg_seconds = 4.0
+target_duration_seconds = 1.0
+baseline_mode = "per_frequency_median"
+flip_frequency = true
+# "gravity_spy" reproduz a escala dos PNGs de treino (energia 0-25,5 em viridis -> cinza);
+# "percentile" usa baseline_mode + log1p + percentis (renderizacao anterior).
+render_mode = "gravity_spy"
+batch_size = 32
+num_workers = 2
+minimum_vote_fraction = 0.8
+
+[domain_audit]
+group_column = "event"
+features = ["minimum", "p01", "p10", "median", "p90", "p99", "maximum", "mean", "std"]
+positive_label = "Scattered_Light"
+minimum_acceptable_balanced_accuracy_for_trivial_probe = 0.60
+failure_if_balanced_accuracy_above = 0.75
+
+[open_world]
+reference_split = "val"
+energy_quantiles = [0.95, 0.99]
+mahalanobis_quantiles = [0.95, 0.99]
+ensemble_seeds = [11, 23, 42, 71, 101]
+minimum_vote_fraction = 0.8
+maximum_mutual_information = 0.10
+
+[phase_counterfactual]
+fractions = [0.0, 0.25, 0.50, 0.75, 1.0]
+preserve_magnitude_spectrum = true
+primary_metric = "prediction_stability_curve"
+
+[validation]
+primary_internal_metric = "macro_f1"
+primary_transfer_metric = "renderer_holdout_macro_f1"
+primary_ood_metric = "auroc"
+minimum_internal_macro_f1 = 0.85
+maximum_pixel_probe_balanced_accuracy = 0.70
+maximum_expected_calibration_error = 0.08
+minimum_ood_auroc = 0.80
+minimum_detector_holdout_macro_f1 = 0.65

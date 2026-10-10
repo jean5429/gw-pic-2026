@@ -1,0 +1,30 @@
+{
+  "config_sha256": "82da262dfc19771805e380f9efb42a1db73647474f6e2d78d147942bf39b6f35",
+  "event": "GW190701_203306-v2",
+  "detector": "H1",
+  "processed_path": "outputs\\gwtc\\processed\\GW190701_203306-v2\\H1_processed.npy",
+  "reference_chirp_mass_solar": 55.476,
+  "reference_chirp_mass_frame": "detector_from_source_redshift",
+  "component_mass_frame": "detector_from_source_redshift",
+  "catalog_mass_1_solar": 74.658,
+  "catalog_mass_2_solar": 55.88999999999999,
+  "catalog_redshift": 0.38,
+  "analysis_mass_frame_required": "detector",
+  "status": "insufficient_inspiral_band",
+  "reason": "banda inspiral util = 6.997 Hz",
+  "plan": {
+    "fmin_hz": 25.0,
+    "fmax_hz": 31.997347372880373,
+    "window_start_seconds": -14.0,
+    "window_stop_seconds": -0.012,
+    "segment_start_seconds": -14.0,
+    "segment_stop_seconds": 0.5,
+    "available_before_seconds": 16.0,
+    "available_after_seconds": 15.999755859375,
+    "status": "insufficient_inspiral_band",
+    "reason": "banda inspiral util = 6.997 Hz"
+  },
+  "sample_rate": 4096.0,
+  "event_index_processed": 65536,
+  "trimmed_nonfinite_edges": false
+}

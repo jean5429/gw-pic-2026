@@ -1,0 +1,15 @@
+{
+  "events_total": 90,
+  "channels_total": 270,
+  "channels_approved": 150,
+  "channels_rejected": 120,
+  "network_ready_events": 55,
+  "single_detector_events": 6,
+  "unusable_events": 29,
+  "channel_status_counts": {
+    "approved": 150,
+    "data_unavailable": 113,
+    "rejected_nonfinite": 5,
+    "rejected_whitening": 2
+  }
+}

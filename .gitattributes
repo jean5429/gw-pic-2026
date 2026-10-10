@@ -1,0 +1,14 @@
+# Normaliza finais de linha de texto no repositorio
+* text=auto
+*.ps1 text eol=crlf
+*.sh  text eol=lf
+
+# Binarios
+*.png binary
+*.pdf binary
+*.doc binary
+*.npy binary
+*.npz binary
+
+# Modelos treinados do ensemble (Git LFS)
+*.pt filter=lfs diff=lfs merge=lfs -text

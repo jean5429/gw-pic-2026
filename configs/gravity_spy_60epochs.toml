@@ -1,0 +1,47 @@
+[data]
+record_id = 1486046
+metadata_filename = "trainingset_v1d1_metadata.csv"
+archive_filename = "trainingsetv1d1.tar.gz"
+image_duration = "1.0"
+use_official_splits = true
+allow_synthetic_data = false
+
+[training]
+default_profile = "auto"
+seeds = [11, 23, 42, 71, 101]
+epochs = 60
+freeze_epochs = 5
+patience = 7
+learning_rate_head = 0.001
+learning_rate_backbone = 0.0001
+weight_decay = 0.0001
+pretrained = true
+deterministic = true
+run_baseline = true
+
+[profiles.cpu]
+conv1_stride = 2
+use_maxpool = true
+batch_size = 16
+num_workers = 2
+amp = false
+
+[profiles.cuda_balanced]
+conv1_stride = 2
+use_maxpool = false
+batch_size = 32
+num_workers = 4
+amp = true
+
+[profiles.cuda_highres]
+conv1_stride = 1
+use_maxpool = false
+batch_size = 24
+num_workers = 4
+amp = true
+
+[evaluation]
+macro_f1_min = 0.80
+balanced_accuracy_min = 0.80
+kappa_min = 0.80
+per_class_f1_min = 0.40

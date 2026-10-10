@@ -1,0 +1,131 @@
+{
+  "config_sha256": "60ddbc6ca41138776f0010018e37c7acf7b4f3627693921ff0a3b85f7a203e1d",
+  "event": "GW170823-v2",
+  "status": "ok",
+  "status_reason": null,
+  "catalog_m1_solar": 52.087999999999994,
+  "catalog_m2_solar": 39.44,
+  "mass_frame": "detector_from_source_redshift",
+  "catalog_redshift": 0.36,
+  "analysis_mass_frame_required": "detector",
+  "detectors": [
+    "H1",
+    "L1"
+  ],
+  "series": "inspiral",
+  "ranking": [
+    {
+      "template": "scale_0.900",
+      "m1": 46.8792,
+      "m2": 35.496,
+      "central": false,
+      "f_low": 20.0,
+      "f_isco": 53.378222991421374,
+      "f_high_inspiral": 53.378222991421374,
+      "f_high_extended": 133.44555747855344,
+      "bandwidth_inspiral": 33.378222991421374,
+      "bandwidth_extended": 113.44555747855344,
+      "detectors": {
+        "H1": 3.2632142560531694,
+        "L1": 3.2804979055579673
+      },
+      "active": true,
+      "network_snr": 4.627119383512689,
+      "snr_H1": 3.2632142560531694,
+      "snr_L1": 3.2804979055579673
+    },
+    {
+      "template": "same_total_more_asymmetric",
+      "m1": 55.17495351264913,
+      "m2": 36.35304648735086,
+      "central": false,
+      "f_low": 20.0,
+      "f_isco": 48.040400692279235,
+      "f_high_inspiral": 48.040400692279235,
+      "f_high_extended": 120.10100173069809,
+      "bandwidth_inspiral": 28.040400692279235,
+      "bandwidth_extended": 100.10100173069809,
+      "detectors": {
+        "H1": 2.64873897252575,
+        "L1": 3.678897938180472
+      },
+      "active": true,
+      "network_snr": 4.533222715036764,
+      "snr_H1": 2.64873897252575,
+      "snr_L1": 3.678897938180472
+    },
+    {
+      "template": "catalog_central",
+      "m1": 52.087999999999994,
+      "m2": 39.44,
+      "central": true,
+      "f_low": 20.0,
+      "f_isco": 48.040400692279235,
+      "f_high_inspiral": 48.040400692279235,
+      "f_high_extended": 120.10100173069809,
+      "bandwidth_inspiral": 28.040400692279235,
+      "bandwidth_extended": 100.10100173069809,
+      "detectors": {
+        "H1": 2.617836598755352,
+        "L1": 3.6854674458804673
+      },
+      "active": true,
+      "network_snr": 4.520590531382784,
+      "snr_H1": 2.617836598755352,
+      "snr_L1": 3.6854674458804673
+    },
+    {
+      "template": "same_total_more_equal",
+      "m1": 48.94124102710655,
+      "m2": 42.58675897289344,
+      "central": false,
+      "f_low": 20.0,
+      "f_isco": 48.040400692279235,
+      "f_high_inspiral": 48.040400692279235,
+      "f_high_extended": 120.10100173069809,
+      "bandwidth_inspiral": 28.040400692279235,
+      "bandwidth_extended": 100.10100173069809,
+      "detectors": {
+        "H1": 2.6086869901090584,
+        "L1": 3.686861270444141
+      },
+      "active": true,
+      "network_snr": 4.516435966541012,
+      "snr_H1": 2.6086869901090584,
+      "snr_L1": 3.686861270444141
+    },
+    {
+      "template": "scale_1.100",
+      "m1": 57.2968,
+      "m2": 43.384,
+      "central": false,
+      "f_low": 20.0,
+      "f_isco": 43.67309153843567,
+      "f_high_inspiral": 43.67309153843567,
+      "f_high_extended": 109.18272884608918,
+      "bandwidth_inspiral": 23.67309153843567,
+      "bandwidth_extended": 89.18272884608918,
+      "detectors": {
+        "H1": 2.522350901349279,
+        "L1": 3.606208648771033
+      },
+      "active": true,
+      "network_snr": 4.400794801852106,
+      "snr_H1": 2.522350901349279,
+      "snr_L1": 3.606208648771033
+    }
+  ],
+  "inactive_templates": [],
+  "gate": {
+    "central_rank": 3,
+    "central_rank_passed": true,
+    "network_snr": 4.627119383512689,
+    "network_snr_passed": false,
+    "top2_snr_ratio": 1.0207130058191203,
+    "top2_ratio_passed": false,
+    "detection_gate_passed": false,
+    "catalog_consistency_passed": false,
+    "passed": false
+  },
+  "scope_warning": "Banco TaylorF2 local e diagnostico, construido em detector-frame. Nao ha FAR, chi2 ou busca cega. O gate de deteccao usa SNR e margem; a consistencia com o template central e reportada separadamente."
+}

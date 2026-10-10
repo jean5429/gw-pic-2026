@@ -1,0 +1,132 @@
+{
+  "config_sha256": "60ddbc6ca41138776f0010018e37c7acf7b4f3627693921ff0a3b85f7a203e1d",
+  "event": "GW190720_000836-v2",
+  "status": "ok",
+  "status_reason": null,
+  "catalog_m1_solar": 16.471999999999998,
+  "catalog_m2_solar": 8.7,
+  "mass_frame": "detector_from_source_redshift",
+  "catalog_redshift": 0.16,
+  "analysis_mass_frame_required": "detector",
+  "detectors": [
+    "H1",
+    "L1",
+    "V1"
+  ],
+  "series": "inspiral",
+  "ranking": [
+    {
+      "template": "scale_1.100",
+      "m1": 18.1192,
+      "m2": 9.57,
+      "central": false,
+      "f_low": 20.0,
+      "f_isco": 158.79988567972114,
+      "f_high_inspiral": 158.79988567972114,
+      "f_high_extended": 396.99971419930284,
+      "bandwidth_inspiral": 138.79988567972114,
+      "bandwidth_extended": 376.99971419930284,
+      "detectors": {
+        "H1": 4.031576812662319,
+        "L1": 3.1206178142157643
+      },
+      "active": true,
+      "network_snr": 5.098221958565284,
+      "snr_H1": 4.031576812662319,
+      "snr_L1": 3.1206178142157643
+    },
+    {
+      "template": "same_total_more_equal",
+      "m1": 14.57765477510955,
+      "m2": 10.594345224890446,
+      "central": false,
+      "f_low": 20.0,
+      "f_isco": 174.67987424769325,
+      "f_high_inspiral": 174.67987424769325,
+      "f_high_extended": 436.69968561923315,
+      "bandwidth_inspiral": 154.67987424769325,
+      "bandwidth_extended": 416.69968561923315,
+      "detectors": {
+        "H1": 3.3416376190487376,
+        "L1": 3.365700866908162
+      },
+      "active": true,
+      "network_snr": 4.742835049055372,
+      "snr_H1": 3.3416376190487376,
+      "snr_L1": 3.365700866908162
+    },
+    {
+      "template": "same_total_more_asymmetric",
+      "m1": 18.189857881800176,
+      "m2": 6.982142118199821,
+      "central": false,
+      "f_low": 20.0,
+      "f_isco": 174.67987424769325,
+      "f_high_inspiral": 174.67987424769325,
+      "f_high_extended": 436.69968561923315,
+      "bandwidth_inspiral": 154.67987424769325,
+      "bandwidth_extended": 416.69968561923315,
+      "detectors": {
+        "H1": 3.1075366986670554,
+        "L1": 3.4960633320049417
+      },
+      "active": true,
+      "network_snr": 4.67752532381729,
+      "snr_H1": 3.1075366986670554,
+      "snr_L1": 3.4960633320049417
+    },
+    {
+      "template": "scale_0.900",
+      "m1": 14.824799999999998,
+      "m2": 7.829999999999999,
+      "central": false,
+      "f_low": 20.0,
+      "f_isco": 194.0887491641036,
+      "f_high_inspiral": 194.0887491641036,
+      "f_high_extended": 485.221872910259,
+      "bandwidth_inspiral": 174.0887491641036,
+      "bandwidth_extended": 465.221872910259,
+      "detectors": {
+        "H1": 2.829265391970571,
+        "L1": 3.450529992938053
+      },
+      "active": true,
+      "network_snr": 4.462163140268122,
+      "snr_H1": 2.829265391970571,
+      "snr_L1": 3.450529992938053
+    },
+    {
+      "template": "catalog_central",
+      "m1": 16.471999999999998,
+      "m2": 8.7,
+      "central": true,
+      "f_low": 20.0,
+      "f_isco": 174.67987424769325,
+      "f_high_inspiral": 174.67987424769325,
+      "f_high_extended": 436.69968561923315,
+      "bandwidth_inspiral": 154.67987424769325,
+      "bandwidth_extended": 416.69968561923315,
+      "detectors": {
+        "H1": 2.925235987132867,
+        "L1": 3.0692089511831786
+      },
+      "active": true,
+      "network_snr": 4.239935042714705,
+      "snr_H1": 2.925235987132867,
+      "snr_L1": 3.0692089511831786
+    }
+  ],
+  "inactive_templates": [],
+  "gate": {
+    "central_rank": 5,
+    "central_rank_passed": true,
+    "network_snr": 5.098221958565284,
+    "network_snr_passed": false,
+    "top2_snr_ratio": 1.0749313239516298,
+    "top2_ratio_passed": true,
+    "detection_gate_passed": false,
+    "catalog_consistency_passed": false,
+    "passed": false
+  },
+  "scope_warning": "Banco TaylorF2 local e diagnostico, construido em detector-frame. Nao ha FAR, chi2 ou busca cega. O gate de deteccao usa SNR e margem; a consistencia com o template central e reportada separadamente."
+}

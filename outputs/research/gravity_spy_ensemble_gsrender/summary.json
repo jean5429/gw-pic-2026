@@ -1,0 +1,48 @@
+{
+  "checkpoints": [
+    "outputs\\gravity_spy_harmonized\\seed_101_cuda_balanced\\best_model.pt",
+    "outputs\\gravity_spy_harmonized\\seed_11_cuda_balanced\\best_model.pt",
+    "outputs\\gravity_spy_harmonized\\seed_23_cuda_balanced\\best_model.pt",
+    "outputs\\gravity_spy_harmonized\\seed_42_cuda_balanced\\best_model.pt",
+    "outputs\\gravity_spy_harmonized\\seed_71_cuda_balanced\\best_model.pt"
+  ],
+  "n_models": 5,
+  "channels": 150,
+  "events": 61,
+  "class_counts": {
+    "Chirp": 34,
+    "No_Glitch": 33,
+    "1080Lines": 24,
+    "Violin_Mode": 22,
+    "Blip": 10,
+    "Scratchy": 6,
+    "Low_Frequency_Burst": 4,
+    "Low_Frequency_Lines": 4,
+    "Air_Compressor": 4,
+    "None_of_the_Above": 3,
+    "Wandering_Line": 2,
+    "Power_Line": 1,
+    "Extremely_Loud": 1,
+    "Light_Modulation": 1,
+    "Whistle": 1
+  },
+  "open_world_counts": {
+    "reject_ood": 150
+  },
+  "detector_disagreement_events": 50,
+  "preprocessing": {
+    "resize_height": 140,
+    "resize_width": 170,
+    "lower_percentile": 1.0,
+    "upper_percentile": 99.5,
+    "source_outseg_seconds": 4.0,
+    "target_duration_seconds": 1.0,
+    "baseline_mode": "per_frequency_median",
+    "flip_frequency": true,
+    "render_mode": "gravity_spy",
+    "batch_size": 32,
+    "num_workers": 2,
+    "minimum_vote_fraction": 0.8
+  },
+  "interpretation_warning": "in_domain_candidate nao e prova de classe fisica. OOD e ensemble medem compatibilidade estatistica com o dominio harmonizado, nao origem causal do transiente."
+}

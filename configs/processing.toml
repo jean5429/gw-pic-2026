@@ -1,0 +1,63 @@
+[signal]
+sample_rate = 4096.0
+edge_crop_seconds = 2.0
+
+[data_quality]
+max_zero_fraction = 0.01
+max_zero_run_seconds = 0.25
+allow_edge_nonfinite_trim = true
+reject_internal_nonfinite = true
+min_valid_before_event_seconds = 8.0
+min_valid_after_event_seconds = 8.0
+min_contiguous_valid_seconds = 20.0
+
+[psd]
+segment_seconds = 4.0
+overlap_fraction = 0.5
+average = "median"
+
+[whitening]
+fmin_hz = 10.0
+fmax_hz = 2000.0
+tukey_alpha = 0.125
+
+[bandpass]
+fmin_hz = 20.0
+fmax_hz = 1024.0
+order = 4
+
+[morphology]
+fmin_hz = 35.0
+fmax_hz = 350.0
+notches_hz = [60.0, 120.0, 180.0, 331.0]
+notch_q = 30.0
+max_lag_seconds = 0.001
+allow_sign_flip = false
+
+[qtransform]
+fmin_hz = 20.0
+fmax_hz = 512.0
+n_bins = 64
+display_q = 12.0
+ridge_q = 5.0
+self_test_seconds = 32.0
+self_test_seed = 2026
+
+[ridge]
+fmin_hz = 35.0
+fmax_hz = 300.0
+n_bins = 96
+window_start_seconds = -0.14
+window_stop_seconds = -0.012
+min_quantile = 0.70
+max_points = 80
+
+[gates]
+white_std_min = 0.90
+white_std_max = 1.10
+q_flatness_max_ratio = 1.50
+morphology_correlation_min = 0.95
+chirp_relative_error_max = 0.15
+chirp_detector_disagreement_max = 0.20
+chirp_reference_mass_solar = 30.7
+chirp_bootstrap_samples = 500

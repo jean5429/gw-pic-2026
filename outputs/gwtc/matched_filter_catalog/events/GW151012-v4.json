@@ -1,0 +1,131 @@
+{
+  "config_sha256": "60ddbc6ca41138776f0010018e37c7acf7b4f3627693921ff0a3b85f7a203e1d",
+  "event": "GW151012-v4",
+  "status": "ok",
+  "status_reason": null,
+  "catalog_m1_solar": 29.759999999999998,
+  "catalog_m2_solar": 16.32,
+  "mass_frame": "detector_from_source_redshift",
+  "catalog_redshift": 0.2,
+  "analysis_mass_frame_required": "detector",
+  "detectors": [
+    "H1",
+    "L1"
+  ],
+  "series": "inspiral",
+  "ranking": [
+    {
+      "template": "same_total_more_asymmetric",
+      "m1": 32.77154244257063,
+      "m2": 13.30845755742937,
+      "central": false,
+      "f_low": 20.0,
+      "f_isco": 95.42191394450812,
+      "f_high_inspiral": 95.42191394450812,
+      "f_high_extended": 238.5547848612703,
+      "bandwidth_inspiral": 75.42191394450812,
+      "bandwidth_extended": 218.5547848612703,
+      "detectors": {
+        "H1": 3.986347570847149,
+        "L1": 3.853589635316236
+      },
+      "active": true,
+      "network_snr": 5.54446751573275,
+      "snr_H1": 3.986347570847149,
+      "snr_L1": 3.853589635316236
+    },
+    {
+      "template": "same_total_more_equal",
+      "m1": 26.47466967826946,
+      "m2": 19.605330321730538,
+      "central": false,
+      "f_low": 20.0,
+      "f_isco": 95.42191394450812,
+      "f_high_inspiral": 95.42191394450812,
+      "f_high_extended": 238.5547848612703,
+      "bandwidth_inspiral": 75.42191394450812,
+      "bandwidth_extended": 218.5547848612703,
+      "detectors": {
+        "H1": 3.2728497697133125,
+        "L1": 4.215832610898116
+      },
+      "active": true,
+      "network_snr": 5.337114409324997,
+      "snr_H1": 3.2728497697133125,
+      "snr_L1": 4.215832610898116
+    },
+    {
+      "template": "catalog_central",
+      "m1": 29.759999999999998,
+      "m2": 16.32,
+      "central": true,
+      "f_low": 20.0,
+      "f_isco": 95.42191394450812,
+      "f_high_inspiral": 95.42191394450812,
+      "f_high_extended": 238.5547848612703,
+      "bandwidth_inspiral": 75.42191394450812,
+      "bandwidth_extended": 218.5547848612703,
+      "detectors": {
+        "H1": 3.1901064890642723,
+        "L1": 4.050908739578016
+      },
+      "active": true,
+      "network_snr": 5.156223523855374,
+      "snr_H1": 3.1901064890642723,
+      "snr_L1": 4.050908739578016
+    },
+    {
+      "template": "scale_1.100",
+      "m1": 32.736,
+      "m2": 17.952,
+      "central": false,
+      "f_low": 20.0,
+      "f_isco": 86.74719449500738,
+      "f_high_inspiral": 86.74719449500738,
+      "f_high_extended": 216.86798623751844,
+      "bandwidth_inspiral": 66.74719449500738,
+      "bandwidth_extended": 196.86798623751844,
+      "detectors": {
+        "H1": 2.4015767188096695,
+        "L1": 4.209771235762482
+      },
+      "active": true,
+      "network_snr": 4.84662197760273,
+      "snr_H1": 2.4015767188096695,
+      "snr_L1": 4.209771235762482
+    },
+    {
+      "template": "scale_0.900",
+      "m1": 26.784,
+      "m2": 14.688,
+      "central": false,
+      "f_low": 20.0,
+      "f_isco": 106.02434882723125,
+      "f_high_inspiral": 106.02434882723125,
+      "f_high_extended": 265.06087206807814,
+      "bandwidth_inspiral": 86.02434882723125,
+      "bandwidth_extended": 245.06087206807814,
+      "detectors": {
+        "H1": 3.3195464992791597,
+        "L1": 3.3346632823650846
+      },
+      "active": true,
+      "network_snr": 4.705249001660848,
+      "snr_H1": 3.3195464992791597,
+      "snr_L1": 3.3346632823650846
+    }
+  ],
+  "inactive_templates": [],
+  "gate": {
+    "central_rank": 3,
+    "central_rank_passed": true,
+    "network_snr": 5.54446751573275,
+    "network_snr_passed": false,
+    "top2_snr_ratio": 1.0388511638509128,
+    "top2_ratio_passed": false,
+    "detection_gate_passed": false,
+    "catalog_consistency_passed": false,
+    "passed": false
+  },
+  "scope_warning": "Banco TaylorF2 local e diagnostico, construido em detector-frame. Nao ha FAR, chi2 ou busca cega. O gate de deteccao usa SNR e margem; a consistencia com o template central e reportada separadamente."
+}

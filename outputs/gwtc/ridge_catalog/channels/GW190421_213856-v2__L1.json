@@ -1,0 +1,42 @@
+{
+  "config_sha256": "82da262dfc19771805e380f9efb42a1db73647474f6e2d78d147942bf39b6f35",
+  "event": "GW190421_213856-v2",
+  "detector": "L1",
+  "processed_path": "outputs\\gwtc\\processed\\GW190421_213856-v2\\L1_processed.npy",
+  "reference_chirp_mass_solar": 45.529999999999994,
+  "reference_chirp_mass_frame": "detector_from_source_redshift",
+  "component_mass_frame": "detector_from_source_redshift",
+  "catalog_mass_1_solar": 60.9,
+  "catalog_mass_2_solar": 46.4,
+  "catalog_redshift": 0.45,
+  "analysis_mass_frame_required": "detector",
+  "status": "flat_ridge",
+  "n_points": 384,
+  "selection": {
+    "selection_quantile": 0.0,
+    "selection_threshold": 0.00021322301897344032,
+    "n_selected_before_cap": 384,
+    "time_span_seconds": 0.18408203125,
+    "time_span_fraction": 1.0,
+    "frequency_span_hz": 0.0,
+    "unique_frequencies": 1,
+    "n_selected": 384,
+    "status": "flat_ridge"
+  },
+  "plan": {
+    "fmin_hz": 25.0,
+    "fmax_hz": 38.930006568823735,
+    "window_start_seconds": -0.22941185677079423,
+    "window_stop_seconds": -0.04481285697621848,
+    "segment_start_seconds": -0.7294118567707942,
+    "segment_stop_seconds": 0.5,
+    "available_before_seconds": 16.0,
+    "available_after_seconds": 15.999755859375,
+    "status": "ok",
+    "reason": null
+  },
+  "sample_rate": 4096.0,
+  "event_index_processed": 65536,
+  "trimmed_nonfinite_edges": false,
+  "ridge_arrays_path": "outputs\\gwtc\\ridge_catalog\\ridge_arrays\\GW190421_213856-v2__L1.npz"
+}
