@@ -21,12 +21,33 @@ def test_manifest_records_package_versions():
 
 
 def test_anonymize_paths_replaces_home_in_nested_values():
+    from pathlib import PureWindowsPath
+
     from gwproject.provenance import anonymize_paths
 
     data = {
         "python_executable": r"c:\Users\Alice\miniforge3\python.exe",
         "nested": [r"Permission denied: 'C:\Users\alice\.astropy\cache'", "C:/Users/Alice/x", 3],
+        "path_object": PureWindowsPath(r"C:\Users\Alice\data"),
+        "other_user": r"C:\Users\Alicea\data",
     }
     result = anonymize_paths(data, home=r"C:\Users\Alice")
     assert result["python_executable"] == r"~\miniforge3\python.exe"
     assert result["nested"] == [r"Permission denied: '~\.astropy\cache'", "~/x", 3]
+    assert result["path_object"] == r"~\data"
+    assert result["other_user"] == r"C:\Users\Alicea\data"
+
+
+def test_write_manifest_hides_home_directory(tmp_path):
+    import json
+    from pathlib import Path
+
+    from gwproject.provenance import write_manifest
+
+    home = str(Path.home())
+    path = tmp_path / "manifest.json"
+    write_manifest(path, {"cache": str(Path.home() / "cache" / "file.txt")})
+    text = path.read_text(encoding="utf-8")
+    assert home not in text
+    assert home.replace("\\", "\\\\") not in text
+    assert json.loads(text)["cache"].startswith("~")

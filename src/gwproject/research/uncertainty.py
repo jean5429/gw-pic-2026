@@ -140,3 +140,97 @@ def mahalanobis_score(
     differences = x[:, None, :] - reference.class_means[None, :, :]
     distances = np.einsum("nkd,df,nkf->nk", differences, reference.precision, differences)
     return np.asarray(np.min(distances, axis=1), dtype=float)
+
+
+def empirical_cdf(scores: ArrayLike, reference_scores: ArrayLike) -> FloatArray:
+    """Mapeia escores para percentis empiricos em uma referencia unidimensional.
+
+    A transformacao e feita separadamente para cada modelo. Isso permite combinar
+    escores cuja escala bruta varia entre checkpoints sem misturar logits ou
+    espacos latentes incompatíveis.
+    """
+
+    values = np.asarray(scores, dtype=float)
+    reference = np.asarray(reference_scores, dtype=float).ravel()
+    reference = np.sort(reference[np.isfinite(reference)])
+    if reference.size < 2:
+        raise ValueError("a referencia empirica requer ao menos dois escores finitos")
+    if not np.all(np.isfinite(values)):
+        raise ValueError("scores contem valores nao finitos")
+    ranks = np.searchsorted(reference, values, side="right")
+    return np.asarray((ranks + 1.0) / (reference.size + 1.0), dtype=float)
+
+
+def softmax_probabilities(logits: ArrayLike) -> FloatArray:
+    """Converte logits em probabilidades normalizadas."""
+
+    values = np.asarray(logits, dtype=float)
+    if values.ndim < 2 or values.shape[-1] < 2:
+        raise ValueError("logits devem ter ao menos duas classes")
+    return np.asarray(_softmax(values, axis=-1), dtype=float)
+
+
+def negative_log_likelihood(probabilities: ArrayLike, labels: ArrayLike) -> float:
+    """Calcula a log-verossimilhanca negativa multiclasse media."""
+
+    p = np.asarray(probabilities, dtype=float)
+    y = np.asarray(labels, dtype=int).ravel()
+    if p.ndim != 2 or len(p) != len(y):
+        raise ValueError("probabilidades/labels incompatíveis")
+    if np.any(y < 0) or np.any(y >= p.shape[1]):
+        raise ValueError("labels fora da taxonomia")
+    selected = np.clip(p[np.arange(len(y)), y], 1e-12, 1.0)
+    return float(-np.log(selected).mean())
+
+
+def multiclass_brier_score(probabilities: ArrayLike, labels: ArrayLike) -> float:
+    """Calcula o Brier score multiclasse medio."""
+
+    p = np.asarray(probabilities, dtype=float)
+    y = np.asarray(labels, dtype=int).ravel()
+    if p.ndim != 2 or len(p) != len(y):
+        raise ValueError("probabilidades/labels incompatíveis")
+    if np.any(y < 0) or np.any(y >= p.shape[1]):
+        raise ValueError("labels fora da taxonomia")
+    target = np.zeros_like(p)
+    target[np.arange(len(y)), y] = 1.0
+    return float(np.mean(np.sum((p - target) ** 2, axis=1)))
+
+
+def temperature_scale_logits(logits: ArrayLike, temperature: float) -> FloatArray:
+    """Aplica temperature scaling sem alterar a classe de maior logit."""
+
+    values = np.asarray(logits, dtype=float)
+    if temperature <= 0 or not np.isfinite(temperature):
+        raise ValueError("temperature deve ser positiva e finita")
+    return np.asarray(values / float(temperature), dtype=float)
+
+
+def fit_temperature(
+    logits: ArrayLike,
+    labels: ArrayLike,
+    *,
+    lower: float = 0.05,
+    upper: float = 20.0,
+) -> float:
+    """Ajusta uma temperatura escalar pela NLL do conjunto de validacao."""
+
+    values = np.asarray(logits, dtype=float)
+    y = np.asarray(labels, dtype=int).ravel()
+    if values.ndim != 2 or len(values) != len(y):
+        raise ValueError("logits/labels incompatíveis")
+    if not 0 < lower < upper:
+        raise ValueError("limites de temperatura invalidos")
+
+    from scipy.optimize import minimize_scalar
+
+    def objective(temperature: float) -> float:
+        probabilities = softmax_probabilities(
+            temperature_scale_logits(values, temperature)
+        )
+        return negative_log_likelihood(probabilities, y)
+
+    result = minimize_scalar(objective, bounds=(lower, upper), method="bounded")
+    if not result.success or not np.isfinite(result.x):
+        raise RuntimeError("falha ao ajustar temperature scaling")
+    return float(result.x)

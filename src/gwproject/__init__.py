@@ -1,4 +1,4 @@
-"""GW Project v8: catalogo, processamento e analise auditavel."""
+"""GWProject: catalogo, processamento e analise auditavel de ondas gravitacionais."""
 
 from .alignment import AlignmentResult, best_lag_alignment
 from .catalog_analysis import (
@@ -102,4 +102,4 @@ __all__ = [
     "select_finite_event_segment",
 ]
 
-__version__ = "0.9.0"
+__version__ = "2.0.0"

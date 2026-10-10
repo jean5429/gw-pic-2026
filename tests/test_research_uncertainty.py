@@ -42,3 +42,34 @@ def test_mahalanobis_reference_scores_far_point_higher():
     reference = fit_mahalanobis_reference(x, y)
     scores = mahalanobis_score([[0, 0, 0, 0], [10, 10, 10, 10]], reference)
     assert scores[1] > scores[0]
+
+
+def test_empirical_cdf_is_monotonic_and_bounded():
+    from gwproject.research.uncertainty import empirical_cdf
+
+    reference = np.array([0.0, 1.0, 2.0, 3.0])
+    result = empirical_cdf([-1.0, 1.5, 10.0], reference)
+    assert np.all(np.diff(result) >= 0)
+    assert np.all((result > 0.0) & (result <= 1.0))
+    assert result[-1] == 1.0
+
+
+def test_calibration_metrics_and_temperature_scaling():
+    from gwproject.research.uncertainty import (
+        fit_temperature,
+        multiclass_brier_score,
+        negative_log_likelihood,
+        softmax_probabilities,
+        temperature_scale_logits,
+    )
+
+    logits = np.array([[8.0, 0.0], [0.0, 8.0], [3.0, 0.0], [0.0, 3.0]])
+    labels = np.array([0, 1, 0, 1])
+    probabilities = softmax_probabilities(logits)
+    assert negative_log_likelihood(probabilities, labels) < 0.1
+    assert multiclass_brier_score(probabilities, labels) < 0.02
+
+    temperature = fit_temperature(logits, labels)
+    assert temperature > 0
+    scaled = temperature_scale_logits(logits, temperature)
+    assert np.array_equal(np.argmax(scaled, axis=1), np.argmax(logits, axis=1))

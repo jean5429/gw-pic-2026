@@ -107,11 +107,18 @@ def load_lwtc_hdf5(file_path: str) -> tuple[np.ndarray, float, float, str]:
         raise ImportError("A biblioteca 'h5py' é necessária para ler arquivos .hdf5 do LIGO. Instale com 'pip install h5py'.")
         
     with h5py.File(file_path, 'r') as f:
-        key = list(f.keys())[0]
-        ds = f[key]
-        dx = ds.attrs['dx']
-        fs = 1.0 / dx
-        gps_start = float(ds.attrs['x0'])
+        if 'strain' in f and 'Strain' in f['strain']:
+            # Arquivo oficial do GWOSC (grupos meta/quality/strain)
+            key = 'strain/Strain'
+            ds = f[key]
+            fs = 1.0 / float(ds.attrs['Xspacing'])
+            gps_start = float(ds.attrs['Xstart'])
+        else:
+            # Arquivo gravado pelo gwpy (TimeSeries.write), como outputs/gwtc4_218/raw
+            key = list(f.keys())[0]
+            ds = f[key]
+            fs = 1.0 / float(ds.attrs['dx'])
+            gps_start = float(ds.attrs['x0'])
         strain = ds[:]
         
         # Limpeza de NaNs/Infs se houver

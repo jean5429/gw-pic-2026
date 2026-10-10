@@ -1,0 +1,28 @@
+# Exploratory phase 1A. Fixed before inspecting its results; no threshold tuning.
+[inputs]
+approved = "outputs/gwtc4_218/approved_channels.csv"
+metadata = "data/gravity_spy_harmonized/clean_metadata.csv"
+images_root = "data/gravity_spy_harmonized"
+checkpoints = "models/gravity_spy_harmonized_v1d1"
+ood_reference = "outputs/research/gwtc4_218/ood_reference.npz"
+render_config = "configs/research_program.toml"
+
+[coverage]
+events = 218
+channels = 475
+validation_images = 1177
+models = 5
+
+[experiment]
+seed = 20260918
+gamma = 0.7
+contrast_lower_percentile = 1.0
+contrast_upper_percentile = 99.5
+bootstrap_replicates = 2000
+
+[runtime]
+# Ryzen 7 6800H / RAM 32 GB / RTX 3070 Ti Laptop 8 GB.
+batch_size = 16
+cpu_threads = 4
+mixed_precision = true
+minimum_free_disk_gib = 2

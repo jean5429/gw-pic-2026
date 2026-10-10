@@ -1,6 +1,0 @@
-event,detector,download_status,processing_status,qtransform_status,scientific_status,approved,raw_path,processed_path,qgram_path,white_std_core,zero_fraction,longest_zero_run_seconds,trimmed_nonfinite_edges,event_index_processed,rejection_reason
-GW170823-v2,V1,ok,rejected,invalid_or_empty_data,rejected_nonfinite,False,outputs\gwtc\raw\GW170823-v2\V1.hdf5,,,,,,False,,instante do evento pertence a trecho NaN ou infinito
-GW190421_213856-v2,V1,ok,rejected,invalid_or_empty_data,rejected_nonfinite,False,outputs\gwtc\raw\GW190421_213856-v2\V1.hdf5,,,,,,False,,instante do evento pertence a trecho NaN ou infinito
-GW190425_081805-v3,H1,ok,rejected,invalid_or_empty_data,rejected_nonfinite,False,outputs\gwtc\raw\GW190425_081805-v3\H1.hdf5,,,,,,False,,instante do evento pertence a trecho NaN ou infinito
-GW190527_092055-v2,V1,ok,rejected,invalid_or_empty_data,rejected_nonfinite,False,outputs\gwtc\raw\GW190527_092055-v2\V1.hdf5,,,,,,False,,instante do evento pertence a trecho NaN ou infinito
-GW190910_112807-v2,H1,ok,rejected,invalid_or_empty_data,rejected_nonfinite,False,outputs\gwtc\raw\GW190910_112807-v2\H1.hdf5,,,,,,False,,instante do evento pertence a trecho NaN ou infinito

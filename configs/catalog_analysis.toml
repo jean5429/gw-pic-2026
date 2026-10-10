@@ -1,4 +1,5 @@
 [catalog_ridge]
+analysis_mode = "catalog_conditioned_diagnostic"
 allow_source_frame_fallback = false
 q = 5.0
 fmin_hz = 25.0
@@ -22,6 +23,7 @@ minimum_frequency_span_hz = 3.0
 max_fit_points = 100
 minimum_fit_points = 12
 bootstrap_samples = 300
+enforce_monotonic_ridge = false
 relative_error_max = 0.30
 detector_disagreement_max = 0.30
 base_seed = 2026
@@ -41,7 +43,12 @@ scale_factors = [0.90, 1.10]
 minimum_component_mass_solar = 0.5
 network_snr_min = 6.0
 minimum_top2_snr_ratio = 1.05
-require_central_rank_1 = false
+require_central_rank_1 = true
+coincidence_window_seconds = 0.03
+psd_event_exclusion_seconds = 1.0
+psd_segment_seconds = 4.0
+psd_overlap_fraction = 0.5
+psd_average = "median"
 workers = 1
 save_snr_series = false
 
@@ -54,10 +61,4 @@ batch_size = 32
 num_workers = 2
 source_outseg_seconds = 4.0
 target_duration_seconds = 1.0
-# Q-grams salvos sao (tempo, frequencia) com frequencia crescente; apos a
-# transposicao, o flip coloca as altas frequencias no topo como no Gravity Spy.
-flip_frequency = true
-# "gravity_spy" reproduz a escala dos PNGs de treino (energia 0-25,5 em viridis -> cinza);
-# "percentile" usa baseline_mode + log1p + percentis (renderizacao anterior).
-render_mode = "gravity_spy"
 minimum_confidence = 0.50

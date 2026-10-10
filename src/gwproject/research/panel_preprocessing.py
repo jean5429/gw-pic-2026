@@ -13,13 +13,21 @@ GrayArray = NDArray[np.uint8]
 
 @dataclass(frozen=True)
 class PanelCropConfig:
-    """Configuracao explicita para harmonizar PNGs Gravity Spy.
+    """Configuracao para extrair o painel espectral dos PNGs Gravity Spy.
 
-    O detector automatico busca a maior regiao escura contigua. Os limites de
-    frequencia assumem que o eixo vertical do painel original e logaritmico,
-    com frequencias altas no topo.
+    O modo ``official`` usa o recorte publicado com o conjunto de dados:
+    linhas 66:532 e colunas 105:671. O modo ``auto`` permanece disponivel
+    apenas para experimentos de robustez e nao deve ser confundido com a
+    representacao oficial. O recorte em frequencia e opt-in porque requer
+    limites fisicos confirmados para o renderer de origem.
     """
 
+    crop_mode: str = "official"
+    crop_left: int = 105
+    crop_top: int = 66
+    crop_right: int = 671
+    crop_bottom: int = 532
+    apply_frequency_crop: bool = False
     source_fmin_hz: float = 10.0
     source_fmax_hz: float = 2048.0
     target_fmin_hz: float = 20.0
@@ -174,22 +182,41 @@ def prepare_gravity_spy_panel(
     else:
         with Image.open(source) as handle:
             image = handle.convert("L").copy()
-    bbox = detect_spectrogram_panel(
-        image,
-        dark_threshold=config.dark_threshold,
-        row_dark_fraction=config.row_dark_fraction,
-        col_dark_fraction=config.col_dark_fraction,
-        padding_pixels=config.padding_pixels,
-    )
+    mode = str(config.crop_mode).lower()
+    if mode == "official":
+        bbox = (
+            int(config.crop_left),
+            int(config.crop_top),
+            int(config.crop_right),
+            int(config.crop_bottom),
+        )
+        left, top, right, bottom = bbox
+        if not (0 <= left < right <= image.width and 0 <= top < bottom <= image.height):
+            raise ValueError(
+                "recorte oficial fora dos limites da imagem; confirme que o PNG pertence "
+                "ao conjunto Gravity Spy original ou use crop_mode='auto' explicitamente"
+            )
+    elif mode == "auto":
+        bbox = detect_spectrogram_panel(
+            image,
+            dark_threshold=config.dark_threshold,
+            row_dark_fraction=config.row_dark_fraction,
+            col_dark_fraction=config.col_dark_fraction,
+            padding_pixels=config.padding_pixels,
+        )
+    else:
+        raise ValueError("crop_mode deve ser official ou auto")
+
     panel = image.crop(bbox)
-    panel = crop_frequency_band(
-        panel,
-        source_fmin_hz=config.source_fmin_hz,
-        source_fmax_hz=config.source_fmax_hz,
-        target_fmin_hz=config.target_fmin_hz,
-        target_fmax_hz=config.target_fmax_hz,
-        log_frequency=config.use_log_frequency,
-    )
+    if config.apply_frequency_crop:
+        panel = crop_frequency_band(
+            panel,
+            source_fmin_hz=config.source_fmin_hz,
+            source_fmax_hz=config.source_fmax_hz,
+            target_fmin_hz=config.target_fmin_hz,
+            target_fmax_hz=config.target_fmax_hz,
+            log_frequency=config.use_log_frequency,
+        )
     if normalize:
         panel = Image.fromarray(robust_uint8(panel))
     return panel.resize(

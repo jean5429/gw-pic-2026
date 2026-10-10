@@ -11,6 +11,8 @@ from gwproject.gravity_spy import (
     build_resnet18_grayscale,
     choose_profile,
     freeze_backbone,
+    attach_image_paths,
+    index_spectrograms,
     official_splits,
 )
 
@@ -18,11 +20,27 @@ from gwproject.gravity_spy import (
 def test_official_splits_do_not_mix_ids():
     frame = pd.DataFrame({
         "gravityspy_id": ["a", "b", "c"],
+        "ifo": ["H1", "L1", "H1"],
         "label": ["Blip", "Blip", "Koi_Fish"],
         "sample_type": ["train", "validation", "test"],
     })
     splits = official_splits(frame)
     assert set(splits) == {"train", "val", "test"}
+
+
+def test_image_index_uses_ifo_and_id_as_composite_key(tmp_path):
+    first = tmp_path / "H1_nLQFR3I7EJ_spectrogram_1.0.png"
+    second = tmp_path / "L1_nLQFR3I7EJ_spectrogram_1.0.png"
+    first.write_bytes(b"h1")
+    second.write_bytes(b"l1")
+    index = index_spectrograms(tmp_path)
+    assert len(index) == 2
+    frame = pd.DataFrame({
+        "ifo": ["H1", "L1"],
+        "gravityspy_id": ["nLQFR3I7EJ", "nLQFR3I7EJ"],
+    })
+    attached = attach_image_paths(frame, index)
+    assert attached["path"].tolist() == [str(first), str(second)]
 
 
 def test_gravity_spy_config_selects_cuda_profile():

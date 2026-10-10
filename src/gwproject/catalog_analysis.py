@@ -361,7 +361,7 @@ def select_ridge_fit_points(
         threshold = float(np.quantile(e, quantile))
         keep = np.isfinite(e) & (e >= threshold)
         tk = t[keep]
-        fk = np.maximum.accumulate(f[keep]) if np.any(keep) else f[keep]
+        fk = f[keep]
         diagnostics = {
             "selection_quantile": quantile,
             "selection_threshold": threshold,
@@ -496,7 +496,7 @@ def analyze_ridge_channel(
             ridge_f_fit,
             n_bootstrap=int(qcfg["bootstrap_samples"]),
             seed=seed,
-            enforce_monotonic=True,
+            enforce_monotonic=bool(qcfg.get("enforce_monotonic_ridge", False)),
         )
     except ValueError as exc:
         message = str(exc)
@@ -530,6 +530,9 @@ def analyze_ridge_channel(
         "n_points": estimate.n_points,
         "n_bootstrap": estimate.n_bootstrap,
         "fit_method": estimate.fit_method,
+        "monotonic_ridge_forced": bool(
+            qcfg.get("enforce_monotonic_ridge", False)
+        ),
         "q": float(qcfg["q"]),
         "selection": selection,
         "plan": plan.as_dict(),

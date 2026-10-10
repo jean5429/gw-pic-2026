@@ -1,0 +1,84 @@
+=== 1.0.0 — relatorio original (ambiente completo do usuario: python 3.13.5, com torch/gwpy) ===
+
+..........................................................               [100%]
+================================ tests coverage ================================
+_______________ coverage: platform linux, python 3.13.5-final-0 ________________
+
+Name                                            Stmts   Miss  Cover   Missing
+-----------------------------------------------------------------------------
+src/gwproject/__init__.py                          10      0   100%
+src/gwproject/alignment.py                         44      4    91%   40, 48, 51, 59
+src/gwproject/catalog_analysis.py                 324    152    53%   34, 63-70, 75-83, 106, 133, 140-149, 154, 161, 184, 202, 205, 223, 244-260, 279, 281, 283, 335-403, 417-538, 542-543, 561, 580, 583
+src/gwproject/catalog_index.py                     91     34    63%   15, 33-41, 51, 104, 108, 158-203
+src/gwproject/catalog_metadata.py                 125     46    63%   33-46, 69, 77, 98-99, 104-105, 108-110, 122-124, 139-186, 195, 207
+src/gwproject/config.py                            10      1    90%   11
+src/gwproject/downloads.py                         62     42    32%   14-31, 35-39, 43-52, 56-64, 75-78
+src/gwproject/gravity_spy.py                      158     77    51%   25-36, 40-48, 56, 58, 71-75, 79-81, 97, 102-103, 113, 116-122, 138, 145, 167-169, 173-185, 189-193, 200-201, 204-206, 213-214, 217, 220-225
+src/gwproject/gwosc_pipeline.py                   150    118    21%   18-24, 37-44, 51-61, 69-96, 105-108, 124-125, 144-176, 184-196, 200, 220-221, 241-255, 265-301, 316-377
+src/gwproject/matched_filter.py                   101     10    90%   28, 39, 78, 82, 87, 143, 145, 148, 163, 172
+src/gwproject/morphology.py                        26      4    85%   26, 34, 37, 44
+src/gwproject/preprocessing.py                    191     33    83%   45, 47, 49, 66, 84, 91, 111, 120, 122, 137, 143, 149, 169, 171, 189, 198, 200, 212-220, 235, 237, 253, 269, 273, 332, 334
+src/gwproject/provenance.py                        52      9    83%   59-61, 68-69, 88, 93-95
+src/gwproject/qgram_inference.py                   84     37    56%   24, 26, 29, 31, 37, 44-47, 51, 54, 68-84, 91, 111-118, 121, 124-138
+src/gwproject/research/__init__.py                  5      0   100%
+src/gwproject/research/domain_shift.py             75     17    77%   24-31, 72, 75, 80, 172-178
+src/gwproject/research/panel_preprocessing.py     116     28    76%   47, 78, 90, 106, 109, 111, 115, 122-124, 142-150, 160-169, 183-184, 195, 208, 212, 221
+src/gwproject/research/phase.py                    26      2    92%   25, 27
+src/gwproject/research/uncertainty.py             141     22    84%   20, 43, 78, 80, 111, 120-125, 139, 157, 159, 169, 179, 181, 192, 194, 205, 221, 223, 235
+src/gwproject/ridge.py                             98     10    90%   31, 40, 81, 85, 106, 114, 139, 141, 148-149
+src/gwproject/segments.py                          68     10    85%   28, 70, 72, 74, 94, 101, 115, 120, 125, 132
+-----------------------------------------------------------------------------
+TOTAL                                            1957    656    66%
+
+NOTA (26/07/2026): esta corrida de 1.0.0 aprovou 58 testes, mas nenhum deles comparava
+qgram_inference.py contra um artefato real — o bug de eixo do Q-gram catalogal (ver
+research/PREREGISTRO.md secao 16 e a memoria de projeto "bug_eixo_qgram") nao era coberto
+pela suite. "0 falhas" aqui significa ausencia de cobertura do contrato, nao correcao.
+
+=== 1.0.1 — apos a correcao do eixo (26/07/2026) ===
+
+ATENCAO: reexecutado em sandbox SEM torch/gwpy/gwosc instalados (apenas numpy, scipy,
+pandas, pillow, matplotlib, h5py). Os 2 testes pulados abaixo dependem de torch e nao tem
+relacao com a correcao; a cobertura de gravity_spy.py e gwosc_pipeline.py e' subestimada
+em relacao ao 1.0.0 por essa razao ambiental, nao por regressao. Reexecutar com
+`pip install -e ".[all,test]"` no ambiente completo para uma medicao equivalente.
+
+..............ss...........................................              [100%]
+================================ tests coverage ================================
+_______________ coverage: platform linux, python 3.11.15-final-0 _______________
+
+Name                                            Stmts   Miss  Cover   Missing
+-----------------------------------------------------------------------------
+src/gwproject/__init__.py                          10      0   100%
+src/gwproject/alignment.py                         44      4    91%   40, 48, 51, 59
+src/gwproject/catalog_analysis.py                 324    152    53%   34, 63-70, 75-83, 106, 133, 140-149, 154, 161, 184, 202, 205, 223, 244-260, 279, 281, 283, 335-403, 417-538, 542-543, 561, 580, 583
+src/gwproject/catalog_index.py                     91     34    63%   15, 33-41, 51, 104, 108, 158-203
+src/gwproject/catalog_metadata.py                 125     46    63%   33-46, 69, 77, 98-99, 104-105, 108-110, 122-124, 139-186, 195, 207
+src/gwproject/config.py                            10      1    90%   11
+src/gwproject/downloads.py                         62     42    32%   14-31, 35-39, 43-52, 56-64, 75-78
+src/gwproject/gravity_spy.py                      158    101    36%   25-36, 40-48, 56, 58, 71-75, 79-81, 97, 102-103, 109-123, 133-152, 157-158, 167-169, 173-185, 189-193, 200-201, 204-206, 213-214, 217, 220-225
+src/gwproject/gwosc_pipeline.py                   150    118    21%   18-24, 37-44, 51-61, 69-96, 105-108, 124-125, 144-176, 184-196, 200, 220-221, 241-255, 265-301, 316-377
+src/gwproject/matched_filter.py                   101     10    90%   28, 39, 78, 82, 87, 143, 145, 148, 163, 172
+src/gwproject/morphology.py                        26      4    85%   26, 34, 37, 44
+src/gwproject/preprocessing.py                    191     33    83%   45, 47, 49, 66, 84, 91, 111, 120, 122, 137, 143, 149, 169, 171, 189, 198, 200, 212-220, 235, 237, 253, 269, 273, 332, 334
+src/gwproject/provenance.py                        52     11    79%   52-67, 88, 93-95
+src/gwproject/qgram_inference.py                   85     37    56%   44, 46, 51, 53, 60, 71-74, 78, 81, 101-117, 124, 149-156, 159, 162-176
+src/gwproject/research/__init__.py                  5      0   100%
+src/gwproject/research/domain_shift.py             75     17    77%   24-31, 72, 75, 80, 172-178
+src/gwproject/research/panel_preprocessing.py     116     28    76%   47, 78, 90, 106, 109, 111, 115, 122-124, 142-150, 160-169, 183-184, 195, 208, 212, 221
+src/gwproject/research/phase.py                    26      2    92%   25, 27
+src/gwproject/research/uncertainty.py             141     22    84%   20, 43, 78, 80, 111, 120-125, 139, 157, 159, 169, 179, 181, 192, 194, 205, 221, 223, 235
+src/gwproject/ridge.py                             98     10    90%   31, 40, 81, 85, 106, 114, 139, 141, 148-149
+src/gwproject/segments.py                          68     10    85%   28, 70, 72, 74, 94, 101, 115, 120, 125, 132
+-----------------------------------------------------------------------------
+TOTAL                                            1958    682    65%
+
+57 passed, 2 skipped, 1 deselected (marker 'benchmark') in 9.01s
+
+Validacao empirica adicional (nao capturada pelo pytest, ver research/PREREGISTRO.md
+secao 16): qgram_to_uint8 executado contra o artefato real
+outputs/gwtc/qgrams/GW150914-v4/H1_qgram.npy com a configuracao de producao do ensemble
+(source_duration_seconds=4.0, target_duration_seconds=1.0, baseline_mode=
+"per_frequency_median", flip_frequency=True) produz imagem (500, 250) cujo ridge de
+potencia (ridge_from_energy) sobe de ~38 Hz (t=-0.062s) a ~260 Hz (t=+0.030s) em torno do
+GPS do evento -- assinatura de chirp fisicamente correta, ausente antes da correcao.

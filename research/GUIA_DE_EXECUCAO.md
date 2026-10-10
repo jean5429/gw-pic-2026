@@ -1,140 +1,159 @@
-# Guia de execução da v9.0 Research
+# Guia de execução do programa de pesquisa
 
-## 1. Instalação
+> **Retomada em 18/09/2026:** se os modelos, a referência OOD v4 e os 475 canais
+> dos 218 eventos já estão prontos, siga
+> [RETOMADA_EXPERIMENTO_PAREADO.md](RETOMADA_EXPERIMENTO_PAREADO.md).
+> O código novo foi preparado, mas não executado pelo assistente. O roteiro
+> abaixo documenta a reconstrução completa; não é necessário repeti-la para
+> iniciar o experimento pareado.
 
-No PowerShell, na raiz do projeto:
+## Ambiente
 
 ```powershell
-conda activate gw-v7
-$env:CUBLAS_WORKSPACE_CONFIG = ":4096:8"
-$env:PYTHONNOUSERSITE = "1"
-python -m pip install -e ".[ml,gw,test]"
-python -m pytest -q
+conda activate gwproject
+python -m pip install -e ".[all,test]"
+pytest
 ```
 
-Esperado: todos os testes funcionais passam. Os testes não executam treinamento completo.
-
-## 2. Preservar baseline
-
-Não sobrescreva `outputs/gwtc/gravity_spy_predictions`. Crie um snapshot:
+## 1. Harmonização experimental dos painéis
 
 ```powershell
-$stamp = Get-Date -Format "yyyyMMdd_HHmmss"
-Copy-Item .\outputs\gwtc\gravity_spy_predictions `
-  ".\outputs\gwtc\snapshots\gravity_spy_v8_3_$stamp" -Recurse
-```
-
-## 3. Executar programa completo
-
-```powershell
-Set-ExecutionPolicy -Scope Process Bypass -Force
-& .\scripts\run_research_program.ps1
-```
-
-O script:
-
-1. prepara painéis Gravity Spy harmonizados;
-2. treina cinco sementes em diretório novo;
-3. agrega métricas;
-4. constrói referência OOD da seed 42;
-5. classifica os 230 canais por ensemble;
-6. salva resultados em `outputs/research`.
-
-## 4. Inspeção obrigatória antes do treino
-
-Depois de preparar painéis, abra 50 imagens aleatórias e confirme:
-
-- painel sem títulos/eixos/colorbar;
-- frequência alta no topo;
-- faixa física correta;
-- ausência de crop excessivo;
-- tamanho 170×140;
-- nenhuma classe com processamento sistematicamente diferente.
-
-O script assume que o painel original cobre aproximadamente 10–2048 Hz em escala logarítmica. Essa hipótese deve ser confirmada.
-
-## 5. Auditoria antiga
-
-```powershell
-python .\ondasgravitacionais_research_v9.py audit-domain -- `
-  .\outputs\gwtc\gravity_spy_predictions\qgram_domain_statistics.csv `
-  --output-dir .\outputs\research\baseline_domain_audit
-```
-
-## 6. Preparar painéis separadamente
-
-```powershell
-python .\ondasgravitacionais_research_v9.py prepare-panels -- `
+gwproject research prepare-panels `
   .\data\gravity_spy\trainingset `
-  .\data\gravity_spy\trainingset_harmonized_20_512 `
+  .\data\gravity_spy_harmonized `
+  --metadata .\data\gravity_spy\trainingset_v1d1_metadata.csv `
   --overwrite
 ```
 
-## 7. Treinar sementes
+O comando usa por padrão o recorte oficial `LEFT=105`, `TOP=66`, `RIGHT=671`, `BOTTOM=532`. A variante `--crop-mode auto` e a opção `--apply-frequency-crop` são estritamente exploratórias e devem produzir domínios de avaliação separados. A saída deve ser comparada com os arrays oficiais em HDF5 antes de qualquer interpretação científica.
+
+## 2. Treinamento multiseed
 
 ```powershell
-python -m scripts.run_gravity_spy_seeds `
-  .\data\gravity_spy\trainingset_v1d1_metadata.csv `
-  .\data\gravity_spy\trainingset_harmonized_20_512 `
+gwproject research train-seeds `
+  .\data\gravity_spy_harmonized\clean_metadata.csv `
+  .\data\gravity_spy_harmonized `
   --profile cuda_balanced `
-  --output-dir .\outputs\gravity_spy_harmonized
+  --output-dir .\models\gravity_spy_harmonized_v1d1
+
+gwproject research aggregate-seeds .\models\gravity_spy_harmonized_v1d1
 ```
 
-## 8. Referência OOD
+## 3. Referência OOD por checkpoint
 
 ```powershell
-$checkpoint42 = Get-ChildItem `
-  .\outputs\gravity_spy_harmonized `
-  -Recurse -Filter best_model.pt |
-  Where-Object {$_.FullName -match "seed_42"} |
-  Select-Object -First 1
-
-python .\ondasgravitacionais_research_v9.py build-ood -- `
-  $checkpoint42.FullName `
-  .\data\gravity_spy\trainingset_v1d1_metadata.csv `
-  .\data\gravity_spy\trainingset_harmonized_20_512 `
+gwproject research build-ood `
+  .\models\gravity_spy_harmonized_v1d1 `
+  --metadata .\data\gravity_spy_harmonized\clean_metadata.csv `
+  --images-root .\data\gravity_spy_harmonized `
   --device cuda `
-  --output .\outputs\research\ood_reference_seed42.npz
+  --output .\outputs\research\gwtc4_218\ood_reference.npz
 ```
 
-## 9. Ensemble
+O arquivo formato 4 ajusta médias e precisão Mahalanobis no treino e calibra as
+distribuições empíricas de energia e distância na validação, separadamente para
+cada checkpoint. O vínculo é verificado pelo hash SHA-256 do arquivo.
+
+Antes de qualquer inferência externa, executar o controle no teste oficial:
 
 ```powershell
-python .\ondasgravitacionais_research_v9.py classify-ensemble -- `
-  .\outputs\gravity_spy_harmonized `
-  --approved .\outputs\gwtc\approved_channels.csv `
+gwproject research validate-ood `
+  .\outputs\research\gwtc4_218\ood_reference.npz `
+  --metadata .\data\gravity_spy_harmonized\clean_metadata.csv `
+  --images-root .\data\gravity_spy_harmonized `
   --device cuda `
-  --ood-reference .\outputs\research\ood_reference_seed42.npz `
-  --output-dir .\outputs\research\gravity_spy_ensemble
+  --output .\outputs\research\gwtc4_218\ood_test_control.json
 ```
 
-## 10. Interpretação dos outputs
+O teste é apenas controle final. Não pode selecionar threshold, renderer ou
+configuração.
 
-- `in_domain_candidate`: compatível com a referência estatística; não prova origem física;
-- `review`: discordância do ensemble ou OOD moderado;
-- `reject_ood`: incompatibilidade forte; não significa sinal astrofísico;
-- `vote_fraction`: consenso entre sementes;
-- `mutual_information`: componente epistemológica aproximada;
-- `energy_mean`: score de energia;
-- `mahalanobis_distance`: distância ao embedding de validação.
-
-## 11. Contrafactuais de fase
-
-O script recebe NPY 1D de strain/reconstrução:
+## 4. Inferência ensemble
 
 ```powershell
-python .\ondasgravitacionais_research_v9.py phase-counterfactuals -- `
-  .\dados\exemplo_strain.npy `
-  --output-dir .\outputs\research\phase_counterfactuals
+gwproject research classify-ensemble `
+  .\models\gravity_spy_harmonized_v1d1 `
+  --approved .\outputs\gwtc4_218\approved_channels.csv `
+  --device cuda `
+  --ood-reference .\outputs\research\gwtc4_218\ood_reference.npz `
+  --output-dir .\outputs\research\gwtc4_218\gravity_spy_ensemble
 ```
 
-Ele preserva o módulo do espectro de Fourier e altera a fase gradualmente.
+Interpretação dos estados:
 
-## 12. Falhas que exigem interrupção
+- `reject_ood`: incompatibilidade forte com o domínio de referência;
+- `review`: resultado limítrofe ou ensemble instável;
+- `in_domain_candidate`: compatibilidade estatística suficiente para análise posterior.
 
-- painel detectado incorretamente em mais de 1% das imagens;
-- classes com taxa de falha de crop diferente;
-- probe de pixels acima de 0,75 após harmonização;
-- colapso em uma ou duas classes novamente;
-- OOD thresholds classificando quase tudo como in-domain;
-- resultados sensíveis ao threshold escolhido depois da inspeção do teste.
+Nenhum desses estados determina a origem física do transiente.
+`reported_class` fica vazio para `review` e `reject_ood`; o rótulo fechado
+forçado permanece apenas em `forced_closed_set_class`.
+
+## 5. Auditoria de mudança de domínio
+
+```powershell
+gwproject research catalog-statistics `
+  .\outputs\research\gwtc4_218\gravity_spy_ensemble\per_channel.csv `
+  --output .\outputs\research\gwtc4_218\catalog_rendered_statistics.csv
+
+gwproject research audit-domain `
+  .\outputs\research\gwtc4_218\catalog_rendered_statistics.csv `
+  --output-dir .\outputs\research\gwtc4_218\domain_shift_audit `
+  --target-column forced_closed_set_class `
+  --positive-label None_of_the_Above `
+  --group-column event
+```
+
+As estatísticas são calculadas depois da mesma renderização usada pela CNN. A
+auditoria atual é pós-hoc e mede previsibilidade das escolhas forçadas; não
+identifica causalmente um shortcut.
+
+## 6. Tabela mestra dos 218 eventos
+
+```powershell
+gwproject research consolidate-events `
+  --quality .\outputs\gwtc4_218\event_quality_summary.csv `
+  --ensemble .\outputs\research\gwtc4_218\gravity_spy_ensemble\per_event.csv `
+  --ridge .\outputs\research\gwtc4_218\ridge_diagnostic\per_event.csv `
+  --matched-filter .\outputs\research\gwtc4_218\matched_filter_diagnostic\per_event.csv `
+  --expected-events 218 `
+  --output .\outputs\research\gwtc4_218\all_218_events.csv
+```
+
+O comando falha se qualquer fluxo tiver eventos duplicados ou um conjunto de
+eventos diferente. As colunas recebem prefixos `qc_`, `cnn_`, `ridge_` e `mf_`.
+
+## 7. Contrafactuais de fase
+
+```powershell
+gwproject research phase-counterfactuals --help
+```
+
+## 8. Renderer exploratório e inspeção visual
+
+```powershell
+gwproject research classify-ensemble `
+  .\models\gravity_spy_harmonized_v1d1 `
+  --ood-reference .\outputs\research\gwtc4_218\ood_reference.npz `
+  --render-mode gravity_spy `
+  --output-dir .\outputs\research\renderer_gravity_spy_NOVA_DATA\ensemble_gravity_spy
+
+gwproject research compare-ensembles `
+  .\outputs\research\gwtc4_218\gravity_spy_ensemble `
+  .\outputs\research\renderer_gravity_spy_NOVA_DATA\ensemble_gravity_spy `
+  --output-dir .\outputs\research\renderer_gravity_spy_NOVA_DATA\comparacao
+
+gwproject research render-qgram --event GW150914-v4 --render-modes percentile gravity_spy
+gwproject research gradcam --event GW150914-v4 --detector L1 --render-mode gravity_spy
+```
+
+`--render-mode` não pode gravar na saída canônica. A comparação recusa execuções
+com canais, checkpoints ou referência OOD diferentes. O renderer `gravity_spy` é
+exploratório (seção 18 do `PREREGISTRO.md`); resultados e limites estão em
+`RENDERIZADOR_GRAVITY_SPY.md`.
+
+## Automação PowerShell
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\tools\run_research_program.ps1
+```

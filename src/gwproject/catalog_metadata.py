@@ -12,6 +12,18 @@ import pandas as pd
 import requests
 
 GWOSC_API_ROOT = "https://gwosc.org/api/v2"
+_SYSTEM_TRUST_INITIALIZED = False
+
+
+def _ensure_system_trust() -> None:
+    global _SYSTEM_TRUST_INITIALIZED
+    if _SYSTEM_TRUST_INITIALIZED:
+        return
+    if __import__("platform").system() == "Windows":
+        import truststore
+
+        truststore.inject_into_ssl()
+    _SYSTEM_TRUST_INITIALIZED = True
 
 
 def _finite(value: Any) -> float | None:
@@ -30,6 +42,7 @@ def _request_json(
     retries: int,
     backoff: float,
 ) -> dict[str, Any]:
+    _ensure_system_trust()
     last_error: Exception | None = None
     for attempt in range(1, retries + 1):
         try:

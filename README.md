@@ -1,210 +1,239 @@
-# Classificação de Glitches do LIGO com CNNs e Grad-CAM
+# GWProject
 
-Projeto 3 – Ondas Gravitacionais · **PIC Astronomia**
+Pipeline auditável para aquisição e condicionamento de strain dos 218 eventos
+do GWTC-4, análise catalogal, diagnósticos tempo–frequência e estudo de validade
+externa de classificadores Gravity Spy.
 
-Repositório: <https://github.com/jean5429/gw-pic-2026>
+O repositório possui uma única interface de linha de comando e uma única identidade de pacote. Resultados científicos são separados de artefatos de execução, e toda análise relevante deve registrar configuração, hashes e manifesto de ambiente.
 
-Pipeline auditável que:
+## Escopo científico
 
-1. baixa e processa dados públicos do catálogo de ondas gravitacionais **GWTC** (GWOSC);
-2. gera Q-grams (tempo × frequência) de cada evento e detector;
-3. treina uma **ResNet-18** no conjunto **Gravity Spy** (22 classes de glitches);
-4. aplica um ensemble de 5 modelos aos eventos reais, com detecção fora de distribuição (OOD);
-5. usa **Grad-CAM** para ver onde a rede está olhando.
+O projeto oferece quatro fluxos:
 
-O relatório mais recente é o [Relatório V2 (PDF)](docs/relatorios/Relatorio_PIC_Ondas_Gravitacionais_V2.pdf). Ele registra a auditoria do pipeline e corrige conclusões do relatório V1.
+1. aquisição e controle de qualidade de dados públicos do GWOSC;
+2. análise catalogal por canal e por evento;
+3. treinamento e inferência de classificadores de morfologia;
+4. experimentos de robustez, ensemble e reconhecimento open-world.
 
----
+As rotinas de ridge e matched filtering são diagnósticos locais. Elas não implementam uma busca cega de detecção e não produzem false-alarm rate, significância de descoberta ou identificação causal de glitches.
+
+## Instalação
+
+### Núcleo
+
+```powershell
+conda env create -f environment-core.yml
+conda activate gwproject
+python -m pip install -e .
+```
+
+### Ambiente completo
+
+```powershell
+conda env create -f environment.yml
+conda activate gwproject
+python -m pip install -e ".[all,test]"
+```
+
+Para GPUs NVIDIA no Windows, use `tools/install_gpu_windows.ps1` após ativar o ambiente. O script usa o índice oficial do PyTorch e aceita `-CudaIndex`, `-TorchVersion`, `-TorchvisionVersion` e `-TorchaudioVersion`; não depende de URLs de wheels ligadas a uma versão específica do Python.
+
+## Interface principal
+
+```powershell
+gwproject --help
+gwproject catalog --help
+gwproject research --help
+```
+
+### Catálogo
+
+```powershell
+gwproject acquire -- --download-strain --process --qgrams
+gwproject catalog index
+gwproject catalog refresh-metadata -- --workers 4
+gwproject catalog ridge -- --workers 2 --no-resume
+gwproject catalog matched-filter -- --workers 1 --no-resume
+gwproject catalog diagnose-ridge
+```
+
+### Aquisição e processamento
+
+```powershell
+gwproject acquire --help
+gwproject process --help
+gwproject validate-event --help
+gwproject matched-filter-event --help
+```
+
+### Gravity Spy
+
+```powershell
+gwproject train-gravity-spy `
+  .\data\gravity_spy_harmonized\clean_metadata.csv `
+  .\data\gravity_spy_harmonized `
+  --output-dir .\models\gravity_spy_harmonized_v1d1
+```
+
+### Programa open-world
+
+```powershell
+gwproject research prepare-panels `
+  .\data\gravity_spy\trainingset `
+  .\data\gravity_spy_harmonized `
+  --metadata .\data\gravity_spy\trainingset_v1d1_metadata.csv
+
+gwproject research train-seeds `
+  .\data\gravity_spy_harmonized\clean_metadata.csv `
+  .\data\gravity_spy_harmonized `
+  --output-dir .\models\gravity_spy_harmonized_v1d1
+
+gwproject research build-ood `
+  .\models\gravity_spy_harmonized_v1d1 `
+  --metadata .\data\gravity_spy_harmonized\clean_metadata.csv `
+  --images-root .\data\gravity_spy_harmonized `
+  --output .\outputs\research\gwtc4_218\ood_reference.npz
+
+gwproject research validate-ood `
+  .\outputs\research\gwtc4_218\ood_reference.npz `
+  --metadata .\data\gravity_spy_harmonized\clean_metadata.csv `
+  --images-root .\data\gravity_spy_harmonized `
+  --output .\outputs\research\gwtc4_218\ood_test_control.json
+
+gwproject research classify-ensemble `
+  .\models\gravity_spy_harmonized_v1d1 `
+  --approved .\outputs\gwtc4_218\approved_channels.csv `
+  --ood-reference .\outputs\research\gwtc4_218\ood_reference.npz `
+  --output-dir .\outputs\research\gwtc4_218\gravity_spy_ensemble
+```
+
+A referência OOD é construída separadamente para cada checkpoint: a geometria
+Mahalanobis é ajustada no treino, os percentis são calibrados na validação e o
+teste permanece controle independente. Os modelos são associados às respectivas
+referências por SHA-256; embeddings, covariâncias e escalas brutas de energia
+não são transferidos entre redes. A decisão agregada usa percentis empíricos por
+modelo e uma fração mínima configurável de concordância. Cada canal registra
+também `mahalanobis_log_excess_99`, escore contínuo que não satura como o
+percentil.
+
+### Renderização dos Q-grams
+
+`[harmonized_inference].render_mode` escolhe a escala de intensidade da entrada
+da CNN. `"percentile"` é o renderer canônico do preregistro. `"gravity_spy"` é
+exploratório: reproduz a escala dos PNGs de treino (energia 0–25,5 em viridis,
+convertida para cinza). Para testá-lo sem tocar na configuração nem na saída
+canônica, use `--render-mode` com uma pasta própria e compare as execuções
+pareando por evento:
+
+```powershell
+gwproject research classify-ensemble .\models\gravity_spy_harmonized_v1d1 `
+  --ood-reference .\outputs\research\gwtc4_218\ood_reference.npz `
+  --render-mode gravity_spy --output-dir .\outputs\research\ensemble_gravity_spy
+
+gwproject research compare-ensembles `
+  .\outputs\research\gwtc4_218\gravity_spy_ensemble `
+  .\outputs\research\ensemble_gravity_spy `
+  --output-dir .\outputs\research\comparacao_renderers
+```
+
+`compare-ensembles` exige os mesmos canais, checkpoints e referência OOD. O
+resultado de 10/10/2026 e seus limites estão em
+`research/RENDERIZADOR_GRAVITY_SPY.md`.
+
+### Inspeção visual
+
+```powershell
+gwproject research render-qgram --event GW150914-v4 --render-modes percentile gravity_spy
+gwproject research gradcam --event GW150914-v4 --detector L1 --render-mode gravity_spy
+gwproject research gradcam --image .\data\gravity_spy_harmonized\TrainingSet\Chirp\H1_BTGpb9EV7L_spectrogram_1.0.png
+gwproject research replot-confusion .\models\gravity_spy_harmonized_v1d1 --output-dir .\outputs\research\confusion_300dpi
+```
+
+`render-qgram` grava a entrada exata da rede (140 × 170). `gradcam` usa por
+padrão o checkpoint de semente 42 e grava a figura em 300 DPI com um JSON de
+proveniência. O mapa explica a decisão fechada de um único checkpoint e não
+valida a classe. `replot-confusion` regenera as matrizes de confusão a partir
+dos `.npy`; sem `--output-dir`, substitui os PNGs ao lado de cada `.npy`.
+
+## Dados Gravity Spy
+
+O fluxo aceita os PNGs oficiais de 1 s referenciados pelos metadados. Por
+padrão, `prepare-panels` aplica o recorte documentado do conjunto: linhas
+`66:532` e colunas `105:671`, seguido de resize para `140×170`. O comando cria
+`qc_samples.csv`, elimina imagens vazias e grupos de duplicatas exatas que
+atravessam splits, preserva os metadados originais e grava
+`clean_metadata.csv`. A chave de junção é `(ifo, gravityspy_id)`, evitando
+colisão entre detectores.
+
+O treinamento canônico recusa imagens sem esses manifestos de QC. O parâmetro
+`--allow-unharmonized` existe apenas para reprodução explícita do legado.
+
+A representação numérica oficial em HDF5 deve ser mantida como referência primária para controle de domínio. Não se deve confundir desempenho interno no conjunto Gravity Spy com validade externa sobre Q-transforms produzidos por outro renderer.
 
 ## Estrutura
 
 ```text
-src/gwproject/          pacote Python (pré-processamento, Q-grams, modelo, filtro casado, OOD)
-scripts/                linhas de comando (download, treino, ensemble, Grad-CAM, ...)
-configs/                parâmetros em TOML (processamento, Gravity Spy, ensemble)
-tests/                  testes automatizados (pytest)
-outputs/                resultados versionados (métricas, CSVs, figuras, modelos via LFS)
-docs/relatorios/        relatórios PIC (V1, V2, verificação)
-docs/historico/         notas de versão e migrações (v6 → v9)
-docs/figuras/           figuras Grad-CAM das classes de treino
-research/               programa científico, preregistro, protocolos
-gw_student_kit/         kit didático independente (filtro casado e DSP)
-ondasgravitacionais_*.py  pontos de entrada das versões v8/v9 e scripts camada1 v14/v15
+configs/                 configurações TOML
+research/                preregistro, política de alegações e planos experimentais
+src/gwproject/           biblioteca científica
+src/gwproject/commands/  implementações dos comandos
+ tests/                   testes unitários e de contratos
+tools/                   automação PowerShell
+outputs/                 resultados locais, não versionados
+models/                  checkpoints canônicos e legado preservado
+gw_student_kit/          kit didático independente (filtro casado, DSP)
 ```
 
----
+Veja [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) para a fronteira completa
+entre resultados canônicos e históricos.
 
-## Instalação
+## Kit didático
 
-Requer **Python 3.11** e, para treino ou inferência rápida, GPU NVIDIA com CUDA 12.1.
+`gw_student_kit/` é material de ensino independente do pacote: filtro
+passa-banda, PSD, espectrograma, filtro casado com chirp newtoniano e um
+autoencoder simples. Veio do repositório jean5429/gw-pic-2026 e foi corrigido na
+incorporação (normalização da SNR, banda e instante de fusão). Não produz
+resultados do projeto.
 
 ```powershell
-git clone https://github.com/jean5429/gw-pic-2026.git
-cd gw-pic-2026
-conda env create -f environment-core.yml
-conda activate gw-v8
-python -m pip install --upgrade pip setuptools wheel
-python -m pip install -e ".[gw,ml,test]"
+python gw_student_kit\main_demo.py --synthetic
+python gw_student_kit\main_demo.py --event outputs\gwtc4_218\raw\GW150914-v4 --chirp-mass 30.69
 ```
 
-PyTorch com CUDA (Windows):
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\install_gpu_windows.ps1
-```
-
-Sem GPU, instale a versão CPU (`pip install torch==2.5.1 torchvision==0.20.1`) e use `--device cpu` nos scripts.
-
----
-
-## Dados (baixados sob demanda)
-
-Nenhum dado bruto fica no repositório. Cada conjunto é baixado apenas quando você precisa dele.
-
-| Conjunto | Tamanho | Necessário para | Como obter |
-|---|---|---|---|
-| Modelos treinados (5 seeds) | ~215 MB | ensemble, Grad-CAM | Git LFS (abaixo) ou treino próprio |
-| Gravity Spy v1.1 (Zenodo 1486046) | ~11 GB | treino, referência OOD, Grad-CAM em treino | `scripts/download_gravity_spy.py` |
-| Strain GWTC (GWOSC) + Q-grams | ~540 MB | ensemble em eventos reais | `scripts/run_catalog.py` |
-
-### 1. Modelos treinados (Git LFS)
-
-Os 5 checkpoints `outputs/gravity_spy_harmonized/seed_*/best_model.pt` (~45 MB cada) ficam no [Git LFS](https://git-lfs.com/). No repositório git fica só um "ponteiro" de poucos bytes para cada um; o arquivo real fica no servidor LFS do GitHub e é baixado à parte.
-
-**Antes de clonar**, instale o Git LFS uma única vez na máquina. O Git for Windows já o inclui; no Linux, use `sudo apt install git-lfs`; no macOS, `brew install git-lfs`. Depois rode:
-
-```powershell
-git lfs install
-```
-
-Com isso, o `git clone` da seção [Instalação](#instalação) baixa os modelos automaticamente.
-
-**Se você clonou sem o Git LFS**, os `.pt` serão ponteiros de texto (~130 bytes), e o PyTorch falha ao carregá-los com um erro como `invalid load key, 'v'`. Para baixar os arquivos reais, rode dentro do repositório:
-
-```powershell
-git lfs install
-git lfs pull
-```
-
-**Baixar só parte dos modelos.** Por exemplo, só o seed 42, usado no Grad-CAM:
-
-```powershell
-$env:GIT_LFS_SKIP_SMUDGE = "1"
-git clone https://github.com/jean5429/gw-pic-2026.git
-cd gw-pic-2026
-git lfs pull --include="outputs/gravity_spy_harmonized/seed_42_cuda_balanced/best_model.pt"
-```
-
-Para conferir se os modelos estão baixados, rode `git lfs ls-files`. Um `*` indica arquivo presente; um `-` indica que só o ponteiro está no disco.
-
-> **Atenção:** o botão *Code → Download ZIP* do GitHub não inclui os arquivos LFS por padrão. Nesse caso, os 5 `best_model.pt` do ZIP são só ponteiros de texto (~130 bytes). Use `git clone` com o Git LFS instalado.
->
-> O plano gratuito do GitHub tem cota mensal de banda para LFS, e cada download completo dos 5 modelos consome ~225 MB. Se a cota acabar, os downloads ficam bloqueados até o mês seguinte; nesse caso, use o treino próprio (seção [Treino completo](#treino-completo-opcional)).
-
-### 2. Gravity Spy
-
-```powershell
-python -m scripts.download_gravity_spy --extract
-python .\ondasgravitacionais_research_v9.py prepare-panels -- `
-    .\data\gravity_spy\trainingset .\data\gravity_spy\trainingset_harmonized_20_512
-```
-
-O download confere o checksum oficial do Zenodo e retoma transferências interrompidas.
-
-### 3. Eventos GWTC
-
-```powershell
-python -m scripts.run_catalog --download-strain --process --qgrams --workers 4
-python -m scripts.check_catalog_ready
-```
-
-Use `--max-events 2` para um teste rápido. Os scripts `ondasgravitacionais__camada1_v14/v15.py` mantêm um cache próprio em `camada1_gwtc3/`, que é recriado automaticamente.
-
----
-
-## Uso
-
-### Ensemble nos eventos reais
-
-```powershell
-$M = "outputs\gravity_spy_harmonized"
-python -m scripts.classify_catalog_qgrams_ensemble `
-    $M\seed_101_cuda_balanced\best_model.pt $M\seed_11_cuda_balanced\best_model.pt `
-    $M\seed_23_cuda_balanced\best_model.pt  $M\seed_42_cuda_balanced\best_model.pt `
-    $M\seed_71_cuda_balanced\best_model.pt `
-    --ood-reference outputs\research\ood_reference_seed42.npz `
-    --output-dir outputs\research\gravity_spy_ensemble_gsrender
-```
-
-O pré-processamento vem de `configs/research_program.toml` (`[harmonized_inference]`). O padrão é `render_mode = "gravity_spy"`, que reproduz a escala de intensidade das imagens de treino.
-
-### Grad-CAM
-
-```powershell
-# imagem de treino
-python scripts\run_gradcam.py --image data\gravity_spy\trainingset_harmonized_20_512\TrainingSet\Chirp\H1_0fp5wZUWD7_spectrogram_1.0.png --output-dir docs\figuras
-
-# evento real: converte o Q-gram com o mesmo pré-processamento do ensemble
-python scripts\temp_npy_to_png.py --event GW150914-v4 --detectors L1
-python scripts\run_gradcam.py --image outputs\gwtc\qgrams\GW150914-v4\L1_GW150914-v4.png --output-dir outputs\research\gradcam_fixed
-```
-
-No mapa, **vermelho = atenção máxima**. As figuras são salvas em 300 DPI.
-
-### Treino completo (opcional)
-
-```powershell
-& .\scripts\run_research_program.ps1
-```
-
-O script harmoniza os painéis, treina 5 seeds, agrega as métricas, constrói a referência OOD e roda o ensemble.
-
-### Matrizes de confusão
-
-O treino salva, em cada `outputs/gravity_spy_harmonized/seed_*/`, a matriz em `confusion_matrix.npy` (contagens) e em `confusion_matrix.png` (normalizada por linha, 300 DPI). Para gerar os PNGs de novo a partir dos `.npy`, sem treinar:
-
-```powershell
-python -m scripts.replot_confusion_matrices
-```
-
----
+A origem e as diferenças em relação ao repositório de origem estão em
+[MIGRACAO_GW_PIC_2026.md](MIGRACAO_GW_PIC_2026.md).
 
 ## Testes
 
 ```powershell
-python -m pytest
+pytest
+pytest --cov=gwproject --cov-report=term-missing
+python -m compileall -q src
 ```
 
-Os testes que dependem de dados baixados (por exemplo, o Q-gram do GW150914) são pulados automaticamente quando os arquivos não existem.
+Testes unitários não substituem validação com dados reais, campanhas de injeção, comparação com bibliotecas estabelecidas e auditoria independente dos artefatos produzidos.
 
----
+## Reprodutibilidade
 
-## Resultados principais (V2)
+Cada execução científica deve preservar:
 
-| Item | Resultado |
-|---|---|
-| Gravity Spy, teste (5 seeds) | macro-F1 0,856 ± 0,006 · acurácia 0,909 |
-| Grad-CAM nas classes de treino | atenção concentrada no próprio transiente |
-| GWTC, renderização Gravity Spy | 15 classes previstas; 11 canais Chirp com confiança ≥ 0,95, todos de eventos intensos (GW150914, GW170814, …) |
-| Domínio | os 150 canais ainda ficam acima do limiar OOD q99; resultados em dados reais são exploratórios |
+- configuração integral;
+- hashes dos dados e checkpoints;
+- commit do código;
+- versões das dependências;
+- seed e perfil de hardware;
+- arquivos intermediários suficientes para reconstruir tabelas e figuras.
 
-### Matriz de confusão (seed 42, conjunto de teste)
+Os manifestos (`manifest.json`, `*.manifest.json`) trocam a pasta do usuário por
+`~` antes de gravar. `run_log.json` mantém os caminhos reais, porque é insumo do
+índice do catálogo; revise-o antes de publicar.
 
-![Matriz de confusão normalizada do seed 42](outputs/gravity_spy_harmonized/seed_42_cuda_balanced/confusion_matrix.png)
+Consulte `research/PLANO_DE_DADOS_E_REPRODUTIBILIDADE.md` e `research/POLITICA_DE_ALEGACOES.md`.
 
-Cada linha soma 1, ou seja, é a fração da classe verdadeira. As classes mais difíceis são No_Glitch (F1 0,47–0,56 entre seeds), 1400Ripples (0,50–0,64) e Paired_Doves (0,57–0,67). As maiores confusões ocorrem em classes com poucas amostras de teste: Paired_Doves → Extremely_Loud (2 de 4), No_Glitch → Low_Frequency_Lines (6 de 21) e Wandering_Line → No_Glitch (2 de 7). As matrizes das outras seeds (11, 23, 71 e 101) estão no **Anexo C** do [Relatório V2](docs/relatorios/Relatorio_PIC_Ondas_Gravitacionais_V2.pdf) e em [`outputs/gravity_spy_harmonized/`](outputs/gravity_spy_harmonized/). O padrão se repete entre as seeds: No_Glitch (recall 0,38–0,52), Paired_Doves (0,50) e Wandering_Line (0,57–0,71) estão sempre entre as quatro classes de menor recall, e Chirp tem recall 1,00 em todas.
+A reconstrução estrutural, as correções metodológicas e os limites da validação
+estão documentados em `VALIDATION_REPORT.md`. O veredito científico, as
+explicações concorrentes e o roteiro priorizado estão em
+`research/PARECER_CIENTIFICO_E_ROTEIRO.md`.
 
-Detalhes, errata do V1 e próximos passos estão no [Relatório V2](docs/relatorios/Relatorio_PIC_Ondas_Gravitacionais_V2.pdf).
-
----
-
-## Dados de terceiros e citações
-
-- **GWOSC** – LIGO/Virgo/KAGRA Open Science Center, <https://gwosc.org>. Cite os artigos do catálogo GWTC correspondentes.
-- **Gravity Spy** – Zevin et al. (2017), *Class. Quantum Grav.* 34, 064003; conjunto em Zenodo, registro 1486046.
-
-Consulte as licenças e as orientações de citação de cada fonte antes de redistribuir os dados.
-
-## Licença
-
-Código sob licença [MIT](LICENSE).
+O resultado consolidado por evento é
+`outputs/research/gwtc4_218/all_218_events.csv`: 218 linhas com QC, CNN/OOD,
+ridge e matched filter, unidos sob validação um-para-um.

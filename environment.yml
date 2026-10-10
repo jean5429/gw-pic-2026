@@ -1,8 +1,10 @@
-name: gw-v8
+name: gwproject
 channels:
-  - defaults
+  - conda-forge
+  - pytorch
+  - nvidia
 dependencies:
   - python=3.11
   - pip
-variables:
-  PYTHONNOUSERSITE: "1"
+  - pip:
+      - -e .[all,test]

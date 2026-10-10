@@ -8,11 +8,13 @@ lang: pt-BR
 
 Hipótese controversa não é licença para especulação sem controle. Cada hipótese abaixo inclui mecanismo, observações compatíveis, alternativas, previsão, teste e falsificação.
 
-# H1. As classes Gravity Spy não são espécies naturais
+# H1. As fronteiras Gravity Spy são condicionadas à representação
 
 ## Mecanismo
 
-As classes seriam partições úteis de um manifold contínuo de estados instrumentais e representações. As fronteiras surgiriam de decisões humanas, janelas e renderer.
+As classes podem ser partições úteis e estáveis dentro de um domínio, mas suas
+fronteiras dependem de janela, renderer, detector e run. Isso é mais restrito e
+testável do que afirmar que as classes “não existem”.
 
 ## Evidências compatíveis
 
@@ -20,20 +22,25 @@ As classes seriam partições úteis de um manifold contínuo de estados instrum
 - classes novas e `None_of_the_Above`;
 - interpolação morfológica em modelos generativos;
 - diferenças entre detectores;
-- colapso local sob mudança de renderer.
+- rejeição Mahalanobis dos 475 canais catalogais após calibração independente;
+- previsibilidade pós-hoc das escolhas fechadas por estatísticas globais.
 
 ## Alternativas
 
-- a taxonomia pode ser fisicamente estável, e o problema local ser apenas preprocessing incorreto;
+- a taxonomia pode ser estável, e o problema local resultar da mudança semântica
+  entre triggers de glitch e janelas centradas em CBC;
+- a rejeição pode ser fragilidade específica de Mahalanobis;
 - classes podem ser estáveis em um domínio bem definido, sem pretensão universal.
 
 ## Predição
 
-A estabilidade de classe cairá em renderer/run/detector holdout mais que em split aleatório.
+A estabilidade de classe cairá quando o mesmo trigger atravessar renderers,
+runs ou detectores, mais que no split oficial in-domain.
 
 ## Falsificação
 
-As classes permanecem separáveis e consistentes em $h(t)$, magnitude+fase, painéis recortados e runs distintos.
+As classes permanecem separáveis e consistentes para o mesmo trigger em
+$h(t)$, magnitude+fase, painéis recortados e runs distintos.
 
 # H2. A fase é uma variável causal oculta
 
@@ -161,11 +168,17 @@ Aprendizado contrastivo com pares de detectores alinhados, negativos por time sl
 
 | Hipótese | Novidade | Viabilidade | Risco | Prioridade |
 |---|---:|---:|---:|---:|
-| H1 representação | alta | alta | moderado | 1 |
-| H2 fase | muito alta | moderada | moderado | 2 |
-| H5 fragilidade | muito alta | baixa/moderada | alto | 3 |
-| H3 microestados | muito alta | moderada | alto | 4 |
-| H4 discordância | alta | alta com injeções | moderado | 5 |
-| H6 open-world | alta | moderada | alto | 6 |
-| H7 prognóstico | muito alta | baixa | alto | 7 |
-| H8 coerência anômala | alta | baixa | muito alto | 8 |
+| H1 representação, pareada pelo mesmo trigger | moderada/alta | alta | moderado | 1 |
+| H4 discordância, com injeções e off-source | moderada/alta | alta | moderado | 2 |
+| H9 identificabilidade do ridge | moderada | moderada | moderado | 3 |
+| H2 fase | moderada | moderada | alto | 4 |
+| H5 fragilidade | alta | baixa | alto | 5 |
+| H3 microestados | moderada/alta | baixa/moderada | alto | 6 |
+| H6 open-world/nova classe | baixa/moderada | moderada | alto | 7 |
+| H7 prognóstico | alta | baixa | alto | 8 |
+| H8 coerência anômala | moderada | baixa | muito alto | 9 |
+
+As notas de novidade são condicionais a uma busca de escopo dirigida, não a uma
+revisão sistemática. H6 foi rebaixada porque trabalhos recentes já cobrem
+similarity learning, clustering multitemporal e DINOv2 em O4a, incluindo
+resultado nulo para novas morfologias no conjunto analisado.

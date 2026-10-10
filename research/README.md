@@ -1,30 +1,24 @@
-# GW Open-World Robustness Program — v9.0
+# Programa de robustez open-world para dados de ondas gravitacionais
 
-Este diretório contém o programa científico criado a partir da auditoria da v8.3.
+Este diretório contém a formulação científica do projeto: hipóteses falsificáveis, preregistro, matriz experimental, política de alegações, revisão da literatura e regras de reprodutibilidade.
+
+O problema central é a validade externa de classificadores treinados em uma representação e aplicados a Q-transforms produzidos por outro pipeline. O programa separa desempenho interno, mudança de domínio, incerteza de ensemble, reconhecimento OOD e interpretação física.
 
 ## Documentos
 
-- `PROGRAMA_CIENTIFICO_COMPLETO.md`: relatório principal;
-- `REVISAO_DA_LITERATURA.md`: revisão de escopo;
-- `HIPOTESES_CONTROVERSAS_E_TESTES.md`: hipóteses e falsificações;
-- `PREREGISTRO.md`: protocolo confirmatório;
-- `MATRIZ_EXPERIMENTAL.md`: ablações e controles;
-- `GUIA_DE_EXECUCAO.md`: comandos locais;
+- `PARECER_CIENTIFICO_E_ROTEIRO.md`: veredito sênior, evidência atual, hipóteses
+  concorrentes e prioridades;
+- `RENDERIZADOR_GRAVITY_SPY.md`: renderer exploratório na escala Gravity Spy e
+  comparação pareada com o renderer canônico (10/10/2026);
+- `PROGRAMA_CIENTIFICO_COMPLETO.md`: pergunta central, hipóteses e fases experimentais;
+- `PREREGISTRO.md`: decisões analíticas fixadas antes dos experimentos confirmatórios;
+- `MATRIZ_EXPERIMENTAL.md`: fatores, controles e resultados esperados;
+- `HIPOTESES_CONTROVERSAS_E_TESTES.md`: testes adversariais;
 - `POLITICA_DE_ALEGACOES.md`: linguagem permitida e proibida;
-- `PLANO_DE_DADOS_E_REPRODUTIBILIDADE.md`: provenance, splits e releases;
-- `PLANO_DE_ARTIGOS.md`: estratégia de publicação;
-- `REFERENCIAS.bib`: bibliografia inicial.
+- `PLANO_DE_DADOS_E_REPRODUTIBILIDADE.md`: congelamento e rastreabilidade;
+- `GUIA_DE_EXECUCAO.md`: comandos operacionais.
 
-## Código novo
-
-- harmonização de painéis Gravity Spy;
-- baseline subtraction e inversão de frequência para Q-grams;
-- ensemble multiseed;
-- energy score e Mahalanobis OOD;
-- contrafactuais de fase;
-- auditoria agrupada de atalhos de pixel;
-- testes unitários.
-
-## Limite importante
-
-O pacote foi validado com testes unitários e análise dos CSVs fornecidos. O treinamento completo harmonizado e a inferência nos arquivos locais de 5,49 GB precisam ser executados no computador do projeto.
+Os resultados de classificação são evidência sobre compatibilidade estatística
+com o domínio de referência. Os 218 eventos formam um _stress test_, não ground
+truth de classes de glitch. As saídas não constituem identificação causal de
+glitch, veto detectorial ou evidência de origem astrofísica.

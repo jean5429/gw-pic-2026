@@ -44,6 +44,62 @@ def pixel_statistics(array: ArrayLike) -> dict[str, float | int | str]:
     }
 
 
+def rendered_qgram_statistics(
+    frame: pd.DataFrame,
+    *,
+    lower_percentile: float,
+    upper_percentile: float,
+    source_duration_seconds: float,
+    target_duration_seconds: float,
+    baseline_mode: str,
+    flip_frequency: bool,
+    render_mode: str = "percentile",
+) -> pd.DataFrame:
+    """Calcula estatísticas do tensor realmente apresentado à CNN.
+
+    A função parte dos Q-grams brutos referenciados em ``qgram_path`` e usa o
+    mesmo contrato de renderização de ``CatalogQgramDataset``. Isso evita auditar
+    estatísticas de uma representação diferente daquela usada na inferência.
+    """
+
+    from gwproject.qgram_inference import qgram_to_uint8
+
+    required = {"event", "detector", "qgram_path"}
+    missing = required - set(frame.columns)
+    if missing:
+        raise ValueError(f"colunas ausentes: {sorted(missing)}")
+
+    metadata_columns = [
+        column
+        for column in (
+            "event",
+            "detector",
+            "qgram_path",
+            "forced_closed_set_class",
+            "reported_class",
+            "open_world_status",
+        )
+        if column in frame.columns
+    ]
+    rows: list[dict] = []
+    for record in frame.to_dict(orient="records"):
+        qgram = np.load(record["qgram_path"])
+        rendered = qgram_to_uint8(
+            qgram,
+            lower_percentile=lower_percentile,
+            upper_percentile=upper_percentile,
+            source_duration_seconds=source_duration_seconds,
+            target_duration_seconds=target_duration_seconds,
+            baseline_mode=baseline_mode,
+            flip_frequency=flip_frequency,
+            render_mode=render_mode,
+        )
+        row = {column: record[column] for column in metadata_columns}
+        row.update(pixel_statistics(rendered))
+        rows.append(row)
+    return pd.DataFrame(rows)
+
+
 def grouped_domain_audit(
     frame: pd.DataFrame,
     *,

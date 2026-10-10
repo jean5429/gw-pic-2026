@@ -1,389 +1,203 @@
+# Programa científico: representações, glitches e robustez inferencial
+
+_Formulação prospectiva para experimentos de validade externa em dados de ondas gravitacionais._
+
 ---
-title: "Programa científico completo: representações, glitches e fragilidade da inferência em ondas gravitacionais"
-author: "Projeto GW Open-World Robustness"
-date: "25 de julho de 2026"
-lang: pt-BR
----
 
-# Sumário executivo
+## 🎯 Problema científico
 
-Este documento transforma os resultados do projeto `ondas_gravitacionais_v7/v8.3` em um programa científico falsificável. O ponto de partida não é a tentativa de salvar retrospectivamente as previsões do classificador Gravity Spy. O ponto de partida é o fato empírico de que uma rede com excelente desempenho interno falhou de maneira altamente estruturada quando transferida para Q-grams produzidos por outro pipeline.
+Classificadores de glitches são treinados sobre representações tempo–frequência específicas. O desempenho interno não estabelece que as fronteiras aprendidas sejam invariantes a renderer, normalização, janela temporal, detector ou run observacional.
 
-A observação central é:
+A pergunta central é:
 
-- cinco sementes da ResNet18 apresentaram macro-$F_1$ médio de aproximadamente $0{,}939$ no teste Gravity Spy;
-- a aplicação aos 230 canais do catálogo usou somente duas das 22 classes: 145 `Scattered_Light` e 85 `None_of_the_Above`;
-- 60 dos 90 eventos tiveram discordância entre detectores;
-- a mediana da confiança softmax foi aproximadamente $0{,}9994$;
-- nove estatísticas escalares do Q-gram bruto reproduzem os rótulos transferidos com balanced accuracy agrupada de $0{,}910$ e ROC-AUC de $0{,}964$;
-- apenas o percentil inferior $p_{01}$ alcança balanced accuracy agrupada de $0{,}884$ e $|d|\approx2{,}35$.
+> Quais características aprendidas por classificadores de transientes são invariantes à representação e fisicamente informativas, e quais correspondem a atalhos do pipeline de visualização ou do conjunto de treinamento?
 
-Esses resultados mostram que a classificação transferida é dominada por propriedades de representação de baixo nível. Eles não mostram que 145 canais contêm scattered light. O resultado negativo, entretanto, sustenta uma pergunta científica relevante: **quais propriedades de uma representação tempo–frequência são invariantes, causalmente informativas e suficientes para distinguir sinal, glitch e estado instrumental?**
+A investigação separa quatro objetos que não devem ser confundidos:
 
-O programa propõe cinco eixos principais:
+| Objeto | Definição operacional | Evidência necessária |
+| --- | --- | --- |
+| Morfologia observada | Aparência em uma representação escolhida | Estabilidade dentro do renderer |
+| Forma de onda | Estrutura temporal, espectral e de fase | Reconstrução ou análise no domínio temporal |
+| Causa instrumental | Mecanismo físico do detector | Canais auxiliares, estado instrumental e validação especializada |
+| Efeito inferencial | Viés sobre parâmetros astrofísicos | Injeções e recuperação com modelos alternativos |
 
-1. **invariância de representação e shortcut learning**;
-2. **fase e identificabilidade física dos glitches**;
-3. **open-set recognition e detecção de OOD**;
-4. **coerência de rede e disentanglement detector–morfologia–estado**;
-5. **fragilidade conjunta da inferência astrofísica ao waveform e ao modelo de glitch**.
+## 🧭 Escopo e exclusões
 
-![Mapa das hipóteses controversas](figures/mapa_hipoteses_controversas.png)
+O programa estuda validade externa, incerteza e sensibilidade à representação. Ele não transforma uma classificação visual em diagnóstico causal do detector.
 
-# 1. Estado científico do projeto
+São permitidas alegações sobre:
 
-## 1.1 Infraestrutura validada
+- desempenho interno e em holdouts definidos previamente
+- mudança de domínio entre renderers
+- estabilidade entre sementes
+- calibração, incerteza e rejeição OOD
+- sensibilidade a intervenções sobre intensidade, geometria e fase
 
-A infraestrutura de aquisição e processamento contém:
+Não são permitidas alegações sobre:
 
-- 90 eventos GWTC;
-- 270 combinações evento–detector;
-- 230 canais aprovados;
-- arquivos brutos, séries processadas e Q-grams auditados;
-- redshifts e massas detector-frame para todos os 90 eventos;
-- manifestos de ambiente e configuração;
-- testes funcionais e execução em CUDA.
+- detecção de eventos sem background e false-alarm rate
+- identificação causal de glitch sem canais auxiliares
+- veto detectorial baseado apenas na CNN
+- superioridade astrofísica sem campanha de injeção e recuperação
 
-Essa camada constitui um ativo científico independente. Ela permite reconstruir experimentos, registrar provenance e realizar ablações controladas.
+## 🧪 Hipóteses falsificáveis
 
-## 1.2 Ridge
+### H1 — As fronteiras de classe dependem da representação
 
-O ridge temporal foi útil para localizar regimes em que uma trajetória inspiral é ou não mensurável. Não foi validado como estimador catalogal de chirp mass. Na v8.3:
+**Predição:** parte das decisões muda sob transformações que preservam a informação física relevante, como alteração de renderer, remoção de elementos gráficos e equalização de intensidade.
 
-- 140 de 230 canais produziram uma estimativa;
-- 60 foram classificados como `insufficient_inspiral_band`;
-- 25 como `flat_ridge`;
-- cinco como `insufficient_frequency_span`;
-- o erro relativo mediano permaneceu em aproximadamente 52,2%;
-- somente 36 estimativas ficaram abaixo de 30% de erro.
+**Falsificação:** desempenho e calibração permanecem estáveis em renderer holdout, detector holdout e run holdout.
 
-Uso permitido: diagnóstico tempo–frequência, estudo de identificabilidade e construção de um diagrama de regimes metodológicos.
+### H2 — Estatísticas de baixo nível funcionam como atalhos
 
-Uso não permitido: estimativa de massa competitiva com inferência Bayesiana ou pipelines LVK.
+**Predição:** probes simples baseados em percentis, média e dispersão reproduzem parte substancial das decisões do classificador.
 
-## 1.3 Matched filtering pedagógico
+**Falsificação:** probes agrupados permanecem próximos ao acaso e intervenções sobre intensidade não alteram as predições.
 
-O matched filter local foi construído ao redor das massas catalogadas. Na v8.3:
+### H3 — A fase contém informação necessária para identificabilidade
 
-- 85 eventos foram processados;
-- cinco ficaram sem template ativo;
-- 30 passaram o limiar de SNR;
-- 38 passaram a margem top-2;
-- 13 passaram ambos os gates;
-- somente cinco tiveram o template central em primeiro lugar.
+**Predição:** contrafactuais que preservam magnitude espectral e alteram fase degradam tarefas temporalmente informadas, mesmo quando classificadores visuais mantêm alta confiança.
 
-O procedimento não possui background, false-alarm rate, time slides, teste $\chi^2$, reweighted SNR, busca cega ou trials factor. Portanto, mede compatibilidade local dentro de um banco pequeno; não mede significância de detecção.
+**Falsificação:** modelos sensíveis à fase não melhoram generalização ou consistência física.
 
-## 1.4 Gravity Spy
+### H4 — OOD deve ser calibrado por checkpoint
 
-A validação interna multiseed foi forte e estável. O problema está na validade externa. A folha de contato revelou diferenças profundas entre:
+**Predição:** escalas brutas de energia e coordenadas latentes variam entre sementes, mas percentis empíricos calibrados por modelo podem ser agregados de forma comparável.
 
-- PNGs Gravity Spy completos, com margens, eixos, textos e colorbar;
-- Q-grams numéricos do catálogo ocupando todo o frame;
-- faixas de frequência e escalas de intensidade distintas;
-- transformação do piso normalizado pela mediana;
-- possível inversão vertical entre a ordem das frequências no array e a convenção visual de alta frequência no topo.
+**Falsificação:** referências compartilhadas e referências individuais produzem resultados indistinguíveis em testes controlados, incluindo checkpoints treinados independentemente.
 
-![Entradas efetivas do modelo antigo](figures/model_input_contact_sheet.png)
+### H5 — Coerência de rede acrescenta informação
 
-# 2. Pergunta-mãe
+**Predição:** modelos que incorporam detector, tempo e coerência entre canais distinguem melhor fenômenos locais de estruturas compatíveis entre detectores.
 
-> Quais características aprendidas por classificadores de glitches são invariantes à representação e correspondem a propriedades físicas do transiente ou do detector, e quais são atalhos específicos do renderer, do run ou do instrumento?
+**Falsificação:** essas variáveis não melhoram generalização fora do domínio nem reduzem ambiguidades.
 
-A pergunta envolve quatro níveis que devem ser separados:
+## 🔄 Fluxo experimental
 
-1. **morfologia observada:** aparência em uma representação escolhida;
-2. **forma de onda:** estrutura temporal, espectral e de fase;
-3. **causa instrumental:** mecanismo físico que gerou o glitch;
-4. **efeito inferencial:** viés produzido sobre parâmetros astrofísicos.
+```mermaid
+flowchart LR
+    accTitle: Open-world validation pipeline
+    accDescr: Experimental flow from frozen data and grouped splits through representation controls, multiseed training, model-specific calibration, external evaluation, and constrained scientific claims
 
-Uma classe visual pode ser útil sem ser uma espécie ontológica. Uma morfologia pode ter várias causas. Uma causa pode produzir várias morfologias, dependendo do estado do detector. Um rótulo com alta softmax não identifica necessariamente nenhuma dessas entidades.
+    freeze_data([📦 Congelar dados e hashes]) --> grouped_split[📋 Definir splits agrupados]
+    grouped_split --> renderers[⚙️ Construir renderers controlados]
+    renderers --> train_models[🧠 Treinar múltiplas sementes]
+    train_models --> internal_eval[🧪 Avaliar domínio interno]
+    internal_eval --> calibrate_ood[📊 Calibrar OOD por checkpoint]
+    calibrate_ood --> external_eval[🔍 Testar holdouts e contrafactuais]
+    external_eval --> decision{🛡️ Critérios atendidos?}
+    decision -->|Sim| bounded_claims[✅ Emitir alegações delimitadas]
+    decision -->|Não| revise_design[🔧 Revisar hipótese ou desenho]
+    revise_design --> renderers
 
-# 3. Hipóteses centrais
+    classDef process fill:#dbeafe,stroke:#2563eb,stroke-width:2px,color:#1e3a5f
+    classDef decision_style fill:#fef9c3,stroke:#ca8a04,stroke-width:2px,color:#713f12
+    classDef success fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#14532d
+    classDef revision fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#7f1d1d
 
-## H1 — A taxonomia é dependente da representação
+    class freeze_data,grouped_split,renderers,train_models,internal_eval,calibrate_ood,external_eval process
+    class decision decision_style
+    class bounded_claims success
+    class revise_design revision
+```
 
-**Mecanismo.** As fronteiras entre classes Gravity Spy são parcialmente definidas por escolhas de janela temporal, faixa de frequência, colormap, normalização, elementos gráficos e processo histórico de rotulagem. A rede aprende uma combinação de morfologia e estilo do dataset.
+## 📊 Matriz experimental mínima
 
-**Predição principal.** O rótulo de uma fração não desprezível dos exemplos mudará sob transformações fisicamente equivalentes: remoção de eixos, mudança de renderer, equalização de intensidade ou mudança entre magnitude-Q e strain temporal.
+| Fator | Níveis mínimos | Controle obrigatório |
+| --- | --- | --- |
+| Renderer | oficial, numérico harmonizado, variante alternativa | Mesma amostra e mesmo split |
+| Intensidade | original, equalizada, perturbada | Informação geométrica preservada |
+| Fase | original, interpolada, randomizada | Magnitude espectral monitorada |
+| Detector | H1, L1, V1 quando disponível | Holdout por detector |
+| Run | partições observacionais disponíveis | Holdout por run |
+| Semente | pelo menos cinco | Mesma configuração e dados |
+| OOD | in-domain, renderer deslocado, contrafactual | Threshold fixado na validação |
 
-**Falsificação.** A hipótese enfraquece se as classes permanecerem estáveis sob renderer holdout, detector holdout, run holdout e transformações que preservam a informação física.
+A unidade de independência deve ser evento ou trigger, não imagem isolada. Variantes da mesma observação permanecem no mesmo fold.
 
-## H2 — A fase é necessária para identificabilidade física
+## 🔬 Calibração open-world
 
-**Mecanismo.** A magnitude do Q-transform não determina unicamente a forma de onda. Pares com magnitude semelhante podem ter fases, coerência e mecanismos físicos distintos.
+Cada checkpoint possui:
 
-**Predição principal.** Randomização controlada da fase preservará parte da aparência espectral, mas destruirá a consistência para modelos temporal/phase-aware. Um classificador visual poderá manter alta confiança mesmo quando a forma de onda se tornar fisicamente implausível.
+- média por classe ajustada no split de treino do próprio espaço latente
+- matriz de precisão estimada no split de treino do próprio espaço latente
+- distribuição de calibração do energy score no split de validação
+- distribuição de calibração da distância mínima de Mahalanobis no split de validação
+- controle independente no split oficial de teste
+- hash SHA-256 que vincula checkpoint e referência
 
-**Falsificação.** Modelos phase-aware não melhoram generalização, OOD ou validação causal, e a randomização de fase não altera tarefas fisicamente motivadas.
+Na inferência, cada modelo produz escores brutos em sua própria escala. Esses
+escores são convertidos em percentis empíricos usando apenas a distribuição de
+validação correspondente. O teste não pode ser usado para reajustar threshold,
+covariância ou preprocessing. A decisão do ensemble depende da fração de modelos
+acima dos quantis preregistrados.
 
-## H3 — O domain shift contém informação instrumental real
+Este procedimento impede duas operações inválidas:
 
-**Mecanismo.** Algumas características dependentes do detector não são meros nuisances. Elas podem codificar acoplamentos, configurações de controle ou microestados instrumentais.
+1. aplicar uma covariância estimada em um espaço latente a embeddings de outra rede
+2. comparar a média de energias de um ensemble com um limiar obtido de um único modelo
+3. ajustar a geometria Mahalanobis e calibrar seus percentis nas mesmas amostras
 
-**Predição principal.** O embedding permitirá prever detector, run e período temporal mesmo após controlar classe e SNR. Uma decomposição explícita poderá separar conteúdo morfológico, identidade do detector e estado latente.
+Energy e Mahalanobis são diagnósticos distintos. Discordância entre eles deve
+ser reportada explicitamente e impede apresentar `reject_ood` como consenso
+metodológico universal.
 
-**Falsificação.** A informação de detector desaparece após harmonização de renderer e não melhora nenhuma tarefa de detector characterization.
+## 📐 Plano estatístico
 
-## H4 — A discordância entre métodos é um observável de fragilidade
+As análises confirmatórias devem incluir:
 
-Defina
+- intervalos bootstrap agrupados por evento ou trigger
+- comparação pareada entre renderers da mesma amostra
+- teste de permutação com estrutura de grupos preservada
+- correção de Benjamini–Hochberg para famílias secundárias
+- tamanho de efeito e intervalo de confiança, não apenas valor de p
+- separação explícita entre validação, seleção de threshold e teste final
 
-$$
-\mathbf D=(D_{\rm ridge},D_{\rm template},D_{\rm detector},D_{\rm class},D_{\rm residual},D_{\rm waveform}).
-$$
+As métricas primárias são:
 
-**Mecanismo.** Física omitida e glitches sobrepostos deixam assinaturas diferentes de inconsistência entre detectores, modelos e representações.
+| Questão | Métrica primária |
+| --- | --- |
+| Desempenho interno | Macro-F1 |
+| Validade externa | Macro-F1 em renderer holdout |
+| Calibração | ECE e Brier score |
+| Reconhecimento OOD | AUROC e FPR@95TPR |
+| Atalho de representação | Balanced accuracy do probe agrupado |
+| Estabilidade epistemológica | Informação mútua e vote fraction |
 
-**Predição principal.** Injeções com precessão, excentricidade, modos superiores ou glitches produzirão distribuições distintas de $\mathbf D$ depois de controlar massa e SNR.
+## 🛡️ Política de alegações
 
-**Falsificação.** $\mathbf D$ é totalmente explicado por massa total, SNR, duração e número de detectores.
+Uma saída `in_domain_candidate` significa apenas que a amostra não foi rejeitada pelos critérios estatísticos definidos. Não implica que a classe prevista seja fisicamente correta.
 
-## H5 — Propriedades astrofísicas sutis são conjuntas ao modelo de sinal e ruído
+Uma saída `reject_ood` significa incompatibilidade segundo a regra agregadora e
+o domínio de referência definidos. Não implica sinal astrofísico, novidade
+física, glitch ou falha instrumental específica. Quando detectores OOD
+discordarem, a tabela por método tem precedência sobre o rótulo agregado.
 
-**Mecanismo.** A posteriori de spins, precessão, excentricidade ou desvios de GR depende do waveform, do modelo de glitch, da PSD, da calibração e da janela. Essa dependência pode ser forte em eventos contaminados.
+Resultados de ridge e matched filtering local são diagnósticos condicionados. Sem background, trials factor e validação por injeções, não devem ser descritos como detecção.
 
-**Predição principal.** Eventos com alta fragilidade no vetor $\mathbf D$ também mostrarão maior variação posterior entre combinações $(W_i,G_j)$ de waveform e modelo de glitch.
+## 🚦 Critérios de decisão
 
-**Falsificação.** Parâmetros permanecem estáveis sob uma família razoável de waveforms, PSDs, janelas e modelos de glitch.
+O programa avança para interpretação física somente quando:
 
-# 4. Hipóteses secundárias de alto risco
+- o desempenho em renderer holdout é compatível com o desempenho interno dentro da incerteza preregistrada
+- a calibração permanece aceitável fora do renderer de treinamento
+- probes de baixo nível não explicam sozinhos as decisões
+- a rejeição OOD é validada em conjuntos deslocados independentes
+- as conclusões são estáveis entre sementes, detectores e runs
 
-## H6 — `None_of_the_Above` é uma mistura de estados, não uma classe
+A falha em qualquer critério não deve ser ocultada por seleção posterior de subclasses, seeds ou thresholds.
 
-Clusters estáveis dentro de `None_of_the_Above` podem corresponder a novas famílias, misturas, baixa SNR, mudanças de run ou entradas OOD.
+## 📦 Artefatos obrigatórios
 
-## H7 — Populações de glitches antecipam transições do detector
+Cada resultado publicável deve ser reconstruível a partir de:
 
-Mudanças no espaço de embeddings podem preceder degradação de sensibilidade, aumento de falsos alarmes ou intervenções de commissioning.
+- manifestos de ambiente e hardware
+- hashes dos dados, configurações e checkpoints
+- tabelas por amostra antes de qualquer agregação
+- logits e probabilidades, não apenas `argmax`
+- referência OOD por checkpoint
+- definição dos grupos e splits
+- logs de execução
+- scripts que regeneram tabelas e figuras
 
-## H8 — Alguns transientes classificados como glitches são coerentes e não modelados
-
-Essa hipótese não autoriza alegações de nova física. Ela exige coerência de rede, time slides, ausência de correlação auxiliar e reconstrução por modelos agnósticos.
-
-## H9 — A falha do ridge define um diagrama de regimes observacionais
-
-O sucesso ou fracasso do ridge pode mapear a transição entre regime inspiral mensurável, regime IMR e regime burst/wavelet.
-
-## H10 — Coerência de rede pode fornecer auto-supervisão
-
-Pares de detectores do mesmo evento, depois de correções geométricas, podem fornecer positivos contrastivos; janelas aleatórias e glitches locais fornecem negativos.
-
-# 5. Matriz experimental
-
-![Matriz experimental](figures/matriz_experimental_5x5.png)
-
-As representações são:
-
-1. PNG Gravity Spy completo;
-2. PNG recortado para o painel físico;
-3. magnitude $|Q|$ harmonizada;
-4. Q-transform complexo ou magnitude+fase;
-5. strain temporal $h(t)$.
-
-Os regimes de validação são:
-
-1. split oficial/aleatório;
-2. holdout temporal;
-3. detector holdout;
-4. observing-run holdout;
-5. renderer holdout.
-
-Cada célula deve registrar:
-
-- macro-$F_1$ e balanced accuracy;
-- ECE e Brier score;
-- OOD AUROC, AUPR e FPR@95TPR;
-- predictability do detector;
-- estabilidade entre sementes;
-- estabilidade sob contrafactuais;
-- custo computacional;
-- intervalo de confiança por bootstrap agrupado.
-
-# 6. Experimentos prioritários
-
-## E1 — Auditoria de atalhos
-
-**Objetivo.** Medir quanto dos rótulos pode ser previsto por características de baixo nível.
-
-**Controles.** Split agrupado por evento; regressão logística; thresholds univariados treinados apenas no fold de treino; permutação de rótulos; bootstrap por evento.
-
-**Resultado atual.** O probe de nove estatísticas atingiu balanced accuracy $0{,}910$ e AUC $0{,}964$. Isso é evidência contra uma interpretação puramente morfológica das previsões antigas.
-
-![Separação por p01](figures/p01_class_separation.png)
-
-![ROC do probe](figures/pixel_probe_roc.png)
-
-## E2 — Harmonização do renderer
-
-1. detectar automaticamente o painel escuro nos PNGs;
-2. remover margens, títulos, eixos, ticks e colorbar;
-3. recortar a banda 20–512 Hz supondo eixo logarítmico;
-4. preservar ou documentar a convenção de frequência alta no topo;
-5. aplicar a mesma geometria $140\times170$;
-6. treinar cinco sementes novamente.
-
-**Alerta.** A faixa original 10–2048 Hz inferida dos PNGs deve ser confirmada contra metadados oficiais. O código novo marca essa suposição no manifesto.
-
-## E3 — Transformação do Q-gram
-
-Comparar:
-
-- `none`: $\log(1+Q)$;
-- `subtract_one`: $\log[1+\max(Q-1,0)]$;
-- `global_median`: $\log[1+\max(Q/{\rm med}(Q)-1,0)]$;
-- `per_frequency_median`: $\log[1+\max(Q/{\rm med}_t Q-1,0)]$.
-
-A última opção é o default do programa v9, pois o Q-transform foi normalizado pela mediana e o objetivo é representar excesso relativo de energia.
-
-## E4 — Inversão vertical
-
-A ordem de frequências no array deve ser auditada. Arrays numéricos normalmente armazenam a frequência em ordem crescente; uma imagem direta coloca a primeira linha no topo, o que pode inverter o eixo físico em relação ao renderer científico. O programa v9 inclui `flip_frequency=true` como hipótese explícita. Deve ser validada por injeção de linha em frequência conhecida.
-
-## E5 — Ensemble e open-set
-
-- média das probabilidades de cinco sementes;
-- entropia preditiva;
-- entropia esperada;
-- informação mútua;
-- fração de votos;
-- energy score;
-- distância de Mahalanobis no embedding;
-- categorias `in_domain_candidate`, `review`, `reject_ood`.
-
-Nenhuma dessas categorias é uma probabilidade causal de glitch.
-
-## E6 — Contrafactuais de fase
-
-Para cada waveform $h(t)$, gerar
-
-$$
-\tilde h_\alpha(t)=\mathcal F^{-1}\left[|H(f)|e^{i(\phi(f)+\alpha\Delta\phi(f))}\right],
-$$
-
-com $\alpha\in\{0,0.25,0.5,0.75,1\}$. Medir estabilidade de classe, embedding e confiança.
-
-## E7 — Coerência de rede
-
-Treinar uma representação contrastiva condicionada por detector e geometria. Positivos devem ser pares fisicamente associados; negativos incluem time slides e janelas off-source.
-
-## E8 — Inferência conjunta sinal–glitch
-
-Começar por GW200129 e GW191109, usando `bilby_glitch`, wavelets, chirplets e slow scattering, além de mais de um approximant. O produto não deve ser uma afirmação binária sobre precessão, mas um mapa de robustez da conclusão à escolha de modelos.
-
-# 7. Dados e recursos
-
-## 7.1 Recursos já disponíveis
-
-- catálogo local de 90 eventos e 230 canais;
-- dataset Gravity Spy v1d1;
-- cinco checkpoints ResNet18;
-- resultados de ridge e matched filter;
-- CSVs de auditoria e Q-grams.
-
-## 7.2 Recursos externos prioritários
-
-- reconstruções temporais DeepExtractor no Hugging Face: 35 mil waveforms de 2 s, 4096 Hz, sete classes;
-- modelos ViT/ResNet externos como baseline independente, com ressalva de que os resultados da model card são auto-relatados;
-- dados públicos O4/O4b para holdout temporal e de run;
-- modelos de glitches BayesWave publicados para eventos selecionados;
-- GWOSC como fonte primária de strain e metadados.
-
-## 7.3 Estratégia de uso do Hugging Face
-
-Usar `datasets` em modo streaming para conjuntos grandes. O dataset O4b V1 em Parquet possui escala de dezenas de GB e mais de um bilhão de linhas; deve ser consultado por segmentos e projeção de colunas, não carregado integralmente em memória.
-
-# 8. Critérios de sucesso e de parada
-
-## Sucesso mínimo da harmonização
-
-- macro-$F_1$ interno $\ge0{,}85$;
-- ECE $\le0{,}08$;
-- balanced accuracy do probe de pixels $\le0{,}70$;
-- OOD AUROC $\ge0{,}80$ em conjuntos sintéticos e reais definidos a priori;
-- nenhuma classe dominante acima de 80% no catálogo sem justificativa independente;
-- estabilidade de classe sob pequenas mudanças de contraste;
-- auditoria visual cega com concordância interavaliadores.
-
-## Critérios de parada
-
-Interromper a interpretação física se:
-
-- o renderer puder prever a classe melhor que a morfologia;
-- a validação cair drasticamente em detector/run holdout;
-- OOD não for separável de in-domain;
-- a classe mudar sob transformações fisicamente equivalentes;
-- a conclusão depender de thresholds escolhidos após observar o catálogo.
-
-# 9. Produtos científicos
-
-## Artigo 1 — Representação e shortcut learning
-
-**Título provisório:** *When a glitch image stops being a physical representation: renderer shortcuts and domain shift in gravitational-wave transient classification*.
-
-Contribuição: benchmark controlado de renderers, probe de baixo nível, detector/run/renderer holdout e guidelines de validade externa.
-
-## Artigo 2 — Fase e identificabilidade
-
-**Título provisório:** *Phase blindness in gravitational-wave glitch classification*.
-
-Contribuição: contrafactuais que preservam magnitude espectral, comparação entre modelos visuais, complexos e temporais.
-
-## Artigo 3 — Fragilidade sinal–glitch
-
-**Título provisório:** *A signal–glitch fragility atlas for compact-binary inference*.
-
-Contribuição: marginalização sobre famílias de waveform e glitch; índice de fragilidade; estudos de caso.
-
-## Recurso aberto
-
-- benchmark de domínio;
-- manifests e splits;
-- scripts de harmonização;
-- Q-grams e embeddings permitidos por licença;
-- model cards;
-- datasheets;
-- resultados negativos.
-
-# 10. Roteiro
-
-![Roteiro do programa](figures/roadmap_programa.png)
-
-## Fase 0 — concluída no pacote v9
-
-- congelamento do baseline v8.3;
-- auditoria agrupada dos atalhos;
-- código para harmonização de painéis;
-- transformações de baseline e inversão de frequência;
-- ensemble e métricas OOD;
-- contrafactuais de fase;
-- testes unitários;
-- preregistro e política de alegações.
-
-## Fase 1 — execução local necessária
-
-- preparar o dataset harmonizado;
-- inspecionar amostra visual;
-- retreinar cinco sementes;
-- construir referência OOD;
-- classificar com ensemble;
-- repetir auditoria de pixels.
-
-## Fase 2 — extensão científica
-
-- adicionar strain temporal e reconstruções DeepExtractor;
-- implementar magnitude+fase;
-- renderer/run/detector holdouts;
-- auto-supervisão de coerência.
-
-## Fase 3 — inferência astrofísica
-
-- estudos GW200129 e GW191109;
-- atlas de fragilidade;
-- validação cruzada com BayesWave e `bilby_glitch`.
-
-# 11. Conclusão
-
-O projeto deve abandonar a meta estreita de produzir mais rótulos Gravity Spy e adotar uma meta científica mais forte: **determinar quais conclusões permanecem invariantes quando a representação, o detector, o run e o modelo de ruído mudam**.
-
-A hipótese mais controversa, mas rigorosa, é que uma parte do que chamamos de “classe de glitch” e uma parte do que chamamos de “propriedade sutil da fonte” são propriedades conjuntas do sistema de medição, da representação e do modelo inferencial. O programa v9 não assume que isso seja verdadeiro; ele constrói testes capazes de demonstrar quando é verdadeiro e quando é falso.
+O diretório `outputs/` permanece fora do controle de versão. Resultados destinados a auditoria devem ser depositados em repositório persistente com checksum e identificador estável.
