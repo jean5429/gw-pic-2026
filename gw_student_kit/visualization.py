@@ -42,7 +42,7 @@ def plot_strain_comparison(time: np.ndarray, raw_data: np.ndarray,
         
     plt.tight_layout()
     if save_path:
-        os.makedirs(os.path.dirname(save_path), exist_ok=True)
+        os.makedirs(os.path.dirname(save_path) or ".", exist_ok=True)
         plt.savefig(save_path, dpi=300)
     plt.close()
 
@@ -69,17 +69,19 @@ def plot_spectrogram(data: np.ndarray, fs: float, save_path: str = None,
     
     plt.tight_layout()
     if save_path:
-        os.makedirs(os.path.dirname(save_path), exist_ok=True)
+        os.makedirs(os.path.dirname(save_path) or ".", exist_ok=True)
         plt.savefig(save_path, dpi=300)
     plt.close()
 
 
-def plot_snr_time_series(time: np.ndarray, snr_series: np.ndarray, 
-                         threshold: float = 8.0, t_event: float = None, 
+def plot_snr_time_series(time: np.ndarray, snr_series: np.ndarray,
+                         threshold: float = 8.0, t_event: float = None,
                          save_path: str = None, title: str = "Série Temporal de SNR (Filtro Casado)",
-                         xlim: tuple = None):
+                         xlim: tuple = None, xlabel: str = 'Tempo (s)'):
     """
     Plota a evolução temporal da Razão Sinal-Ruído (SNR).
+
+    Depois de ``align_to_merger``, o eixo x é o instante de fusão hipotético do template.
     """
     plt.figure(figsize=(10, 4))
     plt.plot(time, snr_series, color='navy', lw=1.5, label='SNR(t)')
@@ -93,8 +95,8 @@ def plot_snr_time_series(time: np.ndarray, snr_series: np.ndarray,
     
     if t_event is not None:
         plt.axvline(t_event, color='darkgreen', linestyle=':', label=f'Instante de Injeção (t={t_event:.3f}s)')
-        
-    plt.xlabel('Tempo (s)')
+
+    plt.xlabel(xlabel)
     plt.ylabel('Razão Sinal-Ruído (SNR)')
     plt.title(title)
     plt.legend(loc='upper right')
@@ -105,6 +107,6 @@ def plot_snr_time_series(time: np.ndarray, snr_series: np.ndarray,
         
     plt.tight_layout()
     if save_path:
-        os.makedirs(os.path.dirname(save_path), exist_ok=True)
+        os.makedirs(os.path.dirname(save_path) or ".", exist_ok=True)
         plt.savefig(save_path, dpi=300)
     plt.close()
