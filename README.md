@@ -167,6 +167,20 @@ O treino salva, em cada `outputs/gravity_spy_harmonized/seed_*/`, a matriz em `c
 python -m scripts.replot_confusion_matrices
 ```
 
+### Kit didático (`gw_student_kit`)
+
+Kit independente do `gwproject`, para ensinar filtragem passa-banda, espectrogramas e filtro casado. Ele não precisa dos modelos nem do Gravity Spy:
+
+```powershell
+# demonstração com sinal sintético (reprodutível pela semente)
+python gw_student_kit\main_demo.py --synthetic --seed 2026
+
+# evento real já baixado pelo pipeline, com a massa de chirp no referencial do detector
+python gw_student_kit\main_demo.py --event outputs\gwtc\raw\GW150914-v4 --chirp-mass 30.69
+```
+
+As figuras vão para `gw_student_kit/results/`. Em 10/10/2026, o filtro casado do kit foi corrigido (PR #1, Daniel Tedesco). Antes, ele dava SNRs absurdas, da ordem de 10¹¹ no GW150914, porque faltavam fatores de normalização da transformada de Fourier. Agora segue as convenções padrão do LIGO (Allen et al. 2012) e dá **ρ = 10,8 no L1 do GW150914**, no instante correto da fusão. O template é newtoniano (sem correções pós-newtonianas), então a SNR do kit é indicativa e não estabelece detecção. Detalhes no [guia do kit](gw_student_kit/README.md) e na seção 6.5 do [Relatório V2](docs/relatorios/Relatorio_PIC_Ondas_Gravitacionais_V2.pdf).
+
 ---
 
 ## Testes
@@ -187,6 +201,7 @@ Os testes que dependem de dados baixados (por exemplo, o Q-gram do GW150914) sã
 | Grad-CAM nas classes de treino | atenção concentrada no próprio transiente |
 | GWTC, renderização Gravity Spy | 15 classes previstas; 11 canais Chirp com confiança ≥ 0,95, todos de eventos intensos (GW150914, GW170814, …) |
 | Domínio | os 150 canais ainda ficam acima do limiar OOD q99; resultados em dados reais são exploratórios |
+| Kit didático, filtro casado corrigido | GW150914 L1: ρ = 10,8 (antes ~10¹¹); injeção sintética ρ = 14 recuperada como 12,9 no instante certo |
 
 ### Matriz de confusão (seed 42, conjunto de teste)
 
