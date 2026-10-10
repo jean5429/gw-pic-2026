@@ -122,7 +122,7 @@ li { margin: 2px 0; }
 <tr><td>Acurácia</td><td class="n">0,909</td><td class="n">0,004</td><td class="n">0,904</td><td class="n">0,914</td></tr>
 <tr><td>Kappa de Cohen</td><td class="n">0,900</td><td class="n">0,004</td><td class="n">0,894</td><td class="n">0,905</td></tr>
 </table>
-<p>As classes mais difíceis são <b>No_Glitch</b> (F1 0,47–0,56), <b>1400Ripples</b> (0,50–0,64) e <b>Paired_Doves</b> (0,57–0,67). <i>Chirp</i> tem F1 = 1,00 em todos os seeds. No seed 42 (usado no Grad-CAM), a menor F1 é No_Glitch (0,526), e não 1400Ripples (0,600) como afirmava o V1. A matriz de confusão do seed 42 está na Figura 1; as dos demais seeds ficam em <code>outputs/gravity_spy_harmonized/seed_*/confusion_matrix.png</code>.</p>
+<p>As classes mais difíceis são <b>No_Glitch</b> (F1 0,47–0,56), <b>1400Ripples</b> (0,50–0,64) e <b>Paired_Doves</b> (0,57–0,67). <i>Chirp</i> tem F1 = 1,00 em todos os seeds. No seed 42 (usado no Grad-CAM), a menor F1 é No_Glitch (0,526), e não 1400Ripples (0,600) como afirmava o V1. A matriz de confusão do seed 42 está na Figura 1; as dos demais seeds estão no Anexo C.</p>
 <figure><img src="confusion_matrix_seed42.png" style="width:84%"><figcaption><b>Figura 1 – Matriz de confusão normalizada no conjunto de teste (seed 42).</b> Cada linha soma 1 (fração da classe verdadeira). As maiores confusões são Paired_Doves → Extremely_Loud (2 de 4 amostras), No_Glitch → Low_Frequency_Lines (6 de 21) e Wandering_Line → No_Glitch (2 de 7) – classes com poucas amostras de teste, o que torna essas frações instáveis; Chirp, Helix, Power_Line e Scratchy ficam praticamente na diagonal.</figcaption></figure>
 
 <h3>6.2 Grad-CAM nas classes de treino (cores corrigidas)</h3>
@@ -260,5 +260,12 @@ li { margin: 2px 0; }
 <tr><td>Figuras deste relatório</td><td><code>outputs/research/report_v2/</code></td></tr>
 </table>
 <p class="small">Amostras de treino usadas nas Figuras 3–5: Chirp/H1_0fp5wZUWD7, Koi_Fish/H1_08APXWraeY, 1400Ripples/L1_1ljZNes7gG (conjunto harmonizado). Ensemble: seeds 101, 11, 23, 42, 71; referência OOD <code>outputs/research/ood_reference_seed42.npz</code>.</p>
+
+<h2 class="pb">Anexo C – Matrizes de Confusão das Demais Seeds</h2>
+<p>Matrizes normalizadas por linha no conjunto de teste, na mesma escala da Figura 1 (seed 42: macro-F1 0,857 · acurácia 0,908). O padrão de erros se repete entre as seeds: No_Glitch (recall 0,38–0,52), Paired_Doves (0,50) e Wandering_Line (0,57–0,71) estão entre as quatro classes de menor recall em todas elas, completadas por 1400Ripples (seeds 23, 42 e 71) ou Whistle (seeds 11 e 101). Chirp tem recall 1,00 em todas. Arquivos: <code>outputs/gravity_spy_harmonized/seed_*/confusion_matrix.png</code> (regeneráveis com <code>python -m scripts.replot_confusion_matrices</code>).</p>
+<figure><img src="confusion_matrix_seed11.png" style="width:74%"><figcaption><b>Figura C1 – Seed 11.</b> Macro-F1 0,863 · acurácia 0,914 (teste, 1179 amostras).</figcaption></figure>
+<figure><img src="confusion_matrix_seed23.png" style="width:74%"><figcaption><b>Figura C2 – Seed 23.</b> Macro-F1 0,855 · acurácia 0,909 (teste, 1179 amostras).</figcaption></figure>
+<figure><img src="confusion_matrix_seed71.png" style="width:74%"><figcaption><b>Figura C3 – Seed 71.</b> Macro-F1 0,846 · acurácia 0,904 (teste, 1179 amostras).</figcaption></figure>
+<figure><img src="confusion_matrix_seed101.png" style="width:74%"><figcaption><b>Figura C4 – Seed 101.</b> Macro-F1 0,857 · acurácia 0,911 (teste, 1179 amostras).</figcaption></figure>
 
 </body></html>
