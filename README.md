@@ -97,7 +97,7 @@ git lfs pull --include="outputs/gravity_spy_harmonized/seed_42_cuda_balanced/bes
 
 Para conferir se os modelos estão baixados, rode `git lfs ls-files`. Um `*` indica arquivo presente; um `-` indica que só o ponteiro está no disco.
 
-> **Atenção:** o botão *Code → Download ZIP* do GitHub não inclui os arquivos LFS por padrão. Use `git clone`.
+> **Atenção:** o botão *Code → Download ZIP* do GitHub não inclui os arquivos LFS por padrão. Nesse caso, os 5 `best_model.pt` do ZIP são só ponteiros de texto (~130 bytes). Use `git clone` com o Git LFS instalado.
 >
 > O plano gratuito do GitHub tem cota mensal de banda para LFS, e cada download completo dos 5 modelos consome ~225 MB. Se a cota acabar, os downloads ficam bloqueados até o mês seguinte; nesse caso, use o treino próprio (seção [Treino completo](#treino-completo-opcional)).
 
@@ -192,7 +192,7 @@ Os testes que dependem de dados baixados (por exemplo, o Q-gram do GW150914) sã
 
 ![Matriz de confusão normalizada do seed 42](outputs/gravity_spy_harmonized/seed_42_cuda_balanced/confusion_matrix.png)
 
-Cada linha soma 1, ou seja, é a fração da classe verdadeira. As classes mais difíceis são No_Glitch (F1 0,47–0,56 entre seeds), 1400Ripples (0,50–0,64) e Paired_Doves (0,57–0,67). As maiores confusões ocorrem em classes com poucas amostras de teste: Paired_Doves → Extremely_Loud (2 de 4), No_Glitch → Low_Frequency_Lines (6 de 21) e Wandering_Line → No_Glitch (2 de 7). As matrizes das outras seeds estão em [`outputs/gravity_spy_harmonized/`](outputs/gravity_spy_harmonized/).
+Cada linha soma 1, ou seja, é a fração da classe verdadeira. As classes mais difíceis são No_Glitch (F1 0,47–0,56 entre seeds), 1400Ripples (0,50–0,64) e Paired_Doves (0,57–0,67). As maiores confusões ocorrem em classes com poucas amostras de teste: Paired_Doves → Extremely_Loud (2 de 4), No_Glitch → Low_Frequency_Lines (6 de 21) e Wandering_Line → No_Glitch (2 de 7). As matrizes das outras seeds (11, 23, 71 e 101) estão no **Anexo C** do [Relatório V2](docs/relatorios/Relatorio_PIC_Ondas_Gravitacionais_V2.pdf) e em [`outputs/gravity_spy_harmonized/`](outputs/gravity_spy_harmonized/). O padrão se repete entre as seeds: No_Glitch (recall 0,38–0,52), Paired_Doves (0,50) e Wandering_Line (0,57–0,71) estão sempre entre as quatro classes de menor recall, e Chirp tem recall 1,00 em todas.
 
 Detalhes, errata do V1 e próximos passos estão no [Relatório V2](docs/relatorios/Relatorio_PIC_Ondas_Gravitacionais_V2.pdf).
 
