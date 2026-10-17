@@ -200,14 +200,16 @@ Os relatórios do PIC ficam em [`docs/relatorios/`](docs/relatorios/):
 - [Relatório V2](docs/relatorios/Relatorio_PIC_Ondas_Gravitacionais_V2.pdf):
   auditoria da linha v9 (orientação dos Q-grams, cores do Grad-CAM, escala de
   intensidade) e correção do kit didático;
+- [Errata do Relatório V2](docs/relatorios/Errata_Relatorio_V2.pdf):
+  painel vazio repetido nos dados Gravity Spy, limiar OOD calibrado nas mesmas
+  amostras do ajuste e mistura de modelos no escore OOD; com o cálculo
+  corrigido, 60 dos 150 canais (e não 150) excedem o limiar OOD;
 - relatório V1 (`Relatorio_PIC_Ondas_Gravitacionais.doc` e `.doc.pdf`) e a
   verificação do cálculo de filtragem.
 
-Os resultados do V2 se referem aos modelos e à referência OOD da linha v9.
-Dois problemas daquela linha, identificados na 2.0, afetam suas conclusões: um
-painel vazio repetido 161 vezes nos dados Gravity Spy (treino, validação e teste) e o limiar OOD calibrado
-nas mesmas amostras em que a referência foi ajustada. Ver `VALIDATION_REPORT.md`
-e `MIGRACAO_GW_PIC_2026.md`.
+Os resultados do V2 se referem aos modelos e à referência OOD da linha v9 e
+devem ser lidos junto com a errata. Ver também `VALIDATION_REPORT.md` e
+`MIGRACAO_GW_PIC_2026.md`.
 
 ## Kit didático
 

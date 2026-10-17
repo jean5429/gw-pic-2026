@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<title>Errata do Relatório V2</title>
+<style>
+@page { size: A4; margin: 17mm 16mm 18mm; }
+:root { --ink:#1d1d1f; --muted:#55575c; --accent:#0b2d55; --rule:#c8ccd2; --soft:#eef2f7; }
+body { font-family: "Segoe UI", Calibri, Arial, sans-serif; font-size: 10.3pt; line-height: 1.47; color: var(--ink); background:#fff; margin:0; }
+.cover { border-bottom: 3px solid #b42318; padding-bottom: 10px; margin-bottom: 14px; }
+.cover .kicker { font-size: 9pt; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.cover h1 { font-size: 20pt; color: var(--accent); margin: 2px 0 2px; line-height:1.15; }
+.cover .sub { font-size: 11pt; color: var(--muted); }
+h2 { font-size: 13.2pt; color: var(--accent); border-bottom: 1.5px solid var(--accent); padding-bottom: 2px; margin: 22px 0 8px; page-break-after: avoid; }
+h3 { font-size: 11pt; margin: 14px 0 4px; page-break-after: avoid; }
+p { margin: 5px 0 8px; text-align: justify; }
+table { border-collapse: collapse; width: 100%; margin: 6px 0 12px; font-size: 9.2pt; page-break-inside: avoid; }
+tr { page-break-inside: avoid; }
+th, td { border: 1px solid var(--rule); padding: 4px 7px; vertical-align: top; text-align: left; }
+th { background: var(--soft); font-weight: 600; }
+td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+code { font-family: Consolas, monospace; font-size: 8.8pt; background: #f3f4f6; padding: 0 3px; border-radius: 3px; }
+.callout { border-left: 4px solid var(--accent); background: var(--soft); padding: 7px 12px; margin: 10px 0; page-break-inside: avoid; }
+.warn { border-left: 4px solid #b42318; background: #fdf2f1; padding: 7px 12px; margin: 10px 0; page-break-inside: avoid; }
+.good { border-left: 4px solid #1a7f37; background: #eef8f0; padding: 7px 12px; margin: 10px 0; page-break-inside: avoid; }
+ul, ol { margin: 4px 0 8px 18px; padding: 0; }
+li { margin: 2px 0; }
+.small { font-size: 8.8pt; color: var(--muted); }
+</style></head><body>
+
+<div class="cover">
+  <div class="kicker">Errata · Relatório de Acompanhamento V2 (07/10/2026)</div>
+  <h1>Errata do Relatório V2 – Classificação de Glitches do LIGO com CNNs</h1>
+  <div class="sub">Projeto 3 – Ondas Gravitacionais · PIC Astronomia · 17 de outubro de 2026</div>
+</div>
+
+<h2>1. Resumo</h2>
+<p>Esta errata corrige o Relatório V2, que permanece publicado sem alterações como registro histórico. Três problemas da linha v9 do código – dois apontados pela revisão da linha gwproject 2.0 (PR #2, Daniel Tedesco) e um terceiro encontrado ao quantificá-los – afetam resultados do V2:</p>
+<ol>
+<li><b>Painel vazio repetido nos dados Gravity Spy:</b> a mesma imagem vazia aparece 161 vezes, com 8 rótulos diferentes, distribuída entre treino, validação e teste.</li>
+<li><b>Limiar OOD calibrado nas mesmas amostras do ajuste:</b> a referência de Mahalanobis foi ajustada e teve seus quantis calculados nas mesmas 1.200 imagens de validação.</li>
+<li><b>Mistura de modelos no escore OOD do ensemble:</b> a distância foi calculada com os embeddings do seed 101 e comparada com a referência construída com o seed 42.</li>
+</ol>
+<div class="warn"><b>Principal consequência.</b> A afirmação de que “todos os 150 canais ficam acima do limiar de detecção fora de distribuição (OOD)” não se sustenta. Com o cálculo consistente (seed 42, referência ajustada no treino e calibrada na validação), <b>60 dos 150 canais</b> excedem algum limiar q99 com a renderização Gravity Spy, e 90 ficam dentro dos dois limiares.</div>
+<p>Todos os números desta errata foram medidos com os modelos e o código da linha v9 (branch <code>v9</code>), em precisão fp32. Por isso podem diferir na terceira casa decimal dos valores do V2, obtidos com precisão mista (AMP).</p>
+
+<h2>2. Painel vazio repetido nos dados Gravity Spy</h2>
+<p>Ao agrupar as 7.966 imagens harmonizadas por conteúdo idêntico de pixels, o maior grupo tem <b>161 cópias de um painel vazio</b> (cinza quase uniforme, mediana 30, máximo 66), provavelmente uma renderização do Gravity Spy que falhou. Os rótulos dessas cópias são:</p>
+<table>
+<tr><th>Rótulo</th><th class="n">Treino</th><th class="n">Validação</th><th class="n">Teste</th></tr>
+<tr><td>Extremely_Loud</td><td class="n">93</td><td class="n">20</td><td class="n">18</td></tr>
+<tr><td>No_Glitch</td><td class="n">8</td><td class="n">2</td><td class="n">1</td></tr>
+<tr><td>Paired_Doves</td><td class="n">5</td><td class="n">1</td><td class="n">2</td></tr>
+<tr><td>Blip, Koi_Fish, Low_Frequency_Burst, None_of_the_Above, Whistle</td><td class="n">11</td><td class="n">0</td><td class="n">0</td></tr>
+<tr><th>Total</th><th class="n">117</th><th class="n">23</th><th class="n">21</th></tr>
+</table>
+<p>A rede aprendeu “painel vazio = Extremely_Loud”, o rótulo da maioria: <b>as 5 seeds classificam as 21 cópias de teste como Extremely_Loud</b>. Sem essas cópias, o conjunto de teste fica com 1.158 imagens, o mesmo número obtido pela linha 2.0 após o controle de qualidade.</p>
+<table>
+<tr><th>Métrica no teste (média ± desvio, 5 seeds)</th><th class="n">Com o painel vazio (1.179)</th><th class="n">Sem o painel vazio (1.158)</th></tr>
+<tr><td>Macro-F1</td><td class="n">0,856 ± 0,007</td><td class="n">0,871 ± 0,007</td></tr>
+<tr><td>Acurácia balanceada</td><td class="n">0,844 ± 0,009</td><td class="n">0,867 ± 0,009</td></tr>
+<tr><td>Acurácia</td><td class="n">0,909 ± 0,004</td><td class="n">0,910 ± 0,004</td></tr>
+</table>
+<p><b>Efeito no V2:</b> a confusão “Paired_Doves → Extremely_Loud (2 de 4)” destacada na Figura 1 e no Anexo C corresponde exatamente às 2 amostras de teste de Paired_Doves que são o painel vazio; não é um erro de morfologia da rede. As métricas de teste do V2 estão levemente subestimadas por essas cópias, mas os modelos também foram treinados com 117 delas, o que só se resolve com novo treino. A linha 2.0 remove esses painéis por controle de qualidade e obtém macro-F1 de 0,945.</p>
+
+<h2>3. Limiar OOD calibrado nas mesmas amostras do ajuste</h2>
+<p>O script <code>build_ood_reference.py</code> da linha v9 ajusta as médias e a matriz de precisão de Mahalanobis nas 1.200 imagens de validação e calcula os limiares q95/q99 <b>nessas mesmas imagens</b>. Em 512 dimensões, as distâncias medidas nas próprias amostras de ajuste ficam subestimadas, e o limiar sai baixo demais.</p>
+<table>
+<tr><th>Imagens de teste do Gravity Spy acima do q99 (seed 42; esperado ≈ 1%)</th><th class="n">Resultado</th></tr>
+<tr><td>Referência do V2 (ajuste e quantis na validação; q99 = 638)</td><td class="n"><b>42,3%</b></td></tr>
+<tr><td>Referência corrigida: Mahalanobis ajustado no treino, q99 calibrado na validação (q99 = 1.213)</td><td class="n">1,4%</td></tr>
+<tr><td>Energia, q99 calibrado na validação</td><td class="n">0,9%</td></tr>
+</table>
+<p>Com a referência do V2, quase metade das imagens comuns do próprio Gravity Spy seria declarada “fora do domínio”. A referência corrigida reproduz a taxa nominal.</p>
+
+<h2>4. Mistura de modelos no escore OOD do ensemble</h2>
+<p>O script <code>classify_catalog_qgrams_ensemble.py</code> calcula a distância de Mahalanobis com os embeddings do primeiro modelo da lista de checkpoints, que no V2 era o <b>seed 101</b>, mas a referência OOD foi construída com o <b>seed 42</b>. Redes treinadas de forma independente têm espaços de embeddings não alinhados, e a distância resultante não tem significado. É a origem das medianas de 18.424, 11.670 e 2.228 do V2, muito acima do limiar de 638.</p>
+<table>
+<tr><th>150 canais GWTC, renderização Gravity Spy</th><th class="n">Mediana da distância</th><th class="n">Canais acima do q99</th></tr>
+<tr><td>V2 (embeddings do seed 101, referência do seed 42)</td><td class="n">2.228</td><td class="n">150 de 150</td></tr>
+<tr><td>Seed 42 consistente, referência do V2 (problema da seção 3)</td><td class="n">853</td><td class="n">144 de 150</td></tr>
+<tr><td>Seed 42 consistente, referência corrigida – Mahalanobis</td><td class="n">773</td><td class="n"><b>2 de 150</b></td></tr>
+<tr><td>Seed 42 consistente, referência corrigida – energia</td><td class="n">–</td><td class="n">59 de 150</td></tr>
+<tr><td>Seed 42 consistente, referência corrigida – algum dos dois</td><td class="n">–</td><td class="n"><b>60 de 150</b></td></tr>
+</table>
+<p>Com o cálculo consistente, a distância de Mahalanobis dos Q-grams reais fica, na mediana, abaixo do limiar, e a rejeição passa a vir quase toda do escore de energia. É o mesmo padrão que a linha 2.0 obteve nos 475 canais de 218 eventos (Mahalanobis acima de q99 cai de 475 para 49 e energia sobe de 0 para 227 com a renderização Gravity Spy).</p>
+
+<h2>5. Afirmações do V2 corrigidas</h2>
+<table>
+<tr><th style="width:38%">Onde / afirmação no V2</th><th>Correção</th></tr>
+<tr><td>Resumo e Conclusão: “todos os 150 canais ainda ficam acima do limiar OOD”; “a transferência não está validada porque todos os canais continuam fora do domínio”</td><td>Com o cálculo consistente, 60 de 150 canais (40%) excedem algum limiar q99, e 90 ficam dentro dos dois, com um único modelo (seed 42). A transferência continua não validada, mas pelos motivos da seção 6, e não por rejeição universal.</td></tr>
+<tr><td>Seção 6.3, tabela: medianas de Mahalanobis 18.424 / 11.670 / 2.228 e “150 / 150 / 150 canais acima do q99”</td><td>Valores calculados com modelos misturados e limiar subestimado; não devem ser usados. A tendência (a renderização Gravity Spy aproxima os dados reais do domínio de treino) se mantém.</td></tr>
+<tr><td>Figura 6 (distância de Mahalanobis nas três renderizações)</td><td>Inválida pelos motivos das seções 3 e 4.</td></tr>
+<tr><td>Seção 6.1 e Anexo C: confusão Paired_Doves → Extremely_Loud (2 de 4)</td><td>São as 2 cópias do painel vazio no teste, não um erro de morfologia.</td></tr>
+<tr><td>Seção 6.1: macro-F1 0,856 ± 0,006</td><td>Valor correto para o conjunto de teste com as cópias; sem elas, 0,871 ± 0,007. Os modelos foram treinados com o painel vazio.</td></tr>
+<tr><td>Seção 8 (limitações) e Seção 10 (próximos passos): “diferença de domínio persistente”, “fechar a diferença de domínio”</td><td>A diferença existe, mas é bem menor que a relatada; os próximos passos devem partir dos escores corrigidos e de uma referência por modelo.</td></tr>
+</table>
+
+<h2>6. O que permanece válido</h2>
+<div class="good">
+<ul>
+<li>As três correções de pipeline do V2: orientação dos Q-grams, cores do Grad-CAM e renderização na escala Gravity Spy.</li>
+<li>O Grad-CAM concentra a atenção no próprio transiente; a “Detecção por Silhueta” do V1 continua descartada.</li>
+<li>O controle positivo: os eventos mais intensos são classificados como Chirp com confiança acima de 0,95 (a classificação do ensemble não depende do escore OOD).</li>
+<li>A revogação do estudo de caso GW151012 do V1.</li>
+<li>A correção do filtro casado e do espectrograma do kit didático.</li>
+</ul>
+</div>
+<p><b>Limites desta errata.</b> As medições OOD usam um único modelo (seed 42), treinado com o painel vazio, e uma referência corrigida em vez de uma referência por modelo. Servem para dimensionar os erros do V2, não como resultado final. A análise de referência é a da linha gwproject 2.0 (<code>VALIDATION_REPORT.md</code> e <code>research/RENDERIZADOR_GRAVITY_SPY.md</code>), que retreina os modelos sem o painel vazio e constrói uma referência OOD por modelo.</p>
+
+<h2>7. Reprodutibilidade</h2>
+<p>Script: <code>docs/relatorios/fontes/errata_metrics.py</code>; resultados: <code>errata_metrics.json</code> na mesma pasta. O script usa o código e os modelos da branch <code>v9</code> e os dados locais do Gravity Spy e dos Q-grams:</p>
+<p><code>git worktree add ../GW-v9 v9</code><br>
+<code>python docs/relatorios/fontes/errata_metrics.py ../GW-v9 errata_metrics.json</code></p>
+<p class="small">Executado em 17/10/2026, NVIDIA RTX 3060, PyTorch 2.5.1 + CUDA 12.1, fp32. Os problemas 1 e 2 foram identificados na revisão da linha gwproject 2.0 (PR #2); o problema 3 foi encontrado ao quantificá-los.</p>
+
+</body></html>
