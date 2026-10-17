@@ -4,6 +4,8 @@ Pipeline auditável para aquisição e condicionamento de strain dos 218 eventos
 do GWTC-4, análise catalogal, diagnósticos tempo–frequência e estudo de validade
 externa de classificadores Gravity Spy.
 
+Repositório: <https://github.com/jean5429/gw-pic-2026>
+
 O repositório possui uma única interface de linha de comando e uma única identidade de pacote. Resultados científicos são separados de artefatos de execução, e toda análise relevante deve registrar configuração, hashes e manifesto de ambiente.
 
 ## Escopo científico
@@ -22,6 +24,8 @@ As rotinas de ridge e matched filtering são diagnósticos locais. Elas não imp
 ### Núcleo
 
 ```powershell
+git clone https://github.com/jean5429/gw-pic-2026.git
+cd gw-pic-2026
 conda env create -f environment-core.yml
 conda activate gwproject
 python -m pip install -e .
@@ -186,13 +190,33 @@ gw_student_kit/          kit didático independente (filtro casado, DSP)
 Veja [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) para a fronteira completa
 entre resultados canônicos e históricos.
 
+## Linha anterior (v9) e relatórios PIC
+
+Até 17/10/2026 a branch `main` continha a linha v9 (90 eventos GWTC-3), com
+modelos treinados versionados via Git LFS e as saídas usadas no Relatório V2.
+Essa linha está preservada na branch [`v9`](https://github.com/jean5429/gw-pic-2026/tree/v9).
+Os relatórios do PIC ficam em [`docs/relatorios/`](docs/relatorios/):
+
+- [Relatório V2](docs/relatorios/Relatorio_PIC_Ondas_Gravitacionais_V2.pdf):
+  auditoria da linha v9 (orientação dos Q-grams, cores do Grad-CAM, escala de
+  intensidade) e correção do kit didático;
+- relatório V1 (`Relatorio_PIC_Ondas_Gravitacionais.doc` e `.doc.pdf`) e a
+  verificação do cálculo de filtragem.
+
+Os resultados do V2 se referem aos modelos e à referência OOD da linha v9.
+Dois problemas daquela linha, identificados na 2.0, afetam suas conclusões: um
+painel vazio repetido 161 vezes nos dados Gravity Spy (treino, validação e teste) e o limiar OOD calibrado
+nas mesmas amostras em que a referência foi ajustada. Ver `VALIDATION_REPORT.md`
+e `MIGRACAO_GW_PIC_2026.md`.
+
 ## Kit didático
 
 `gw_student_kit/` é material de ensino independente do pacote: filtro
 passa-banda, PSD, espectrograma, filtro casado com chirp newtoniano e um
 autoencoder simples. Veio do repositório jean5429/gw-pic-2026 e foi corrigido na
-incorporação (normalização da SNR, banda e instante de fusão). Não produz
-resultados do projeto.
+incorporação (normalização da SNR, banda e instante de fusão). O espectrograma
+mostra a potência relativa à mediana de cada frequência, como a transformada Q.
+Não produz resultados do projeto.
 
 ```powershell
 python gw_student_kit\main_demo.py --synthetic
