@@ -1,19 +1,21 @@
 [metadata]
 program_name = "GW Open-World Robustness Program"
-version = "0.9.0"
+version = "2.0.0"
 status = "exploratory_preregistered"
 base_seed = 2026
 
 [gravity_spy_panel]
+crop_mode = "official"
+crop_left = 105
+crop_top = 66
+crop_right = 671
+crop_bottom = 532
+apply_frequency_crop = false
 source_fmin_hz = 10.0
 source_fmax_hz = 2048.0
 target_fmin_hz = 20.0
 target_fmax_hz = 512.0
 frequency_scale = "log"
-remove_axes = true
-remove_ticks = true
-remove_titles = true
-remove_colorbar = true
 output_height = 140
 output_width = 170
 normalize_after_crop = false
@@ -27,9 +29,10 @@ source_outseg_seconds = 4.0
 target_duration_seconds = 1.0
 baseline_mode = "per_frequency_median"
 flip_frequency = true
-# "gravity_spy" reproduz a escala dos PNGs de treino (energia 0-25,5 em viridis -> cinza);
-# "percentile" usa baseline_mode + log1p + percentis (renderizacao anterior).
-render_mode = "gravity_spy"
+# "percentile" (canonico): baseline + log1p + percentis.
+# "gravity_spy" (exploratorio): energia 0-25,5 em viridis -> cinza, como nos PNGs de
+# treino; ignora baseline e percentis. Nao trocar o canonico sem nova decisao registrada.
+render_mode = "percentile"
 batch_size = 32
 num_workers = 2
 minimum_vote_fraction = 0.8
@@ -42,11 +45,14 @@ minimum_acceptable_balanced_accuracy_for_trivial_probe = 0.60
 failure_if_balanced_accuracy_above = 0.75
 
 [open_world]
-reference_split = "val"
+reference_fit_split = "train"
+calibration_split = "val"
+final_control_split = "test"
 energy_quantiles = [0.95, 0.99]
 mahalanobis_quantiles = [0.95, 0.99]
 ensemble_seeds = [11, 23, 42, 71, 101]
 minimum_vote_fraction = 0.8
+minimum_ood_model_fraction = 0.6
 maximum_mutual_information = 0.10
 
 [phase_counterfactual]

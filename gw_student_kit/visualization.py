@@ -47,42 +47,18 @@ def plot_strain_comparison(time: np.ndarray, raw_data: np.ndarray,
     plt.close()
 
 
-def relative_spectrogram(data: np.ndarray, fs: float, nperseg: int = 256,
-                         noverlap: int = 220) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """
-    STFT com a potência de cada frequência dividida pela sua mediana no tempo.
-
-    O ruído dos detectores é "colorido": as baixas frequências têm ordens de grandeza
-    mais potência e escondem o chirp. Normalizar cada linha pela mediana (como o
-    ``norm="median"`` da transformada Q do gwpy) mostra quanto cada ponto se destaca do
-    ruído típico daquela frequência, e o resultado não depende da escala do strain
-    (~1e-21). Valor 1 = ruído típico.
-    """
-    f, t_spec, sxx = signal.spectrogram(data, fs=fs, nperseg=nperseg, noverlap=noverlap)
-    median = np.median(sxx, axis=1, keepdims=True)
-    floor = np.finfo(float).tiny
-    # Linhas sem potência (ex.: abaixo do passa-banda) ficam em zero, sem divisão por zero.
-    relative = np.where(median > floor, sxx / np.maximum(median, floor), 0.0)
-    return f, t_spec, relative
-
-
-def plot_spectrogram(data: np.ndarray, fs: float, save_path: str = None,
+def plot_spectrogram(data: np.ndarray, fs: float, save_path: str = None, 
                      title: str = "Espectrograma Tempo-Frequência (Chirp Signal)",
                      xlim: tuple = None):
     """
-    Plota o Espectrograma (Short-Time Fourier Transform) no domínio tempo-frequência,
-    com a potência relativa à mediana de cada frequência (ver ``relative_spectrogram``).
-
-    A versão original somava um piso fixo de 1e-30 antes do logaritmo; como a potência
-    do strain real é ~1e-46/Hz, o mapa virava uma constante (-300 dB) e saía preto.
+    Plota o Espectrograma (Short-Time Fourier Transform) no domínio tempo-frequência.
     """
-    f, t_spec, relative = relative_spectrogram(data, fs)
-
+    f, t_spec, Sxx = signal.spectrogram(data, fs=fs, nperseg=256, noverlap=220)
+    
     plt.figure(figsize=(10, 5))
-    # Escala linear em unidades da mediana: 1 = ruído típico; o chirp aparece acima.
-    vmax = max(float(np.percentile(relative, 99.9)), 5.0)
-    plt.pcolormesh(t_spec, f, relative, shading='gouraud', cmap='inferno', vmin=0.0, vmax=vmax)
-    plt.colorbar(label='Potência relativa à mediana')
+    # Escala logarítmica para evidenciar energias fracas
+    plt.pcolormesh(t_spec, f, 10 * np.log10(Sxx + 1.0e-30), shading='gouraud', cmap='inferno')
+    plt.colorbar(label='Potência (dB)')
     plt.ylim(20, 500)
     if xlim:
         plt.xlim(xlim)

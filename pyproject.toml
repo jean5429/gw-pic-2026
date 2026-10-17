@@ -3,10 +3,10 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "gwproject-v8"
-version = "0.9.0"
-license = {text = "MIT"}
-description = "Pipeline auditavel de catalogo GWTC e programa open-world de robustez para glitches"
+name = "gwproject"
+version = "2.0.0"
+description = "Pipeline auditavel para catalogos de ondas gravitacionais, morfologia e robustez open-world"
+readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
   "numpy>=1.26,<3",
@@ -15,14 +15,31 @@ dependencies = [
   "matplotlib>=3.8,<4",
   "h5py>=3.10,<4",
   "requests>=2.31,<3",
+  "truststore>=0.10,<1; platform_system == 'Windows'",
   "tqdm>=4.66,<5",
 ]
 
 [project.optional-dependencies]
 gw = ["gwpy>=3.0,<5", "gwosc>=0.7,<1"]
-# PyTorch/torchvision com CUDA sao instalados por scripts/install_gpu_windows.ps1
-ml = ["scikit-learn>=1.4,<2", "pillow>=10,<13", "opencv-python>=4.8,<4.10"]
-test = ["pytest>=8,<10"]
+ml = [
+  "scikit-learn>=1.4,<2",
+  "pillow>=10,<13",
+  "torch>=2.5,<3",
+  "torchvision>=0.20,<1",
+]
+test = ["pytest>=8,<10", "pytest-cov>=5,<7"]
+all = [
+  "gwpy>=3.0,<5",
+  "gwosc>=0.7,<1",
+  "scikit-learn>=1.4,<2",
+  "pillow>=10,<13",
+  "torch>=2.5,<3",
+  "torchvision>=0.20,<1",
+]
+
+[project.scripts]
+gwproject = "gwproject.cli:main"
+gwproject-research = "gwproject.research_cli:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
@@ -31,6 +48,7 @@ package-dir = {"" = "src"}
 where = ["src"]
 
 [tool.pytest.ini_options]
+# "." expoe o kit didatico gw_student_kit, que fica fora do pacote.
 pythonpath = ["src", "."]
 testpaths = ["tests"]
 addopts = "-q -m 'not benchmark'"
@@ -38,3 +56,14 @@ markers = [
   "benchmark: teste dependente do hardware; executar separadamente",
   "network: teste que requer acesso externo",
 ]
+
+[tool.coverage.run]
+omit = [
+  "src/gwproject/commands/*",
+  "src/gwproject/cli.py",
+  "src/gwproject/research_cli.py",
+]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false

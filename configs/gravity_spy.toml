@@ -45,3 +45,4 @@ macro_f1_min = 0.80
 balanced_accuracy_min = 0.80
 kappa_min = 0.80
 per_class_f1_min = 0.40
+ece_max = 0.08

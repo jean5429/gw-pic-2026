@@ -2,6 +2,7 @@ import numpy as np
 
 from gwproject.config import load_toml
 from gwproject.matched_filter import (
+    estimate_offsource_psd,
     matched_filter_snr,
     taylorf2_tapered_extension,
     taylorf2_template,
@@ -50,6 +51,21 @@ def test_template_bank_has_no_inert_member():
             extension_factor=cfg["signal"]["extension_factor"],
         )
         assert band.bandwidth_inspiral >= cfg["gate"]["minimum_template_bandwidth_hz"], name
+
+
+def test_offsource_psd_excludes_central_transient():
+    rng = np.random.default_rng(2026)
+    clean = rng.normal(size=int(FS * 12))
+    contaminated = clean.copy()
+    event_index = len(clean) // 2
+    contaminated[event_index - 50 : event_index + 51] += 1e5
+    clean_psd = estimate_offsource_psd(
+        clean, FS, event_index, exclusion_seconds=1.0, segment_seconds=2.0
+    )
+    contaminated_psd = estimate_offsource_psd(
+        contaminated, FS, event_index, exclusion_seconds=1.0, segment_seconds=2.0
+    )
+    assert np.allclose(clean_psd.values, contaminated_psd.values)
 
 
 def test_extended_ranking_has_required_margin():

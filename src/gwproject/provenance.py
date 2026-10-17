@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 import hashlib
-import re
 from importlib import metadata
 import json
 import os
 import platform
+import re
 import subprocess
 import sys
 from datetime import datetime, timezone
@@ -19,19 +19,26 @@ DEFAULT_PACKAGES = (
 
 
 def anonymize_paths(value: Any, home: str | Path | None = None) -> Any:
-    """Troca a pasta do usuario por ``~`` em strings (recursivo em dicts/listas).
+    """Troca a pasta do usuario por ``~`` em strings, recursivamente em dicts e listas.
 
-    Evita publicar o nome de usuario do sistema em manifestos e logs versionados.
+    Usado apenas em manifestos de proveniencia. Arquivos que o pipeline le de volta, como
+    ``run_log.json``, preservam os caminhos reais.
     """
     home_text = str(home if home is not None else Path.home()).rstrip("\\/")
     if not home_text:
         return value
     variants = {home_text, home_text.replace("\\", "/")}
-    pattern = re.compile("|".join(re.escape(v) for v in sorted(variants, key=len, reverse=True)), re.IGNORECASE)
+    # O lookahead impede trocar "C:\Users\ana" dentro de "C:\Users\anabela".
+    pattern = re.compile(
+        "(?:"
+        + "|".join(re.escape(v) for v in sorted(variants, key=len, reverse=True))
+        + r")(?![\w.-])",
+        re.IGNORECASE,
+    )
 
     def walk(item: Any) -> Any:
-        if isinstance(item, str):
-            return pattern.sub("~", item)
+        if isinstance(item, (str, os.PathLike)):
+            return pattern.sub("~", os.fspath(item))
         if isinstance(item, dict):
             return {key: walk(val) for key, val in item.items()}
         if isinstance(item, (list, tuple)):
@@ -56,6 +63,18 @@ def git_commit(root: str | Path = ".") -> str | None:
             text=True,
             stderr=subprocess.DEVNULL,
         ).strip()
+    except Exception:
+        return None
+
+
+def git_worktree_dirty(root: str | Path = ".") -> bool | None:
+    try:
+        output = subprocess.check_output(
+            ["git", "-C", str(root), "status", "--porcelain", "--untracked-files=normal"],
+            text=True,
+            stderr=subprocess.DEVNULL,
+        )
+        return bool(output.strip())
     except Exception:
         return None
 
@@ -101,6 +120,7 @@ def runtime_manifest(extra: dict[str, Any] | None = None) -> dict[str, Any]:
         "platform": platform.platform(),
         "processor": platform.processor(),
         "git_commit": git_commit(),
+        "git_worktree_dirty": git_worktree_dirty(),
         "packages": package_versions(),
         "accelerator": accelerator_manifest(),
         "environment": {
@@ -116,4 +136,5 @@ def runtime_manifest(extra: dict[str, Any] | None = None) -> dict[str, Any]:
 def write_manifest(path: str | Path, extra: dict[str, Any] | None = None) -> None:
     p = Path(path)
     p.parent.mkdir(parents=True, exist_ok=True)
-    p.write_text(json.dumps(anonymize_paths(runtime_manifest(extra)), indent=2, ensure_ascii=False, default=str), encoding="utf-8")
+    manifest = anonymize_paths(runtime_manifest(extra))
+    p.write_text(json.dumps(manifest, indent=2, ensure_ascii=False, default=str), encoding="utf-8")

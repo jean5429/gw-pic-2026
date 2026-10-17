@@ -1,6 +1,6 @@
 ---
 title: "Revisão de escopo: glitches, representações e inferência robusta em ondas gravitacionais"
-date: "25 de julho de 2026"
+date: "27 de julho de 2026"
 lang: pt-BR
 ---
 
@@ -58,15 +58,25 @@ GW191109 também tem sido discutido como exemplo de spins interessantes sob prob
 
 Shortcut learning descreve regras que funcionam em benchmarks, mas falham quando o ambiente muda. Em imagens científicas, margens, textos, marcas de equipamento, protocolos de aquisição e estilos de renderer podem ser mais fáceis de aprender que o fenômeno de interesse.
 
-O projeto local constitui um caso diagnóstico:
+O projeto local constitui um caso diagnóstico mais delimitado:
 
-- o modelo foi treinado em PNGs completos;
-- as entradas externas foram matrizes renderizadas de forma distinta;
-- a softmax permaneceu extrema;
-- somente duas classes foram usadas;
-- estatísticas de pixel reproduziram os rótulos.
+- o modelo canônico foi treinado nos painéis oficialmente recortados, não nos
+  PNGs completos;
+- as entradas externas são Q-grams GWOSC renderizados por outra cadeia;
+- as escolhas fechadas se concentraram em duas classes, mas todos os 475 canais
+  foram corretamente retidos como `reject_ood`;
+- um probe de nove estatísticas das imagens efetivamente apresentadas à CNN
+  reproduziu `None_of_the_Above` versus as demais escolhas com balanced accuracy
+  0,769 e AUROC 0,817, usando folds agrupados por evento;
+- Mahalanobis rejeitou os 475 canais em todos os checkpoints, enquanto energy
+  quase nunca os rejeitou.
 
-Isso é compatível com shortcut learning, mas não identifica sozinho qual atalho a rede utilizou. São necessários saliency, counterfactuals, renderer holdout e probes controlados.
+Isso é compatível com shortcut learning e mudança de representação, mas não
+identifica qual atalho a rede utilizou. Também não separa renderer de mudança
+semântica: Gravity Spy contém triggers de glitches, ao passo que as entradas
+externas são janelas centradas em eventos CBC catalogados. São necessários
+contrafactuais, renderer holdout pareado pelo mesmo trigger e conjuntos
+off-source/injetados.
 
 # 7. Incerteza, calibração e OOD
 
@@ -81,7 +91,11 @@ A literatura oferece várias famílias:
 - deep ensembles: dispersão entre modelos como incerteza epistemológica;
 - conformal prediction sob covariate shift: cobertura com hipóteses explícitas de pesos/importância.
 
-Nenhum método garante OOD universal. Por isso o programa v9 combina métricas e usa rejeição open-world, sem converter scores em probabilidade física.
+Nenhum método garante OOD universal. A referência local foi corrigida para
+ajustar a geometria Mahalanobis no treino, calibrar percentis na validação e
+reservar o teste como controle in-domain. Essa separação corrige leakage de
+calibração, mas a discordância energy–Mahalanobis demonstra por que combinar
+métricas não autoriza tratar a saída como probabilidade física.
 
 # 8. Domain generalization
 
@@ -115,7 +129,9 @@ Há conversões Parquet de strain público O4b. Um exemplo V1 possui mais de um 
 
 # 10. Lacunas identificadas
 
-1. Poucos trabalhos medem estabilidade da classe sob renderers fisicamente equivalentes.
+1. Na busca de escopo dirigida, não foi encontrado um benchmark GW pareado que
+   meça a estabilidade da mesma observação sob renderers fisicamente
+   equivalentes, com splits por trigger e calibração OOD independente.
 2. A fase é raramente incorporada em taxonomias visuais.
 3. OOD costuma ser avaliado em benchmarks genéricos, não entre observing runs e pipelines GW.
 4. A ligação entre embeddings de glitches e microestados instrumentais é pouco explorada publicamente.
@@ -127,7 +143,11 @@ Há conversões Parquet de strain público O4b. Um exemplo V1 possui mais de um 
 
 A literatura sustenta uma mudança de foco: de classificação fechada de imagens para modelagem multimodal, open-world e causalmente informada. O projeto local não deve competir com Gravity Spy em acurácia interna. Sua contribuição potencial está em demonstrar, de forma reprodutível, quais conclusões sobrevivem à mudança de representação e quais colapsam.
 
-A evidência atual é forte para a existência de domain shift e associação com propriedades de baixo nível; é moderada para shortcut específico; é ainda insuficiente para alegar microestados instrumentais, nova taxonomia ou impacto astrofísico. Essas últimas são hipóteses a testar.
+A evidência atual é forte para mudança no espaço latente e para associação
+pós-hoc entre decisões fechadas e propriedades globais da imagem. É insuficiente
+para atribuir causalmente o efeito a um renderer específico, porque população
+CBC e população de glitches também diferem. Continua insuficiente para alegar
+microestados instrumentais, nova taxonomia ou impacto astrofísico.
 
 # Referências essenciais
 

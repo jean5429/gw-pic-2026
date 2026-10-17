@@ -43,6 +43,17 @@ def test_prepare_panel_returns_requested_size():
     canvas[20:100, 30:145] = np.tile(np.linspace(0, 100, 115, dtype=np.uint8), (80, 1))
     image = prepare_gravity_spy_panel(
         Image.fromarray(canvas),
-        config=PanelCropConfig(output_height=64, output_width=72, padding_pixels=0),
+        config=PanelCropConfig(crop_mode="auto", output_height=64, output_width=72, padding_pixels=0),
     )
     assert image.size == (72, 64)
+
+
+def test_prepare_panel_uses_official_fixed_crop():
+    canvas = np.full((700, 800), 255, dtype=np.uint8)
+    canvas[66:532, 105:671] = 40
+    image = prepare_gravity_spy_panel(
+        Image.fromarray(canvas),
+        config=PanelCropConfig(output_height=140, output_width=170),
+    )
+    assert image.size == (170, 140)
+    assert np.asarray(image).mean() < 50

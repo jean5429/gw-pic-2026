@@ -2,7 +2,7 @@
 
 Este kit foi desenvolvido para permitir que estudantes de física, astronomia, ciência da computação e engenharias experimentem na prática as principais técnicas modernas usadas na detecção de **Ondas Gravitacionais** (interferômetros LIGO, Virgo e KAGRA).
 
-É material didático independente do pacote `gwproject` e não produz resultados científicos do projeto. Licença MIT (ver `LICENSE` na raiz do repositório). Em 10/10/2026 o filtro casado e a demonstração foram corrigidos; as correções estão listadas no fim deste guia.
+Autoria original: repositório [jean5429/gw-pic-2026](https://github.com/jean5429/gw-pic-2026) (licença MIT, ver `LICENSE`). Incorporado ao `gwproject` em 10/10/2026 com as correções listadas abaixo. É material didático independente do pacote `gwproject` e não produz resultados científicos do projeto.
 
 ---
 
@@ -38,17 +38,17 @@ pip install torch scikit-learn
 
 ## 🚀 Como Executar
 
-Execute a partir da raiz do repositório.
+Execute a partir da raiz do `gwproject`.
 
-### 1. Eventos reais do catálogo (dados baixados pelo pipeline)
+### 1. Eventos reais do catálogo (dados do gwproject)
 
-Os arquivos brutos baixados por `scripts/run_catalog.py` ficam em `outputs/gwtc/raw/<evento>/` (`H1.hdf5`, `L1.hdf5`, ...). Informe a massa chirp **no referencial do detector**, coluna `chirp_mass_detector` de `outputs/gwtc/catalog_dataset.csv`:
+Os arquivos brutos baixados pelo pipeline ficam em `outputs/gwtc4_218/raw/<evento>/` (`H1.hdf5`, `L1.hdf5`, ...). Informe a massa chirp **no referencial do detector**, coluna `chirp_mass_detector` de `outputs/gwtc4_218/catalog.csv`:
 
 ```bash
-python gw_student_kit/main_demo.py --event outputs/gwtc/raw/GW150914-v4 --chirp-mass 30.69
+python gw_student_kit/main_demo.py --event outputs/gwtc4_218/raw/GW150914-v4 --chirp-mass 30.69
 ```
 
-Resultado de referência (10/10/2026): H1 com ρ ≈ 15,0 e L1 com ρ ≈ 10,8 perto de t = 16,02 s, com L1 ~7 ms antes de H1. As análises oficiais, com formas de onda completas, obtêm valores maiores. Em eventos fracos o template de ordem dominante pode não se destacar do ruído: no GW151012 (massa chirp 18,72 M☉ no detector), L1 dá ρ ≈ 5,3 perto de t = 16,05 s, mas o pico global de H1 (ρ ≈ 5,0) cai em t ≈ 1,8 s, longe do evento.
+Resultado de referência (10/10/2026): H1 com ρ ≈ 15,0 e L1 com ρ ≈ 10,8 perto de t = 16,02 s, com L1 ~7 ms antes de H1. As análises oficiais, com formas de onda completas, obtêm valores maiores. Em eventos fracos, como o GW151012, o template de ordem dominante pode não se destacar do ruído em todos os detectores.
 
 O leitor aceita tanto arquivos gravados pelo gwpy quanto os HDF5 oficiais do GWOSC.
 
@@ -62,7 +62,7 @@ python gw_student_kit/main_demo.py --synthetic --seed 2026
 
 A SNR recuperada fica perto de 13 no instante da injeção (t = 3 s). Parte do *chirp* fica fora da banda de 30 a 400 Hz.
 
-As figuras vão para `gw_student_kit/results/<evento>/` e `gw_student_kit/results/sintetico/`. As versionadas neste repositório foram geradas com o código corrigido, em 10/10/2026.
+As figuras vão para `gw_student_kit/results/`, que não é versionada.
 
 ---
 
@@ -77,7 +77,7 @@ gw_student_kit/
 ├── visualization.py    # Plots do strain, espectrogramas e séries temporais de SNR
 ├── ml_anomaly.py       # Autoencoders 1D e detecção de anomalias com IA
 ├── main_demo.py        # Script completo para eventos reais e sintéticos
-├── results/            # Figuras geradas pela demonstração
+├── LICENSE             # Licença MIT do repositório de origem
 └── README.md           # Este guia didático
 ```
 
@@ -96,8 +96,8 @@ from gw_student_kit import (
     align_to_merger,
 )
 
-# 1. Carrega dados de um evento real baixado por scripts/run_catalog.py
-data = load_event_folder("outputs/gwtc/raw/GW150914-v4")
+# 1. Carrega dados de um evento real baixado pelo gwproject
+data = load_event_folder("outputs/gwtc4_218/raw/GW150914-v4")
 strain, fs = data["H1"]["strain"], data["H1"]["fs"]
 duration = len(strain) / fs
 
@@ -117,9 +117,9 @@ Em dados reais, aplique uma janela (por exemplo, Tukey) antes do filtro casado, 
 
 ---
 
-## 🩹 Correções de 10/10/2026
+## 🩹 Correções feitas na incorporação ao gwproject
 
-A versão anterior produzia SNR de 1,6 × 10⁹ na simulação e de 3,9 × 10¹⁰ no GW150914, com o pico fora do instante da injeção. As causas e correções:
+A versão original produzia SNR de 1,6 × 10⁹ na simulação e de 3,9 × 10¹⁰ no GW150914, com o pico fora do instante da injeção. As causas e correções:
 
 1. **Normalização do filtro casado.** Faltavam os fatores Δt da transformada de Fourier discreta, o que inflava a SNR por um fator ~f_s. Agora ⟨ρ²⟩ = 2 em ruído gaussiano.
 2. **Banda de análise.** A PSD dos dados filtrados é quase nula fora de 30 a 400 Hz, e o template não era filtrado. A divisão amplificava o template fora da banda. Agora o template recebe o mesmo filtro e a soma se restringe à banda.
@@ -128,9 +128,8 @@ A versão anterior produzia SNR de 1,6 × 10⁹ na simulação e de 3,9 × 10¹�
 5. **Template para dados reais.** O *chirp* de brinquedo não descreve uma binária. Os eventos reais usam `generate_newtonian_chirp` com a massa chirp do catálogo.
 6. **Bordas.** Janela de Tukey e PSD estimada na região central, para que os transientes do filtro não criem picos espúrios.
 7. **Reprodutibilidade.** O ruído sintético aceita semente (`--seed`).
-8. **Espectrograma.** O piso fixo de 10⁻³⁰ somado antes do logaritmo era muito maior que a potência do strain real (~10⁻⁴⁶/Hz), e o mapa saía preto. Agora `relative_spectrogram` divide a potência de cada frequência pela sua mediana no tempo (como o `norm="median"` da transformada Q), e o GW150914 fica visível nos dois detectores.
 
-As figuras em `results/` foram regeneradas com o código corrigido. As anteriores mostravam esses valores inflados e espectrogramas escuros.
+As figuras originais do repositório de origem foram geradas antes dessas correções e não foram copiadas.
 
 ---
 

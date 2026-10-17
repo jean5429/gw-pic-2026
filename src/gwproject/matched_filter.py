@@ -5,6 +5,8 @@ import numpy as np
 from numpy.typing import ArrayLike, NDArray
 from scipy.signal import get_window
 
+from .preprocessing import PSDResult, estimate_psd
+
 G_SI = 6.67430e-11
 C_SI = 2.99792458e8
 MSUN_SI = 1.98847e30
@@ -21,6 +23,56 @@ class TemplateBand:
     f_high_extended: float
     bandwidth_inspiral: float
     bandwidth_extended: float
+
+
+def estimate_offsource_psd(
+    data: ArrayLike,
+    fs: float,
+    event_index: int,
+    *,
+    exclusion_seconds: float = 1.0,
+    segment_seconds: float = 4.0,
+    overlap_fraction: float = 0.5,
+    average: str = "median",
+) -> PSDResult:
+    """Estima a PSD apenas nos lados do evento, sem contaminar pelo sinal central."""
+
+    x = np.asarray(data, dtype=float).ravel()
+    if fs <= 0 or not 0 <= event_index < len(x):
+        raise ValueError("amostragem ou indice do evento invalido")
+    exclusion = int(round(exclusion_seconds * fs))
+    left = x[: max(0, event_index - exclusion)]
+    right = x[min(len(x), event_index + exclusion + 1) :]
+    minimum = max(16, int(round(segment_seconds * fs)))
+    sides = [side for side in (left, right) if len(side) >= minimum]
+    if not sides:
+        raise ValueError("dados off-source insuficientes para estimar PSD")
+    estimates = [
+        estimate_psd(
+            side,
+            fs,
+            segment_seconds=segment_seconds,
+            overlap_fraction=overlap_fraction,
+            average=average,
+        )
+        for side in sides
+    ]
+    frequencies = estimates[0].frequencies
+    values = np.stack(
+        [
+            np.interp(frequencies, estimate.frequencies, estimate.values)
+            for estimate in estimates
+        ],
+        axis=0,
+    )
+    combined = np.median(values, axis=0)
+    return PSDResult(
+        frequencies.astype(float),
+        combined.astype(float),
+        segment_seconds,
+        overlap_fraction,
+        f"offsource_{average}",
+    )
 
 
 def chirp_mass(m1: float, m2: float) -> float:

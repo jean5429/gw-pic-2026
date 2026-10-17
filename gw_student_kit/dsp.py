@@ -114,7 +114,7 @@ def load_lwtc_hdf5(file_path: str) -> tuple[np.ndarray, float, float, str]:
             fs = 1.0 / float(ds.attrs['Xspacing'])
             gps_start = float(ds.attrs['Xstart'])
         else:
-            # Arquivo gravado pelo gwpy (TimeSeries.write), como outputs/gwtc/raw
+            # Arquivo gravado pelo gwpy (TimeSeries.write), como outputs/gwtc4_218/raw
             key = list(f.keys())[0]
             ds = f[key]
             fs = 1.0 / float(ds.attrs['dx'])

@@ -10,12 +10,18 @@ import numpy as np
 import pandas as pd
 
 from .preprocessing import preprocess
-from .provenance import write_manifest
+from .provenance import sha256_file, write_manifest
 from .segments import FiniteEventSegment, select_finite_event_segment
 
 
 def _require_gw() -> tuple[Any, Any, Any]:
     try:
+        # No Windows, Requests/certifi pode nao enxergar certificados
+        # institucionais presentes no repositório do sistema.
+        if __import__("platform").system() == "Windows":
+            import truststore
+
+            truststore.inject_into_ssl()
         from gwosc import datasets
         from gwosc.api import fetch_event_json
         from gwpy.timeseries import TimeSeries
@@ -33,12 +39,19 @@ def event_version(name: str) -> int:
     return int(parts[1]) if len(parts) == 2 and parts[1].isdigit() else 0
 
 
-def list_latest_events(catalog_names: Iterable[str]) -> list[str]:
+def list_latest_events(
+    catalog_names: Iterable[str],
+    *,
+    exclude_event_bases: Iterable[str] = (),
+) -> list[str]:
     datasets, _, _ = _require_gw()
+    excluded = {event_base_name(name) for name in exclude_event_bases}
     latest: dict[str, tuple[int, str]] = {}
     for catalog in catalog_names:
         for name in datasets.find_datasets(type="events", catalog=catalog):
             base, version = event_base_name(name), event_version(name)
+            if base in excluded:
+                continue
             if base not in latest or version > latest[base][0]:
                 latest[base] = (version, name)
     return sorted(item[1] for item in latest.values())
@@ -101,8 +114,21 @@ def fetch_event_parameters(
     }
 
 
-def build_catalog(catalog_names: Iterable[str], workers: int = 4) -> pd.DataFrame:
-    events = list_latest_events(catalog_names)
+def build_catalog(
+    catalog_names: Iterable[str],
+    workers: int = 4,
+    *,
+    exclude_event_bases: Iterable[str] = (),
+    expected_event_count: int | None = None,
+) -> pd.DataFrame:
+    events = list_latest_events(
+        catalog_names, exclude_event_bases=exclude_event_bases
+    )
+    if expected_event_count is not None and len(events) != expected_event_count:
+        raise RuntimeError(
+            f"escopo do catalogo divergiu: {len(events)} eventos; "
+            f"esperados {expected_event_count}"
+        )
     with ThreadPoolExecutor(max_workers=max(1, workers)) as executor:
         rows = list(executor.map(fetch_event_parameters, events))
     return (
@@ -161,6 +187,7 @@ def save_event_strain(
                     "event": event_name,
                     "detector": detector,
                     "raw_path": str(target),
+                    "raw_sha256": sha256_file(target),
                     "status": "ok",
                 }
             )
@@ -190,6 +217,7 @@ def existing_event_strain_entries(
                 "event": event_name,
                 "detector": detector,
                 "raw_path": str(target) if target.exists() else None,
+                "raw_sha256": sha256_file(target) if target.exists() else None,
                 "status": "ok" if target.exists() else "data_unavailable_local",
             }
         )
@@ -286,6 +314,9 @@ def process_raw_file(
     details = {
         "status": "ok",
         "processed_path": str(target),
+        "raw_sha256": sha256_file(raw_path),
+        "processed_sha256": sha256_file(target),
+        "psd_sha256": sha256_file(target.with_suffix(".psd.npz")),
         "white_std_core": diagnostics.white_std_core,
         "zero_fraction": diagnostics.quality.zero_fraction,
         "longest_zero_run_seconds": diagnostics.quality.longest_zero_run_seconds,
@@ -367,6 +398,8 @@ def gwpy_qtransform_consistent(
             "whiten": True,
             "normalization": "median",
             "shape": list(array.shape),
+            "raw_sha256": sha256_file(raw_path),
+            "qgram_sha256": sha256_file(target),
             "finite_segment": segment_info,
         }
         target.with_suffix(".json").write_text(

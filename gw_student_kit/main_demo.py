@@ -13,7 +13,7 @@ Para rodar em modo automático (detecta pastas reais locais como GW150914-v4):
    python main_demo.py
 
 Para rodar em um evento do gwproject, com a massa chirp do catálogo (referencial do detector):
-   python gw_student_kit/main_demo.py --event outputs/gwtc/raw/GW150914-v4 --chirp-mass 30.69
+   python gw_student_kit/main_demo.py --event outputs/gwtc4_218/raw/GW150914-v4 --chirp-mass 30.69
 
 Para forçar modo de dados sintéticos:
    python main_demo.py --synthetic

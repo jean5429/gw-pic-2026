@@ -24,14 +24,6 @@ class ChirpMassEstimate:
     n_bootstrap: int
     fit_method: str = "theil_sen"
 
-    @property
-    def ci_low_solar(self) -> float:
-        """Alias legado; o intervalo nao inclui o vies sistematico da extracao."""
-        return self.dispersion_low_solar
-
-    @property
-    def ci_high_solar(self) -> float:
-        return self.dispersion_high_solar
 
 
 def _mass_from_slope(slope: float) -> float:
@@ -79,7 +71,7 @@ def estimate_chirp_mass_from_ridge_points(
     *,
     n_bootstrap: int = 1000,
     seed: int = 42,
-    enforce_monotonic: bool = True,
+    enforce_monotonic: bool = False,
 ) -> ChirpMassEstimate:
     t = np.asarray(times, dtype=float).ravel()
     f = np.asarray(frequencies, dtype=float).ravel()
