@@ -19,3 +19,13 @@ artifacts/
 *.pt
 *.npy
 *.npz
+
+# Cache GWOSC dos scripts camada1_v14/v15 da linha v9 (~28 GB)
+camada1_gwtc3/
+
+# Arquivos locais / pessoais
+LOG Treino de IA.txt
+Listed directory GW.md
+~$*
+Thumbs.db
+desktop.ini
