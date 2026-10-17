@@ -6,5 +6,8 @@ channels:
 dependencies:
   - python=3.11
   - pip
+  # Binario do conda-forge: no PyPI o igwn-segments (dependencia do gwpy 4) so
+  # existe como codigo-fonte e exige compilador C no Windows.
+  - igwn-segments>=2.0
   - pip:
       - -e .[all,test]
