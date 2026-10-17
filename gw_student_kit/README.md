@@ -128,6 +128,7 @@ A versão original produzia SNR de 1,6 × 10⁹ na simulação e de 3,9 × 10¹�
 5. **Template para dados reais.** O *chirp* de brinquedo não descreve uma binária. Os eventos reais usam `generate_newtonian_chirp` com a massa chirp do catálogo.
 6. **Bordas.** Janela de Tukey e PSD estimada na região central, para que os transientes do filtro não criem picos espúrios.
 7. **Reprodutibilidade.** O ruído sintético aceita semente (`--seed`).
+8. **Espectrograma.** O piso fixo de 10⁻³⁰ somado antes do logaritmo era muito maior que a potência do strain real (~10⁻⁴⁶/Hz), e o mapa saía preto. Agora `relative_spectrogram` divide a potência de cada frequência pela sua mediana no tempo (como o `norm="median"` da transformada Q), e o GW150914 fica visível nos dois detectores.
 
 As figuras originais do repositório de origem foram geradas antes dessas correções e não foram copiadas.
 

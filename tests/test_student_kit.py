@@ -81,3 +81,20 @@ def test_inject_signal_uses_optimal_white_noise_snr():
     _, signal = generate_newtonian_chirp(fs=FS, duration=4.0, chirp_mass_solar=20.0, t_merger=3.0)
     injected = inject_signal(noise, signal, target_snr=12.0) - noise
     assert np.sqrt(np.sum(injected ** 2)) / np.std(noise) == pytest.approx(12.0)
+
+
+def test_relative_spectrogram_is_scale_free_and_highlights_burst():
+    """Strain real (~1e-21) nao pode virar um mapa constante (bug do piso fixo de 1e-30)."""
+    from gw_student_kit.visualization import relative_spectrogram
+
+    rng = np.random.default_rng(1)
+    noise = generate_detector_noise(fs=FS, duration=4.0, std_dev=1.0e-21, rng=rng)
+    t = np.arange(len(noise)) / FS
+    burst = 2.0e-20 * np.exp(-((t - 2.0) / 0.02) ** 2) * np.sin(2 * np.pi * 150.0 * t)
+    f, t_spec, relative = relative_spectrogram(noise + burst, FS)
+    _, _, scaled = relative_spectrogram((noise + burst) * 1.0e21, FS)
+    np.testing.assert_allclose(relative, scaled, rtol=1e-6)
+    assert np.median(relative) == pytest.approx(1.0, rel=0.2)
+    row = np.argmin(np.abs(f - 150.0))
+    assert abs(t_spec[np.argmax(relative[row])] - 2.0) < 0.05
+    assert relative[row].max() > 20.0
