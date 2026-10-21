@@ -195,10 +195,16 @@ entre resultados canônicos e históricos.
 Até 17/10/2026 a branch `main` continha a linha v9 (90 eventos GWTC-3), com
 modelos treinados versionados via Git LFS e as saídas usadas no Relatório V2.
 Essa linha está preservada na branch [`v9`](https://github.com/jean5429/gw-pic-2026/tree/v9).
-Os relatórios do PIC ficam em [`docs/relatorios/`](docs/relatorios/):
+Os relatórios do PIC ficam em [`docs/relatorios/`](docs/relatorios/), e o
+[glossário de uma página](docs/Glossario.pdf) ajuda na leitura:
 
-- [Relatório V3](docs/relatorios/Relatorio_PIC_Ondas_Gravitacionais_V3.pdf)
-  (mais recente): reprodução independente e completa da linha 2.0. Base de
+- [Relatório de Resultados](docs/relatorios/Relatorio_PIC_Ondas_Gravitacionais_Resultados.pdf)
+  (**comece por aqui**): a pergunta, o método e os resultados da linha 2.0 em
+  linguagem acessível. Conclusão: a rede melhorou (macro-F1 de 0,856 para
+  0,945), mas ainda não consegue identificar os eventos reais de forma
+  confiável (475/475 sinais fora do domínio com a renderização padrão);
+- [Relatório V3](docs/relatorios/Relatorio_PIC_Ondas_Gravitacionais_V3.pdf):
+  reprodução independente e completa da linha 2.0. Base de
   treino e treino das 5 seeds idênticos aos canônicos (mesmo SHA-256 do
   `aggregate_summary.json`); catálogo de 218 eventos, ensemble (475/475 canais
   fora do domínio) e experimento de renderização reproduzidos, com diferença

@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<title>Relatório de Resultados GW</title>
+<style>
+@page { size: A4; margin: 17mm 16mm 18mm; }
+:root { --ink:#1d1d1f; --muted:#55575c; --accent:#0b2d55; --rule:#c8ccd2; --soft:#eef2f7; }
+body { font-family: "Segoe UI", Calibri, Arial, sans-serif; font-size: 10.3pt; line-height: 1.5; color: var(--ink); background:#fff; margin:0; }
+.cover { border-bottom: 3px solid var(--accent); padding-bottom: 10px; margin-bottom: 14px; }
+.cover .kicker { font-size: 9pt; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.cover h1 { font-size: 20pt; color: var(--accent); margin: 2px 0 2px; line-height:1.15; }
+.cover .sub { font-size: 11pt; color: var(--muted); }
+h2 { font-size: 13.2pt; color: var(--accent); border-bottom: 1.5px solid var(--accent); padding-bottom: 2px; margin: 22px 0 8px; page-break-after: avoid; }
+h3 { font-size: 11pt; margin: 14px 0 4px; page-break-after: avoid; }
+p { margin: 5px 0 8px; text-align: justify; }
+table { border-collapse: collapse; width: 100%; margin: 6px 0 12px; font-size: 9.3pt; page-break-inside: avoid; }
+th, td { border: 1px solid var(--rule); padding: 4px 7px; vertical-align: top; text-align: left; }
+th { background: var(--soft); font-weight: 600; }
+td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+code { font-family: Consolas, monospace; font-size: 8.8pt; background: #f3f4f6; padding: 0 3px; border-radius: 3px; }
+figure { margin: 10px 0 14px; page-break-inside: avoid; text-align: center; }
+figure img { max-width: 100%; border: 1px solid #e3e5e8; }
+figcaption { font-size: 8.8pt; color: var(--muted); margin-top: 4px; text-align: left; }
+.callout { border-left: 4px solid var(--accent); background: var(--soft); padding: 7px 12px; margin: 10px 0; page-break-inside: avoid; }
+.warn { border-left: 4px solid #b42318; background: #fdf2f1; padding: 7px 12px; margin: 10px 0; page-break-inside: avoid; }
+.good { border-left: 4px solid #1a7f37; background: #eef8f0; padding: 7px 12px; margin: 10px 0; page-break-inside: avoid; }
+.simple { border: 1px dashed #9aa4b2; background: #fafbfc; padding: 6px 12px; margin: 8px 0 10px; font-size: 9.6pt; page-break-inside: avoid; }
+.simple b:first-child { color: var(--accent); }
+ul, ol { margin: 4px 0 8px 18px; padding: 0; }
+li { margin: 2px 0; }
+.pb { page-break-before: always; }
+.small { font-size: 8.8pt; color: var(--muted); }
+.kpis { display: flex; gap: 8px; margin: 10px 0 12px; page-break-inside: avoid; }
+.kpi { flex: 1; border: 1px solid var(--rule); border-radius: 4px; padding: 7px 9px; background: #fff; }
+.kpi .v { font-size: 17pt; font-weight: 700; color: var(--accent); line-height: 1.1; }
+.kpi .l { font-size: 8.4pt; color: var(--muted); line-height: 1.3; margin-top: 3px; }
+.flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0 12px; page-break-inside: avoid; }
+.step { flex: 1; border: 1px solid var(--rule); background: var(--soft); border-radius: 4px; padding: 6px 7px; font-size: 8.4pt; line-height: 1.35; }
+.step b { display: block; color: var(--accent); font-size: 8.8pt; margin-bottom: 2px; }
+.arrow { align-self: center; color: var(--muted); padding: 0 3px; font-size: 12pt; }
+</style></head><body>
+
+<div class="cover">
+  <div class="kicker">Relatório de Resultados · outubro de 2026</div>
+  <h1>Uma rede neural treinada em glitches do LIGO consegue reconhecer os eventos reais de ondas gravitacionais?</h1>
+  <div class="sub">Projeto 3 – Ondas Gravitacionais · PIC Astronomia · linha gwproject 2.0, 218 eventos do GWTC-4 · 20 de outubro de 2026</div>
+</div>
+
+<h2>Resumo</h2>
+<p>Os detectores de ondas gravitacionais registram, além dos sinais astrofísicos, muitos ruídos curtos de origem instrumental, os <i>glitches</i>. Treinamos uma rede neural para classificar esses glitches a partir de imagens tempo-frequência do projeto Gravity Spy e a aplicamos aos 218 eventos reais do catálogo GWTC-4. A rede <b>melhorou de forma clara</b>: com dados de treino limpos e um protocolo mais rigoroso, sua nota de acerto passou de 0,856 para 0,945. Nos eventos reais, porém, as imagens são diferentes demais das de treino, e a rede as reconhece como estranhas: <b>todos os 475 sinais são rejeitados como “fora do domínio”</b>. Desenhar as imagens na mesma escala do treino reduz essa diferença e faz a rede apontar “Chirp” nos eventos mais fortes, mas a maior parte desses casos continua rejeitada. <b>No momento, a rede neural melhorou, mas ainda não consegue identificar os eventos reais de forma confiável.</b></p>
+
+<div class="kpis">
+  <div class="kpi"><div class="v">0,945</div><div class="l">nota de acerto (macro-F1) nos glitches de teste — era 0,856</div></div>
+  <div class="kpi"><div class="v">475 / 475</div><div class="l">sinais reais rejeitados como “fora do domínio” (renderização padrão)</div></div>
+  <div class="kpi"><div class="v">17 / 475</div><div class="l">sinais que a rede reconhece como familiares com a renderização exploratória</div></div>
+  <div class="kpi"><div class="v">+0,50</div><div class="l">correlação entre a força do evento (SNR) e a fração “Chirp” (exploratório)</div></div>
+</div>
+
+<h2>1. A pergunta</h2>
+<div class="simple"><b>Em poucas palavras.</b> Ensinamos uma IA a reconhecer “tipos de chiado” do detector. Agora queremos saber se ela também consegue olhar para as ondas gravitacionais de verdade e dizer algo útil sobre elas.</div>
+<p>Os interferômetros LIGO (H1, L1) e Virgo (V1) medem deformações do espaço da ordem de 10<sup>−21</sup>. Nessa sensibilidade, vibrações, falhas eletrônicas e luz espalhada produzem <i>glitches</i>, transientes curtos que podem imitar ou esconder um sinal astrofísico. O projeto Gravity Spy reuniu cerca de 8 mil imagens de glitches rotuladas por voluntários em 22 classes, e redes treinadas nelas classificam bem os glitches.</p>
+<p>A pergunta deste trabalho é de <b>validade externa</b>: um classificador treinado nos painéis do Gravity Spy pode ser aplicado às imagens dos eventos reais do catálogo GWTC-4? Se pudesse, seria uma ferramenta automática para examinar a vizinhança de cada detecção. Se não pudesse, é importante saber por quê, para que ninguém confie nas respostas dele sem verificação.</p>
+
+<h2>2. Como o estudo foi feito</h2>
+<div class="flow">
+  <div class="step"><b>1. Dados</b>Strain dos 218 eventos do GWTC-4, baixado do GWOSC (475 sinais aproveitáveis)</div>
+  <div class="arrow">→</div>
+  <div class="step"><b>2. Imagem</b>Branqueamento e transformada Q: imagem tempo × frequência de 140 × 170</div>
+  <div class="arrow">→</div>
+  <div class="step"><b>3. Rede</b>5 ResNet-18 treinadas no Gravity Spy (ensemble); cada uma dá a classe mais provável</div>
+  <div class="arrow">→</div>
+  <div class="step"><b>4. “Conheço isto?”</b>Teste fora de distribuição: a imagem se parece com as de treino?</div>
+  <div class="arrow">→</div>
+  <div class="step"><b>5. Explicação</b>Grad-CAM: onde a rede olhou para decidir</div>
+</div>
+<div class="simple"><b>Em poucas palavras.</b> Transformamos o sinal de cada detector numa “foto” do som ao longo do tempo, mostramos a foto a cinco redes neurais e perguntamos duas coisas: que tipo de sinal é, e se a rede já viu algo parecido.</div>
+<ul>
+<li><b>Treino.</b> 7.807 imagens do Gravity Spy, depois de remover 159 painéis vazios repetidos (5.472 para treino, 1.177 para validação e 1.158 para teste). Cinco redes ResNet-18 foram treinadas com pontos de partida aleatórios diferentes (<i>seeds</i>), e suas respostas são combinadas (<i>ensemble</i>).</li>
+<li><b>Classificação forçada.</b> A rede sempre escolhe uma das 22 classes, mesmo diante de algo que nunca viu. Por isso a classe sozinha não basta.</li>
+<li><b>Teste “fora de distribuição” (OOD).</b> Dois medidores dizem se a imagem é familiar: a <b>distância de Mahalanobis</b> (quão longe ela fica das imagens de treino no “espaço interno” da rede) e o <b>escore de energia</b> (quão segura a rede está). Cada um tem um limite, o <b>q99</b>, calibrado para que só 1% das imagens normais o ultrapassem. A imagem recebe uma de três decisões: <i>rejeitada</i> (fora do domínio), <i>revisar</i> ou <i>candidata em domínio</i>.</li>
+<li><b>Renderização.</b> A forma de converter a energia em tons de cinza. A <b>padrão</b> (percentis) estica o contraste de cada imagem; a <b>exploratória</b> (escala Gravity Spy) imita a escala das imagens de treino.</li>
+</ul>
+
+<h2>3. Resultado 1 — a rede aprendeu bem os glitches</h2>
+<div class="simple"><b>Em poucas palavras.</b> Nas imagens do próprio Gravity Spy, a rede acerta cerca de 96% das vezes, e ficou bem melhor que a versão anterior.</div>
+<table>
+<tr><th>Métrica no conjunto de teste (5 seeds)</th><th class="n">Linha v9 (Relatório V2)</th><th class="n">Linha 2.0 (atual)</th></tr>
+<tr><td>Macro-F1 (acerto equilibrado entre as 22 classes)</td><td class="n">0,856</td><td class="n"><b>0,945 ± 0,009</b></td></tr>
+<tr><td>Acurácia balanceada</td><td class="n">0,844</td><td class="n">0,946 ± 0,012</td></tr>
+<tr><td>Acurácia</td><td class="n">0,909</td><td class="n">0,965 ± 0,004</td></tr>
+<tr><td>Referência simples (regressão linear)</td><td class="n">–</td><td class="n">0,797</td></tr>
+</table>
+<p>A melhora vem principalmente da limpeza dos dados: um painel vazio aparecia 161 vezes com rótulos diferentes e confundia a rede (errata do Relatório V2). As classes mais beneficiadas foram Paired_Doves, 1400Ripples, Whistle e No_Glitch. As mais difíceis continuam sendo as classes “genéricas”, No_Glitch (0,76) e None_of_the_Above (0,77), que por definição reúnem imagens variadas. Duas classes ficaram levemente abaixo da linha v9 (Tomte e None_of_the_Above), dentro da variação entre seeds.</p>
+<figure><img src="resultados/f1_por_classe_v9_vs_20.png" style="width:74%"><figcaption><b>Figura 1 – Acerto (F1) por classe, linha v9 × linha 2.0.</b> Média das 5 seeds no conjunto de teste. O teste da v9 incluía 21 cópias do painel vazio; o da 2.0, não.</figcaption></figure>
+<figure><img src="resultados/matriz_confusao_seed42.png" style="width:74%"><figcaption><b>Figura 2 – Matriz de confusão (seed 42).</b> Cada linha mostra, para uma classe verdadeira, a fração de imagens atribuída a cada classe. A diagonal quase completa indica poucos erros; as confusões restantes envolvem No_Glitch e None_of_the_Above.</figcaption></figure>
+
+<h2 class="pb">4. Resultado 2 — nos eventos reais, a rede não reconhece as imagens</h2>
+<div class="simple"><b>Em poucas palavras.</b> Diante das ondas gravitacionais de verdade, a rede “estranha” todas as fotos: elas não se parecem com nada do treino. Então a resposta dela para esses casos não tem valor.</div>
+<p>Com a renderização padrão, <b>os 475 sinais dos 218 eventos ultrapassam o limite de Mahalanobis em todos os cinco modelos</b> e são rejeitados como fora do domínio. Nenhum fica em “revisar” ou como candidato em domínio. As classes forçadas mostram o que acontece quando se ignora esse alerta: a rede distribui quase todos os sinais entre duas classes genéricas, None_of_the_Above (243) e Extremely_Loud (231), inclusive o GW150914, a primeira onda detectada.</p>
+<p>Uma auditoria indica que essas respostas dependem de propriedades globais da imagem, e não do sinal: nove estatísticas simples de brilho preveem se a rede dirá None_of_the_Above com acurácia balanceada de 0,769 (AUROC 0,817). É o comportamento de um classificador fora do seu domínio, que responde a “atalhos” da imagem.</p>
+<div class="callout"><b>Por que as imagens são tão diferentes?</b> As imagens de treino vêm de painéis prontos do Gravity Spy, com fundo cinza e uma escala de cores fixa. Os Q-grams dos eventos são produzidos pelo nosso pipeline, com outra escala de intensidade, janelas centradas em fusões de buracos negros e, em muitos casos, sinais fortes. A rede aprendeu a aparência específica das imagens de treino, e qualquer mudança sistemática nessa aparência basta para tirá-la do domínio.</div>
+
+<h2>5. Resultado 3 — desenhar na escala do treino aproxima, mas não resolve</h2>
+<div class="simple"><b>Em poucas palavras.</b> Quando desenhamos as fotos dos eventos com as mesmas cores das fotos de treino, a rede passa a achar muitas delas familiares e chama os eventos mais fortes de “Chirp”. Mas ela fica insegura, e a maior parte desses casos ainda é rejeitada.</div>
+<table>
+<tr><th>Mesmos 475 sinais, modelos e limites — muda só a renderização</th><th class="n">Padrão (percentis)</th><th class="n">Escala Gravity Spy</th></tr>
+<tr><td>Rejeitados (fora do domínio)</td><td class="n">475</td><td class="n">253</td></tr>
+<tr><td>Em revisão</td><td class="n">0</td><td class="n">205</td></tr>
+<tr><td>Candidatos em domínio</td><td class="n">0</td><td class="n">17</td></tr>
+<tr><td>Acima do limite de Mahalanobis</td><td class="n">475</td><td class="n">49</td></tr>
+<tr><td>Acima do limite de energia</td><td class="n">0</td><td class="n">228</td></tr>
+<tr><td>Confiança média do ensemble</td><td class="n">0,735</td><td class="n">0,536</td></tr>
+<tr><td>Sinais classificados como Chirp</td><td class="n">0</td><td class="n">58 (em 46 eventos)</td></tr>
+</table>
+<figure><img src="v3/renderizador_gravity_spy_entradas.png" style="width:100%"><figcaption><b>Figura 3 – O que a rede vê.</b> Linha de cima: eventos com a renderização padrão (fundo preto, ruído realçado). Linha do meio: os mesmos eventos na escala Gravity Spy. Linha de baixo: imagens de validação do Gravity Spy, que a rede conhece. A escala Gravity Spy aproxima a aparência das imagens de treino.</figcaption></figure>
+<figure><img src="v3/renderizador_gravity_spy_ood.png" style="width:100%"><figcaption><b>Figura 4 – Efeito da renderização.</b> À esquerda, a distância ao domínio cai para perto do limite. No centro, as decisões. À direita, a fração de sinais chamados de Chirp cresce com a força do evento (SNR de rede), o que só acontece na escala Gravity Spy.</figcaption></figure>
+<p>O resultado é promissor, mas incompleto, por três motivos:</p>
+<ul>
+<li><b>Os dois medidores discordam.</b> A distância de Mahalanobis passa a dizer “familiar”, mas o escore de energia, que antes não rejeitava nada, passa a rejeitar 228 sinais, porque a rede fica menos confiante. Enquanto essa discordância não for entendida, não há critério seguro de “em domínio”.</li>
+<li><b>Os acertos aparentes não são confiáveis.</b> Os sinais chamados de Chirp nos eventos mais fortes (GW230814, GW231226, GW230627, GW200129, GW150914) são, na maioria, <b>rejeitados</b> como fora do domínio. O GW150914, por exemplo, é Chirp nos dois detectores, mas rejeitado em H1 e só “em revisão” em L1.</li>
+<li><b>Os 17 candidatos em domínio são todos No_Glitch</b> (SNR de rede entre 7,6 e 14,5; 4 deles do Virgo): a rede reconhece como familiar justamente o que se parece com ruído comum, não os sinais.</li>
+</ul>
+
+<h2>6. Onde a rede olha — Grad-CAM no GW150914</h2>
+<div class="simple"><b>Em poucas palavras.</b> Na escala Gravity Spy, a rede presta atenção exatamente na curva da onda. É um bom sinal, mas mostrar onde ela olha não prova que a resposta é confiável.</div>
+<figure><img src="v3/gradcam_GW150914_L1_percentile.png" style="width:86%"><figcaption><b>Figura 5 – Renderização padrão:</b> o modelo da seed 42 responde Extremely_Loud.</figcaption></figure>
+<figure><img src="v3/gradcam_GW150914_L1_gravity_spy.png" style="width:86%"><figcaption><b>Figura 6 – Escala Gravity Spy:</b> o mesmo modelo responde Chirp (p = 0,86), com a atenção máxima (vermelho) sobre a trilha do sinal.</figcaption></figure>
+
+<h2>7. Diagnósticos físicos</h2>
+<p>Duas análises independentes da rede usam as massas publicadas no catálogo como ponto de partida e servem de checagem do pipeline, não de detecção:</p>
+<ul>
+<li><b>Ridge</b> (estimativa da massa de chirp pela curvatura do sinal na imagem): 201 ajustes aceitos em 475 sinais, com erro relativo mediano de 34,7% em relação ao catálogo.</li>
+<li><b>Filtro casado local</b> (comparação com formas de onda teóricas): 164 eventos analisados; nenhum passa em todos os critérios do diagnóstico completo.</li>
+</ul>
+<p>Esses números confirmam que o pipeline recupera parte da física dos eventos, mas não sustentam medição independente de massa, detecção nem taxa de falso alarme.</p>
+
+<h2>8. Conclusão</h2>
+<div class="good"><b>A rede neural melhorou.</b> Com a limpeza dos dados de treino, o treino determinístico e a calibração do teste fora de distribuição, o classificador passou de macro-F1 0,856 para 0,945 nos glitches do Gravity Spy, acerta as 22 classes de forma equilibrada e tem um critério confiável para dizer quando não conhece uma imagem (1% de alarmes falsos em imagens normais).</div>
+<div class="warn"><b>Mas ainda não consegue identificar os eventos reais.</b> Com a renderização padrão, a rede declara os 475 sinais dos 218 eventos como fora do seu domínio, e suas classes para eles não têm significado. Com a renderização na escala Gravity Spy, ela se aproxima do domínio e chega a apontar Chirp nos eventos mais fortes, mas a maioria desses casos continua rejeitada, os dois medidores de familiaridade discordam e os únicos sinais aceitos como familiares são classificados como ruído comum (No_Glitch). Não há, hoje, nenhuma configuração em que a rede reconheça os eventos reais de forma confiável.</div>
+<p>Vale lembrar que a rede foi treinada para classificar a <i>aparência</i> de glitches, não para detectar ondas gravitacionais: a classe Chirp do Gravity Spy descreve um formato, não uma origem astrofísica. O resultado negativo é, portanto, uma informação útil: ele mostra que um classificador de glitches não pode ser transferido diretamente para os eventos do catálogo, e indica que a diferença de aparência das imagens (a “mudança de domínio”) é o principal obstáculo.</p>
+
+<h2>9. Limitações</h2>
+<ul>
+<li>A comparação de renderizações é exploratória e não foi preregistrada; nenhum limite foi ajustado depois de ver os resultados, mas os intervalos de confiança não têm correção para múltiplas comparações.</li>
+<li>A população muda entre treino e uso: o treino tem glitches avulsos; o uso, janelas centradas em fusões. Isso dificulta atribuir a mudança de domínio apenas à renderização.</li>
+<li>Os painéis do Gravity Spy cobrem uma faixa de frequência própria, diferente da faixa de 20–512 Hz dos Q-grams do catálogo.</li>
+<li>O Grad-CAM tem baixa resolução (9 × 11 células) e foi examinado apenas em exemplos.</li>
+</ul>
+
+<h2>10. Próximos passos</h2>
+<ul>
+<li><b>Entender a discordância entre os medidores</b> de Mahalanobis e de energia na escala Gravity Spy.</li>
+<li><b>Controles negativos:</b> aplicar o mesmo pipeline a trechos sem evento, para saber como a rede trata ruído puro do catálogo.</li>
+<li><b>Aproximar os domínios no treino:</b> por exemplo, treinar ou ajustar a rede com Q-grams produzidos pelo nosso próprio pipeline, ou com injeções sintéticas de chirps.</li>
+<li><b>Preregistrar</b> o teste da escala Gravity Spy, se o grupo decidir seguir por ela, com critério de “em domínio” definido antes.</li>
+<li><b>Redigir o resultado negativo de validade externa</b> como primeiro texto científico.</li>
+</ul>
+
+<h2>11. Confiabilidade destes resultados</h2>
+<p>Todos os números deste relatório foram produzidos numa reprodução independente da linha gwproject 2.0 (Relatório V3). A base de treino e o treino das cinco redes saíram idênticos aos do professor, byte a byte, e o catálogo, as decisões fora de distribuição e o experimento de renderização se repetiram com diferença de no máximo um sinal em 475. A conclusão, portanto, não depende de uma máquina ou execução específica.</p>
+<p class="small">Documentos relacionados: Relatório V3 (reprodução), Errata do Relatório V2, Glossário (<code>docs/Glossario.pdf</code>), <code>VALIDATION_REPORT.md</code> e <code>research/RENDERIZADOR_GRAVITY_SPY.md</code>. Figuras 1 e 2: <code>docs/relatorios/fontes/resultados/make_figures.py</code>; Figuras 3 e 4: <code>research/figures/renderizador_gravity_spy_figuras.py</code> sobre as execuções de 17/10/2026; Figuras 5 e 6: <code>gwproject research gradcam</code>.</p>
+
+</body></html>
