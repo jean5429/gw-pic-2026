@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<title>Relatório PIC Ondas Gravitacionais V3</title>
+<style>
+@page { size: A4; margin: 17mm 16mm 18mm; }
+:root { --ink:#1d1d1f; --muted:#55575c; --accent:#0b2d55; --rule:#c8ccd2; --soft:#eef2f7; }
+body { font-family: "Segoe UI", Calibri, Arial, sans-serif; font-size: 10.3pt; line-height: 1.47; color: var(--ink); background:#fff; margin:0; }
+.cover { border-bottom: 3px solid var(--accent); padding-bottom: 10px; margin-bottom: 14px; }
+.cover .kicker { font-size: 9pt; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.cover h1 { font-size: 20pt; color: var(--accent); margin: 2px 0 2px; line-height:1.15; }
+.cover .sub { font-size: 11pt; color: var(--muted); }
+h2 { font-size: 13.2pt; color: var(--accent); border-bottom: 1.5px solid var(--accent); padding-bottom: 2px; margin: 22px 0 8px; page-break-after: avoid; }
+h3 { font-size: 11pt; margin: 14px 0 4px; page-break-after: avoid; }
+p { margin: 5px 0 8px; text-align: justify; }
+table { border-collapse: collapse; width: 100%; margin: 6px 0 12px; font-size: 9.2pt; page-break-inside: avoid; }
+th, td { border: 1px solid var(--rule); padding: 4px 7px; vertical-align: top; text-align: left; }
+th { background: var(--soft); font-weight: 600; }
+td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+table.kv td:first-child { width: 30%; font-weight: 600; background: #f8f9fb; }
+code { font-family: Consolas, monospace; font-size: 8.8pt; background: #f3f4f6; padding: 0 3px; border-radius: 3px; }
+figure { margin: 10px 0 14px; page-break-inside: avoid; text-align: center; }
+figure img { max-width: 100%; border: 1px solid #e3e5e8; }
+figcaption { font-size: 8.8pt; color: var(--muted); margin-top: 4px; text-align: left; }
+.callout { border-left: 4px solid var(--accent); background: var(--soft); padding: 7px 12px; margin: 10px 0; page-break-inside: avoid; }
+.warn { border-left: 4px solid #b42318; background: #fdf2f1; padding: 7px 12px; margin: 10px 0; page-break-inside: avoid; }
+.good { border-left: 4px solid #1a7f37; background: #eef8f0; padding: 7px 12px; margin: 10px 0; page-break-inside: avoid; }
+ul, ol { margin: 4px 0 8px 18px; padding: 0; }
+li { margin: 2px 0; }
+.pb { page-break-before: always; }
+.small { font-size: 8.8pt; color: var(--muted); }
+.tag { display:inline-block; font-size:8pt; font-weight:600; padding:0 6px; border-radius:3px; }
+.t-ok { background:#e3f4e8; color:#1a5e2c; } .t-pend { background:#fff3d6; color:#7a5200; } .t-dif { background:#e2ecfa; color:#163e74; }
+</style></head><body>
+
+<div class="cover">
+  <div class="kicker">Relatório de Acompanhamento de Pesquisa Científica · Versão 3</div>
+  <h1>Reprodução independente da linha gwproject 2.0: classificação de glitches e validade externa em 218 eventos do GWTC-4</h1>
+  <div class="sub">Projeto 3 – Ondas Gravitacionais · PIC Astronomia · 17 de outubro de 2026</div>
+</div>
+
+<h2>1. Identificação do Projeto</h2>
+<table class="kv">
+<tr><td>Título do Projeto</td><td>Classificação de Glitches em Dados do LIGO com CNNs e Análise de Interpretabilidade (Projeto 3 – Ondas Gravitacionais)</td></tr>
+<tr><td>Grupo de Pesquisa</td><td>PIC Astronomia</td></tr>
+<tr><td>Período Abrangido</td><td>10 a 17 de outubro de 2026</td></tr>
+<tr><td>Versão / Data</td><td>V3 – 17/10/2026. Sucede o Relatório V2 (07/10/2026) e sua errata.</td></tr>
+<tr><td>Linha de código</td><td>gwproject 2.0 (PR #2, Daniel Tedesco), mesclada em 17/10/2026. A linha anterior (v9) está preservada na branch <code>v9</code>.</td></tr>
+<tr><td>Repositório</td><td><code>https://github.com/jean5429/gw-pic-2026</code></td></tr>
+</table>
+
+<h2>2. Resumo Executivo</h2>
+<p>Em 17/10/2026 o projeto adotou a linha gwproject 2.0, que reconstrói o pipeline sobre 218 eventos do catálogo GWTC-4 com controle de qualidade dos dados de treino, treinamento determinístico e referência OOD calibrada por modelo. A linha anterior (v9), base do Relatório V2, tinha três problemas documentados na errata do V2: um painel vazio repetido nos dados Gravity Spy, o limiar OOD calibrado nas mesmas amostras do ajuste e a mistura de modelos no escore OOD.</p>
+<p>Este relatório documenta a <b>reprodução independente e completa</b> da linha 2.0 em outra máquina (NVIDIA RTX 3060), desde os dados brutos até as análises exploratórias, comparada com os artefatos canônicos registrados em <code>ARTIFACT_HASHES.sha256</code>:</p>
+<div class="good">
+<ul>
+<li><b>Dados de treino idênticos:</b> o controle de qualidade remove os mesmos 159 painéis vazios e produz um <code>clean_metadata.csv</code> com SHA-256 idêntico ao canônico (7.807 amostras).</li>
+<li><b>Treino reproduzido bit a bit:</b> os 5 modelos chegam às mesmas métricas até a última casa decimal; o <code>aggregate_summary.json</code> tem SHA-256 idêntico ao canônico (macro-F1 de teste 0,9449 ± 0,0092).</li>
+<li><b>Referência OOD calibrada:</b> no teste, 0,4%–1,2% das imagens ficam acima do q99 de Mahalanobis, como no relatório canônico.</li>
+<li><b>Catálogo de 218 eventos idêntico em contagem:</b> 475 canais aprovados, 153 sem dados públicos, 21 rejeitados por não finitude e 5 no branqueamento.</li>
+<li><b>Resultado principal reproduzido:</b> com o renderer canônico, os <b>475 canais são rejeitados como fora do domínio</b> Gravity Spy; as classes forçadas diferem do canônico em 1 canal de 475.</li>
+<li><b>Experimento exploratório reproduzido:</b> com a renderização Gravity Spy, a rejeição cai para 54,7% por evento, 17 canais ficam como candidatos em domínio e a fração de Chirp acompanha a SNR (Spearman +0,50), como no canônico.</li>
+</ul>
+</div>
+<p>A conclusão científica da linha 2.0 fica confirmada de forma independente: o classificador treinado nos painéis Gravity Spy <b>não pode ser usado para classificar os Q-grams GWOSC</b> com o pipeline canônico. A renderização na escala Gravity Spy reduz a mudança de domínio, mas a rejeição passa a vir do escore de energia, e o efeito permanece exploratório.</p>
+
+<h2>3. Contexto: da linha v9 à 2.0</h2>
+<table>
+<tr><th style="width:18%">Data</th><th>Marco</th></tr>
+<tr><td>07/10/2026</td><td>Relatório V2: auditoria da linha v9 (orientação dos Q-grams, cores do Grad-CAM, escala de intensidade).</td></tr>
+<tr><td>10/10/2026</td><td>PR #1 (Daniel Tedesco): correção do filtro casado do kit didático, mesclada. Correção posterior do espectrograma do kit.</td></tr>
+<tr><td>10/10/2026</td><td>PR #2 (Daniel Tedesco): proposta da linha gwproject 2.0, incorporando as correções da v9 (renderização Gravity Spy, Grad-CAM, anonimização, 300 DPI).</td></tr>
+<tr><td>17/10/2026</td><td>Merge do PR #2 na <code>main</code>; linha v9 preservada na branch <code>v9</code>; relatórios mantidos em <code>docs/relatorios/</code>.</td></tr>
+<tr><td>17/10/2026</td><td>Errata do Relatório V2: os três problemas da v9 e seu efeito quantificado (por exemplo, 60 e não 150 de 150 canais acima do limiar OOD com o cálculo corrigido).</td></tr>
+<tr><td>17/10/2026</td><td>Reprodução independente completa da linha 2.0 (este relatório).</td></tr>
+</table>
+
+<h2>4. Metodologia da Reprodução</h2>
+<h3>Ambiente</h3>
+<table class="kv">
+<tr><td>Hardware</td><td>AMD Ryzen 5 5600G, 32 GB RAM, NVIDIA GeForce RTX 3060 (12 GB)</td></tr>
+<tr><td>Software</td><td>Windows 11; ambiente conda <code>gwproject</code> (Python 3.11.17); PyTorch 2.5.1 + CUDA 12.1 (versão do treino canônico); NumPy 2.4.6, SciPy 1.17.1, pandas 2.3.3 (iguais ao <code>environment-lock-gpu.yml</code>); <b>gwpy 4.1.0</b> (o arquivo travado indica 4.0.1)</td></tr>
+<tr><td>Roteiro</td><td><code>tools/preparar_passos_1_2.ps1</code> (ambiente e painéis) e os comandos de <code>research/GUIA_DE_EXECUCAO.md</code> (treino, OOD, aquisição, catálogo, ensemble, auditoria e consolidação)</td></tr>
+</table>
+<h3>Etapas e tempos</h3>
+<table>
+<tr><th>Etapa</th><th>Comando principal</th><th class="n">Duração</th></tr>
+<tr><td>Ambiente e testes (123 aprovados)</td><td><code>tools/preparar_passos_1_2.ps1</code></td><td class="n">~40 min</td></tr>
+<tr><td>Painéis com controle de qualidade</td><td><code>gwproject research prepare-panels</code></td><td class="n">~2 min</td></tr>
+<tr><td>Treino das 5 seeds</td><td><code>gwproject research train-seeds</code></td><td class="n">1 h 46 min</td></tr>
+<tr><td>Referência OOD e controle no teste</td><td><code>build-ood</code>, <code>validate-ood</code></td><td class="n">~3 min</td></tr>
+<tr><td>Aquisição e processamento dos 218 eventos</td><td><code>gwproject acquire -- --download-strain --process --qgrams</code></td><td class="n">2 h 45 min</td></tr>
+<tr><td>Índice, metadados, ridge, filtro casado, ensemble, auditoria, consolidação</td><td><code>gwproject catalog …</code>, <code>gwproject research …</code></td><td class="n">~7 min</td></tr>
+<tr><td>Renderização exploratória, comparação e Grad-CAM</td><td><code>classify-ensemble --render-mode gravity_spy</code>, <code>compare-ensembles</code>, <code>gradcam</code></td><td class="n">~1 min</td></tr>
+</table>
+
+<h2>5. Resultados</h2>
+
+<h3>5.1 Dados Gravity Spy com controle de qualidade</h3>
+<table>
+<tr><th>Item</th><th class="n">Reprodução</th><th class="n">Canônico</th></tr>
+<tr><td>Registros da metadata oficial</td><td class="n">7.966</td><td class="n">7.966</td></tr>
+<tr><td>Painéis vazios excluídos</td><td class="n">159</td><td class="n">159</td></tr>
+<tr><td>dos quais duplicatas exatas entre divisões</td><td class="n">139</td><td class="n">139</td></tr>
+<tr><td>Amostras limpas (treino / validação / teste)</td><td class="n">7.807 (5.472 / 1.177 / 1.158)</td><td class="n">7.807 (5.472 / 1.177 / 1.158)</td></tr>
+<tr><td>SHA-256 de <code>clean_metadata.csv</code> e <code>qc_summary.json</code></td><td class="n" colspan="2" style="text-align:center"><span class="tag t-ok">idênticos</span></td></tr>
+</table>
+
+<h3>5.2 Treino das 5 seeds</h3>
+<table>
+<tr><th>Seed</th><th class="n">11</th><th class="n">23</th><th class="n">42</th><th class="n">71</th><th class="n">101</th></tr>
+<tr><td>Macro-F1 de teste</td><td class="n">0,9337</td><td class="n">0,9390</td><td class="n">0,9570</td><td class="n">0,9446</td><td class="n">0,9503</td></tr>
+<tr><td>Melhor época</td><td class="n">26</td><td class="n">17</td><td class="n">19</td><td class="n">20</td><td class="n">15</td></tr>
+</table>
+<table>
+<tr><th>Métrica de teste (5 seeds)</th><th class="n">Reprodução</th><th class="n">Canônico</th></tr>
+<tr><td>Macro-F1</td><td class="n">0,9449 ± 0,0092</td><td class="n">0,9449 ± 0,0092</td></tr>
+<tr><td>Acurácia balanceada</td><td class="n">0,9459 ± 0,0116</td><td class="n">0,9459 ± 0,0116</td></tr>
+<tr><td>Kappa</td><td class="n">0,9610 ± 0,0041</td><td class="n">0,9610 ± 0,0041</td></tr>
+<tr><td>Acurácia</td><td class="n">0,9648 ± 0,0037</td><td class="n">0,9648 ± 0,0037</td></tr>
+<tr><td>SHA-256 de <code>aggregate_summary.json</code></td><td class="n" colspan="2" style="text-align:center"><span class="tag t-ok">idêntico</span></td></tr>
+</table>
+<p>Comparado com a linha v9 (macro-F1 0,856, treinada com o painel vazio), o ganho é de cerca de 9 pontos percentuais.</p>
+
+<h3>5.3 Referência OOD por modelo (controle no teste)</h3>
+<table>
+<tr><th>Imagens de teste acima do limiar (5 modelos)</th><th class="n">Reprodução</th><th class="n">Canônico</th><th class="n">Nominal</th></tr>
+<tr><td>Mahalanobis ≥ q95</td><td class="n">3,3% – 5,4%</td><td class="n">3,4% – 5,4%</td><td class="n">5%</td></tr>
+<tr><td>Mahalanobis ≥ q99</td><td class="n">0,4% – 1,2%</td><td class="n">0,4% – 1,2%</td><td class="n">1%</td></tr>
+<tr><td>Energia ≥ q95 / q99</td><td class="n">4,5% – 6,0% / 0,4% – 1,4%</td><td class="n">–</td><td class="n">5% / 1%</td></tr>
+</table>
+<p>Para comparação, a referência da linha v9 rejeitava 42,3% das imagens de teste no q99 (errata do V2).</p>
+
+<h3>5.4 Catálogo de 218 eventos</h3>
+<table>
+<tr><th>Item</th><th class="n">Reprodução</th><th class="n">Canônico</th></tr>
+<tr><td>Eventos / combinações evento–detector</td><td class="n">218 / 654</td><td class="n">218 / 654</td></tr>
+<tr><td>Canais aprovados</td><td class="n">475</td><td class="n">475</td></tr>
+<tr><td>Sem dados públicos / não finitos / rejeitados no branqueamento</td><td class="n">153 / 21 / 5</td><td class="n">153 / 21 / 5</td></tr>
+<tr><td>Eventos em rede / com um detector / inutilizáveis</td><td class="n">204 / 14 / 0</td><td class="n">204 / 14 / 0</td></tr>
+</table>
+
+<h3>5.5 Ensemble com o renderer canônico (percentis)</h3>
+<table>
+<tr><th>Resultado (475 canais)</th><th class="n">Reprodução</th><th class="n">Canônico</th></tr>
+<tr><td><code>reject_ood</code> / <code>review</code> / <code>in_domain_candidate</code></td><td class="n">475 / 0 / 0</td><td class="n">475 / 0 / 0</td></tr>
+<tr><td>Classes forçadas: None_of_the_Above / Extremely_Loud / Repeating_Blips</td><td class="n">243 / 231 / 1</td><td class="n">244 / 230 / 1</td></tr>
+<tr><td>Excesso de Mahalanobis, log (média por evento)</td><td class="n">+1,039</td><td class="n">+1,039</td></tr>
+<tr><td>Auditoria de atalhos: acurácia balanceada / AUROC (folds por evento)</td><td class="n">0,769 / 0,817</td><td class="n">0,769 / 0,817</td></tr>
+</table>
+<div class="callout"><b>Leitura.</b> Todos os canais excedem o q99 de Mahalanobis em todos os modelos: o classificador não pode ser aplicado aos Q-grams GWOSC renderizados pelo pipeline canônico. A diferença de 1 canal na classe forçada é de um caso de quase empate entre None_of_the_Above e Extremely_Loud, sensível às últimas casas decimais dos Q-grams (seção 6).</div>
+
+<h3 class="pb">5.6 Renderização na escala Gravity Spy (exploratório)</h3>
+<table>
+<tr><th>Percentis → Gravity Spy (mesmos canais, modelos e referência)</th><th class="n">Reprodução</th><th class="n">Canônico</th></tr>
+<tr><td><code>reject_ood</code>, média por evento</td><td class="n">1,000 → 0,547 (475 → 253)</td><td class="n">1,000 → 0,544 (475 → 252)</td></tr>
+<tr><td><code>review</code></td><td class="n">0 → 205</td><td class="n">0 → 206</td></tr>
+<tr><td><code>in_domain_candidate</code></td><td class="n">0 → 17</td><td class="n">0 → 17</td></tr>
+<tr><td>Mahalanobis acima do q99</td><td class="n">475 → 49</td><td class="n">475 → 49</td></tr>
+<tr><td>Energia acima do q99</td><td class="n">0 → 228</td><td class="n">0 → 227</td></tr>
+<tr><td>Excesso de Mahalanobis (log), mediana por evento</td><td class="n">+1,039 → −0,152</td><td class="n">+1,039 → −0,153</td></tr>
+<tr><td>Confiança fechada do ensemble</td><td class="n">0,735 → 0,536</td><td class="n">0,735 → 0,536</td></tr>
+<tr><td>Classe forçada alterada</td><td class="n">464 de 475</td><td class="n">464 de 475</td></tr>
+<tr><td>Spearman(SNR de rede, fração Chirp) por evento</td><td class="n">+0,50</td><td class="n">+0,50</td></tr>
+</table>
+<figure><img src="v3/renderizador_gravity_spy_ood.png" style="width:100%"><figcaption><b>Figura 1 – Efeito da renderização nos 475 canais (reprodução).</b> À esquerda, o excesso de Mahalanobis passa de todo acima do limiar q99 para, na mediana, abaixo dele. No centro, a decisão open-world. À direita, a fração de canais forçados para Chirp cresce com a SNR de rede apenas na renderização Gravity Spy.</figcaption></figure>
+<figure><img src="v3/renderizador_gravity_spy_entradas.png" style="width:100%"><figcaption><b>Figura 2 – Entradas da CNN nos dois renderizadores e painéis de validação do Gravity Spy (reprodução).</b> A escala 0–25,5 em viridis reproduz o fundo cinza dos painéis de treino; o renderer por percentis leva o fundo ao preto.</figcaption></figure>
+<div class="warn"><b>Cautela.</b> O resultado é exploratório e não preregistrado. A rejeição agregada cai porque a distância de Mahalanobis se aproxima do domínio, mas o escore de energia passa a rejeitar 228 canais: os dois escores andam em sentidos opostos, e essa discordância está em aberto.</div>
+
+<h3>5.7 Grad-CAM do GW150914 (L1, seed 42)</h3>
+<figure><img src="v3/gradcam_GW150914_L1_percentile.png" style="width:86%"><figcaption><b>Figura 3 – Renderer canônico (percentis):</b> o checkpoint isolado prevê Extremely_Loud.</figcaption></figure>
+<figure><img src="v3/gradcam_GW150914_L1_gravity_spy.png" style="width:86%"><figcaption><b>Figura 4 – Renderização Gravity Spy:</b> prevê Chirp (p = 0,859), com a atenção máxima sobre a trilha do sinal.</figcaption></figure>
+
+<h3>5.8 Diagnósticos condicionados ao catálogo</h3>
+<table>
+<tr><th>Ridge (475 canais)</th><th class="n">Reprodução = Canônico</th></tr>
+<tr><td>Ajustes aceitos</td><td class="n">201</td></tr>
+<tr><td>Eventos com estimativa em rede / em um detector / sem estimativa</td><td class="n">75 / 40 / 103</td></tr>
+<tr><td>Erro relativo contra o catálogo condicionante: mediana / média / p90</td><td class="n">34,7% / 40,1% / 78,8%</td></tr>
+</table>
+<table>
+<tr><th>Filtro casado local (218 eventos)</th><th class="n">Reprodução = Canônico</th></tr>
+<tr><td>Análise concluída / sem template ativo / sem massas no referencial do detector</td><td class="n">164 / 12 / 42</td></tr>
+<tr><td>Template central vencedor / SNR local acima do limiar / margem top-2 / coincidência</td><td class="n">9 / 61 / 65 / 34</td></tr>
+<tr><td>Gates diagnósticos locais / gate completo</td><td class="n">7 / 0</td></tr>
+</table>
+<p>Ridge e filtro casado continuam sendo diagnósticos condicionados ao catálogo: não sustentam medição cega de massa, detecção nem taxa de falso alarme.</p>
+
+<h2 class="pb">6. Conferência com os Artefatos Canônicos</h2>
+<table>
+<tr><th>Artefato</th><th style="width:16%">SHA-256</th><th>Observação</th></tr>
+<tr><td><code>data/gravity_spy_harmonized/clean_metadata.csv</code>, <code>qc_summary.json</code></td><td><span class="tag t-ok">idênticos</span></td><td>Mesma base de treino.</td></tr>
+<tr><td><code>models/…/aggregate_summary.json</code></td><td><span class="tag t-ok">idêntico</span></td><td>Treino determinístico reproduzido bit a bit.</td></tr>
+<tr><td><code>outputs/gwtc4_218/catalog_dataset_summary.json</code></td><td><span class="tag t-ok">idêntico</span></td><td>Mesmo conjunto de canais.</td></tr>
+<tr><td>Ridge: <code>diagnostic_summary.json</code>, <code>per_event.csv</code>; filtro casado: <code>summary.json</code></td><td><span class="tag t-ok">idênticos</span></td><td>Mesmos diagnósticos.</td></tr>
+<tr><td><code>catalog.csv</code>, <code>approved_channels.csv</code>, <code>event_quality_summary.csv</code>, <code>run_log.json</code></td><td><span class="tag t-dif">diferentes</span></td><td>Valores em ponto flutuante do processamento (gwpy 4.1.0 contra 4.0.1), metadados GWOSC atualizados e caminhos locais; contagens idênticas.</td></tr>
+<tr><td>Referência OOD (<code>.npz</code>, <code>.json</code>) e controle no teste</td><td><span class="tag t-dif">diferentes</span></td><td>Arquivos zip com data de criação e registros de horário; taxas no teste compatíveis (5.3).</td></tr>
+<tr><td>Ensemble, estatísticas renderizadas, auditoria de domínio, tabela dos 218 eventos, ridge e filtro casado por canal/evento</td><td><span class="tag t-dif">diferentes</span></td><td>Propagam as diferenças numéricas dos Q-grams; resultados agregados iguais, com no máximo 1 canal de diferença.</td></tr>
+</table>
+<p>De 24 artefatos comparáveis, 7 são idênticos byte a byte; os demais diferem por fatores conhecidos e não científicos. Para uma reprodução byte a byte da etapa de aquisição, o ambiente deveria fixar o <code>gwpy</code> em 4.0.1 (seção 9).</p>
+
+<h2>7. Problemas Encontrados e Correções</h2>
+<ul>
+<li><b><code>igwn-segments</code> no Windows:</b> no PyPI só existe como código-fonte e exige compilador C; o <code>environment.yml</code> passou a instalá-lo pelo conda-forge.</li>
+<li><b>Versão do <code>gwpy</code> não fixada:</b> o <code>environment.yml</code> instalou a 4.1.0, enquanto o canônico usou a 4.0.1. É a causa provável das diferenças numéricas da seção 6.</li>
+<li><b>Execução de scripts no PowerShell:</b> a política do Windows bloqueia o perfil que carrega o conda; o roteiro foi executado com o conda adicionado ao caminho apenas no processo.</li>
+<li><b>Kit didático:</b> a correção do espectrograma (normalização pela mediana) foi trazida para a linha 2.0.</li>
+</ul>
+
+<h2>8. Estado Atual da Pesquisa</h2>
+<table>
+<tr><th style="width:34%">Item</th><th style="width:16%">Status</th><th>Observações</th></tr>
+<tr><td>Linha gwproject 2.0 adotada</td><td><span class="tag t-ok">Concluído</span></td><td>Merge do PR #2; v9 na branch <code>v9</code>.</td></tr>
+<tr><td>Errata do Relatório V2</td><td><span class="tag t-ok">Concluído</span></td><td><code>docs/relatorios/Errata_Relatorio_V2.pdf</code>.</td></tr>
+<tr><td>Reprodução independente da linha 2.0</td><td><span class="tag t-ok">Concluído</span></td><td>Dados e treino idênticos; resultados agregados reproduzidos.</td></tr>
+<tr><td>Validade externa no GWTC-4</td><td><span class="tag t-ok">Resultado negativo confirmado</span></td><td>475/475 canais fora do domínio com o renderer canônico.</td></tr>
+<tr><td>Renderização Gravity Spy</td><td><span class="tag t-pend">Exploratório</span></td><td>Reduz a distância de Mahalanobis; discordância com a energia em aberto.</td></tr>
+<tr><td>Redação científica</td><td><span class="tag t-pend">Pendente</span></td><td>Depende da decisão sobre o renderer e das questões da seção 9.</td></tr>
+</table>
+
+<h2>9. Próximos Passos</h2>
+<ul>
+<li><b>Fixar o <code>gwpy</code> 4.0.1</b> no <code>environment.yml</code> e, se desejado, repetir a aquisição para reprodução byte a byte dos artefatos de catálogo.</li>
+<li><b>Discordância entre energia e Mahalanobis</b> na renderização Gravity Spy (explicação E4 do <code>research/PARECER_CIENTIFICO_E_ROTEIRO.md</code>): entender por que a distância se aproxima do domínio enquanto a confiança cai.</li>
+<li><b>Preregistrar</b> a renderização Gravity Spy como hipótese confirmatória, se o grupo decidir seguir por ela, e definir o critério de “em domínio”.</li>
+<li><b>Examinar os 17 candidatos em domínio</b> (todos No_Glitch, SNR de rede entre 7,6 e 14,5, 4 do Virgo) e os canais forçados para Chirp nos eventos mais intensos.</li>
+<li><b>Controles negativos (off-source)</b> com o mesmo pipeline, para medir a taxa de cada decisão sem sinal.</li>
+</ul>
+
+<h2>10. Pendências para a Reunião do Grupo</h2>
+<ul>
+<li>[ ] Apresentar ao professor a reprodução bit a bit do treino e das contagens do catálogo.</li>
+<li>[ ] Decidir se o <code>gwpy</code> é fixado em 4.0.1 e a aquisição repetida.</li>
+<li>[ ] Decidir o status da renderização Gravity Spy (exploratória ou preregistrada).</li>
+<li>[ ] Definir o escopo do primeiro texto científico a partir do resultado negativo de validade externa.</li>
+</ul>
+
+<h2>11. Conclusão</h2>
+<p>A linha gwproject 2.0 foi reproduzida de forma independente, do download dos dados ao relatório: a base de treino e o treino dos cinco modelos são idênticos aos canônicos, a referência OOD está calibrada, e o catálogo de 218 eventos, o ensemble, a auditoria de domínio e os diagnósticos de ridge e filtro casado reproduzem os resultados publicados, com diferenças de no máximo um canal atribuíveis a uma versão diferente do <code>gwpy</code>. Isso confirma tanto a reprodutibilidade do pipeline quanto o resultado principal: com o pipeline canônico, os Q-grams dos eventos GWTC-4 estão fora do domínio do classificador Gravity Spy. A renderização na escala Gravity Spy reduz essa distância e faz a classe Chirp acompanhar a SNR, mas permanece exploratória enquanto a discordância entre os escores OOD não for entendida.</p>
+
+<h2 class="pb">Anexo A – Comandos da Reprodução</h2>
+<p class="small">Na raiz do repositório, com o ambiente <code>gwproject</code> ativo e <code>CUBLAS_WORKSPACE_CONFIG=:4096:8</code>:</p>
+<p style="text-align:left; line-height:1.7"><code>&amp; .\tools\preparar_passos_1_2.ps1</code><br>
+<code>gwproject research train-seeds .\data\gravity_spy_harmonized\clean_metadata.csv .\data\gravity_spy_harmonized --profile cuda_balanced --output-dir .\models\gravity_spy_harmonized_v1d1</code><br>
+<code>gwproject research aggregate-seeds .\models\gravity_spy_harmonized_v1d1</code><br>
+<code>gwproject research build-ood .\models\gravity_spy_harmonized_v1d1 --metadata .\data\gravity_spy_harmonized\clean_metadata.csv --images-root .\data\gravity_spy_harmonized --device cuda --output .\outputs\research\gwtc4_218\ood_reference.npz</code><br>
+<code>gwproject research validate-ood .\outputs\research\gwtc4_218\ood_reference.npz --metadata … --images-root … --device cuda --output .\outputs\research\gwtc4_218\ood_test_control.json</code><br>
+<code>gwproject acquire -- --download-strain --process --qgrams</code><br>
+<code>gwproject catalog index</code> · <code>gwproject catalog refresh-metadata -- --workers 4</code><br>
+<code>gwproject catalog ridge -- --workers 2 --no-resume</code> · <code>gwproject catalog matched-filter -- --workers 1 --no-resume</code> · <code>gwproject catalog diagnose-ridge</code><br>
+<code>gwproject research classify-ensemble .\models\gravity_spy_harmonized_v1d1 --ood-reference … --device cuda --output-dir .\outputs\research\gwtc4_218\gravity_spy_ensemble</code><br>
+<code>gwproject research catalog-statistics …</code> · <code>audit-domain …</code> · <code>consolidate-events … --expected-events 218</code><br>
+<code>gwproject research classify-ensemble … --render-mode gravity_spy --output-dir .\outputs\research\renderer_gravity_spy_20261017\ensemble_gravity_spy</code><br>
+<code>gwproject research compare-ensembles … --output-dir .\outputs\research\renderer_gravity_spy_20261017\comparacao</code><br>
+<code>gwproject research gradcam --event GW150914-v4 --detector L1 --render-mode gravity_spy</code></p>
+<p class="small">Figuras 1 e 2 geradas por <code>research/figures/renderizador_gravity_spy_figuras.py</code> a partir das execuções desta reprodução; as saídas completas ficam em <code>outputs/</code> e <code>models/</code>, fora do versionamento.</p>
+
+</body></html>

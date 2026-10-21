@@ -197,6 +197,12 @@ modelos treinados versionados via Git LFS e as saídas usadas no Relatório V2.
 Essa linha está preservada na branch [`v9`](https://github.com/jean5429/gw-pic-2026/tree/v9).
 Os relatórios do PIC ficam em [`docs/relatorios/`](docs/relatorios/):
 
+- [Relatório V3](docs/relatorios/Relatorio_PIC_Ondas_Gravitacionais_V3.pdf)
+  (mais recente): reprodução independente e completa da linha 2.0. Base de
+  treino e treino das 5 seeds idênticos aos canônicos (mesmo SHA-256 do
+  `aggregate_summary.json`); catálogo de 218 eventos, ensemble (475/475 canais
+  fora do domínio) e experimento de renderização reproduzidos, com diferença
+  de no máximo 1 canal;
 - [Relatório V2](docs/relatorios/Relatorio_PIC_Ondas_Gravitacionais_V2.pdf):
   auditoria da linha v9 (orientação dos Q-grams, cores do Grad-CAM, escala de
   intensidade) e correção do kit didático;

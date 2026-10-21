@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<title>Glossário do Projeto GW</title>
+<style>
+@page { size: A4; margin: 10mm 11mm; }
+body { font-family: "Segoe UI", Calibri, Arial, sans-serif; font-size: 7.9pt; line-height: 1.32; color: #1d1d1f; background: #fff; margin: 0; }
+header { border-bottom: 2.5px solid #0b2d55; padding-bottom: 4px; margin-bottom: 6px; }
+h1 { font-size: 13.5pt; color: #0b2d55; margin: 0; }
+.sub { font-size: 8.2pt; color: #55575c; }
+.cols { column-count: 2; column-gap: 7mm; }
+h2 { font-size: 8.8pt; color: #fff; background: #0b2d55; padding: 1.5px 6px; margin: 6px 0 3px; border-radius: 2px; break-after: avoid; }
+dl { margin: 0; }
+.t { break-inside: avoid; margin: 0 0 2.6px; }
+dt { font-weight: 700; color: #0b2d55; display: inline; }
+dd { display: inline; margin: 0; }
+dd::before { content: " — "; color: #898781; }
+code { font-family: Consolas, monospace; font-size: 7.4pt; background: #f1f3f6; padding: 0 2px; border-radius: 2px; }
+.flow { border: 1px solid #c8ccd2; background: #eef2f7; border-radius: 3px; padding: 4px 6px; margin: 0 0 6px; font-size: 7.9pt; break-inside: avoid; }
+.flow b { color: #0b2d55; }
+footer { margin-top: 5px; font-size: 7pt; color: #55575c; border-top: 1px solid #c8ccd2; padding-top: 3px; }
+</style></head><body>
+<header>
+  <h1>Glossário do Projeto – Classificação de Glitches do LIGO com IA</h1>
+  <div class="sub">PIC Astronomia · Projeto 3 – Ondas Gravitacionais · referência rápida para leitura dos relatórios e do código</div>
+</header>
+
+<div class="flow"><b>Fluxo do projeto:</b> detector mede o <i>strain</i> → baixamos do <b>GWOSC</b> os eventos do <b>GWTC</b> → <b>branqueamento</b> → <b>Q-gram</b> (imagem tempo × frequência) → <b>renderização</b> em cinza → <b>ensemble</b> de 5 CNNs treinadas no <b>Gravity Spy</b> → classe + <b>teste OOD</b> (“a rede conhece este tipo de imagem?”) → <b>Grad-CAM</b> mostra onde a rede olhou. Em paralelo: <b>ridge</b> e <b>filtro casado</b> como diagnósticos físicos.</div>
+
+<div class="cols">
+
+<h2>Fenômeno e detectores</h2>
+<div class="t"><dt>Onda gravitacional</dt><dd>“ondulação” do espaço-tempo produzida, por exemplo, pela fusão de dois buracos negros; viaja à velocidade da luz.</dd></div>
+<div class="t"><dt>LIGO / Virgo</dt><dd>interferômetros que medem essas ondas: braços de quilômetros cujo comprimento varia uma fração minúscula quando a onda passa.</dd></div>
+<div class="t"><dt>H1, L1, V1</dt><dd>os detectores: LIGO Hanford, LIGO Livingston e Virgo.</dd></div>
+<div class="t"><dt>Strain (deformação)</dt><dd>o que o detector mede: variação relativa do comprimento dos braços (~10⁻²¹), registrada 4.096 vezes por segundo.</dd></div>
+<div class="t"><dt>Glitch</dt><dd>ruído curto e transitório de origem instrumental ou ambiental; pode imitar ou esconder um sinal real.</dd></div>
+<div class="t"><dt>Chirp (“piado”)</dt><dd>forma típica de uma fusão: o sinal sobe rápido em frequência e amplitude até o choque. Também é uma classe do Gravity Spy.</dd></div>
+<div class="t"><dt>Massa de chirp</dt><dd>combinação das massas dos dois corpos que determina como a frequência do chirp sobe. No “referencial do detector” ela é multiplicada por (1 + z), o desvio para o vermelho.</dd></div>
+
+<h2>Dados e catálogo</h2>
+<div class="t"><dt>GWOSC</dt><dd>portal público de dados do LIGO/Virgo/KAGRA; fonte de todo o strain usado.</dd></div>
+<div class="t"><dt>GWTC / GWTC-4</dt><dd>catálogo oficial de ondas detectadas; a linha 2.0 usa 218 eventos.</dd></div>
+<div class="t"><dt>Evento (ex.: GW150914)</dt><dd>uma detecção, nomeada pela data (14/09/2015 foi a primeira).</dd></div>
+<div class="t"><dt>Canal</dt><dd>par evento + detector (ex.: GW150914 L1). São 654 possíveis, 475 aprovados.</dd></div>
+<div class="t"><dt>PSD</dt><dd>densidade espectral de potência: quanto ruído há em cada frequência.</dd></div>
+<div class="t"><dt>Branqueamento (whitening)</dt><dd>dividir os dados pelo ruído típico de cada frequência, para que nenhuma domine e o sinal apareça.</dd></div>
+<div class="t"><dt>SNR</dt><dd>razão sinal-ruído: quanto o sinal se destaca do ruído; maior = sinal mais forte.</dd></div>
+
+<h2>A imagem do sinal</h2>
+<div class="t"><dt>Q-transform / Q-gram</dt><dd>imagem tempo (horizontal) × frequência (vertical), com brilho = energia. É a “foto” que a IA analisa.</dd></div>
+<div class="t"><dt>Renderização</dt><dd>como os números do Q-gram viram tons de cinza (140 × 170 pixels).</dd></div>
+<div class="t"><dt>Percentis (canônica)</dt><dd>estica o contraste de cada imagem; fundo preto e ruído realçado.</dd></div>
+<div class="t"><dt>Escala Gravity Spy (exploratória)</dt><dd>energia de 0 a 25,5 no mapa de cores viridis, convertido em cinza — imita as imagens de treino.</dd></div>
+<div class="t"><dt>Espectrograma (STFT)</dt><dd>outra imagem tempo × frequência, mais simples; usada no kit didático.</dd></div>
+
+<h2>A inteligência artificial</h2>
+<div class="t"><dt>Gravity Spy</dt><dd>projeto em que voluntários rotularam ~8 mil imagens de glitches em 22 classes; é o conjunto de treino.</dd></div>
+<div class="t"><dt>Classes</dt><dd>os 22 rótulos (Blip, Koi_Fish, Scattered_Light, Chirp, No_Glitch, None_of_the_Above…). No_Glitch = sem glitch; None_of_the_Above = glitch que não cabe nas outras.</dd></div>
+<div class="t"><dt>CNN / ResNet-18</dt><dd>rede neural para imagens; recebe a foto e devolve uma probabilidade para cada classe.</dd></div>
+<div class="t"><dt>Treino / validação / teste</dt><dd>imagens para aprender / para ajustar escolhas / para medir o desempenho final, nunca vistas antes.</dd></div>
+<div class="t"><dt>Seed / ensemble</dt><dd>seed é o ponto de partida aleatório de um treino; o ensemble junta as 5 redes treinadas com seeds diferentes.</dd></div>
+<div class="t"><dt>Macro-F1</dt><dd>nota de acerto de 0 a 1 que dá o mesmo peso a todas as classes (linha 2.0: 0,945).</dd></div>
+<div class="t"><dt>Matriz de confusão</dt><dd>tabela “era X, a rede disse Y”; mostra onde a rede se confunde.</dd></div>
+<div class="t"><dt>Controle de qualidade (QC)</dt><dd>limpeza dos dados de treino; removeu 159 painéis vazios repetidos.</dd></div>
+<div class="t"><dt>Classificação forçada</dt><dd>a rede sempre escolhe uma classe, mesmo sem reconhecer a imagem — não existe “não sei”.</dd></div>
+
+<h2>A rede conhece esta imagem? (OOD)</h2>
+<div class="t"><dt>OOD (fora da distribuição)</dt><dd>imagem diferente demais das de treino; a classe dada pela rede não tem significado.</dd></div>
+<div class="t"><dt>Mudança de domínio</dt><dd>diferença sistemática entre os dados de treino (Gravity Spy) e os de uso (eventos GWTC).</dd></div>
+<div class="t"><dt>Distância de Mahalanobis</dt><dd>quão longe a imagem fica, no “espaço interno” da rede, das imagens de treino.</dd></div>
+<div class="t"><dt>Escore de energia</dt><dd>medida de quão segura a rede está da resposta.</dd></div>
+<div class="t"><dt>Referência OOD / limiar q99</dt><dd>a referência guarda o “normal” de cada modelo; o q99 é o corte acima do qual só 1% das imagens normais ficam.</dd></div>
+<div class="t"><dt>reject_ood / review / in_domain_candidate</dt><dd>decisões: rejeitada (fora do domínio) / revisar / parece conhecida.</dd></div>
+<div class="t"><dt>Validade externa</dt><dd>se o modelo funciona em dados diferentes dos de treino. Resultado atual: negativo (475/475 rejeitados).</dd></div>
+
+<h2>Interpretabilidade</h2>
+<div class="t"><dt>Grad-CAM</dt><dd>mapa de calor sobre a imagem mostrando a região que mais pesou na decisão (vermelho = mais).</dd></div>
+<div class="t"><dt>Atalho (shortcut)</dt><dd>quando a rede decide por algo irrelevante (fundo, bordas, brilho geral) em vez do sinal.</dd></div>
+
+<h2>Diagnósticos físicos</h2>
+<div class="t"><dt>Ridge</dt><dd>traça a crista de energia do chirp e estima a massa de chirp a partir da curvatura.</dd></div>
+<div class="t"><dt>Filtro casado / template</dt><dd>compara os dados com formas de onda teóricas (templates) e mede o encaixe pela SNR.</dd></div>
+<div class="t"><dt>Condicionado ao catálogo</dt><dd>usa as massas já publicadas como ponto de partida; não serve para descobrir eventos novos.</dd></div>
+
+<h2>Projeto e reprodutibilidade</h2>
+<div class="t"><dt>Linha v9 / linha 2.0</dt><dd>versão antiga (90 eventos, Relatório V2, branch <code>v9</code>) / versão atual do professor (218 eventos).</dd></div>
+<div class="t"><dt>Errata</dt><dd>documento que corrige erros de um relatório já publicado.</dd></div>
+<div class="t"><dt>Hash (SHA-256)</dt><dd>“impressão digital” de um arquivo: mesmo hash = arquivos idênticos byte a byte.</dd></div>
+<div class="t"><dt>Reprodutibilidade</dt><dd>outra pessoa, com os mesmos dados e código, chega ao mesmo resultado.</dd></div>
+<div class="t"><dt>Preregistro</dt><dd>definir antes o teste e o critério de sucesso, para não ajustar a análise até “dar certo”.</dd></div>
+<div class="t"><dt>Exploratório × confirmatório</dt><dd>exploratório gera hipóteses; confirmatório as testa com regras fixadas antes.</dd></div>
+<div class="t"><dt>Kit didático</dt><dd><code>gw_student_kit</code>: versão simplificada para ensino; não gera resultados do projeto.</dd></div>
+</div>
+
+<footer>Relatórios em <code>docs/relatorios/</code> · Código em <code>src/gwproject/</code> · Documentação técnica da linha 2.0: <code>VALIDATION_REPORT.md</code>, <code>research/</code></footer>
+</body></html>
