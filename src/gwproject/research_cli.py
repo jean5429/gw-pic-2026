@@ -13,6 +13,8 @@ COMMANDS = {
     "prepare-panels": "gwproject.commands.prepare_gravity_spy_panels",
     "audit-domain": "gwproject.commands.audit_current_domain_shift",
     "catalog-statistics": "gwproject.commands.compute_catalog_qgram_statistics",
+    "closure-set": "gwproject.commands.build_closure_set",
+    "closure-report": "gwproject.commands.closure_report",
     "build-ood": "gwproject.commands.build_ood_reference",
     "classify-ensemble": "gwproject.commands.classify_catalog_qgrams_ensemble",
     "compare-ensembles": "gwproject.commands.compare_ensembles",

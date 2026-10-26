@@ -1,0 +1,58 @@
+# Plano 1 de melhoria de resultados: "mesma camera".
+#
+# Criterios fixados em 26/10/2026, ANTES de qualquer resultado do teste de
+# fechamento. Nao alterar depois de abrir os resultados; uma mudanca exige nova
+# versao deste arquivo e registro no documento do plano.
+#
+# Documento: docs/relatorios/Plano_Melhoria_1_Mesma_Camera.pdf
+# Lotes:     tools/plano1/
+
+[metadata]
+plan = "Plano 1 - mesma camera"
+version = "1.0"
+status = "preregistrado"
+fixed_on = "2026-10-26"
+
+[selection]
+# Glitches Gravity Spy de O1 (strain publico no GWOSC).
+run_start_gps = 1126051217
+run_end_gps = 1137254417
+# Splits que entram nos criterios. O treino e baixado junto (mesmos arquivos),
+# mas so aparece como analise secundaria: a rede ja viu esses triggers como PNG.
+evaluation_splits = ["validation", "test"]
+# Selecao gulosa de arquivos de 4096 s: prioriza classes ainda abaixo da meta.
+# 150 arquivos (~19,5 GB, baixados e apagados um a um): 646 glitches de avaliacao
+# e 20 das 22 classes com >= 10 amostras (com 100 arquivos, Tomte ficava com 8).
+max_files = 150
+per_class_target = 40
+file_seconds = 4096
+sample_rate = 4096
+# Mesma janela dos eventos do catalogo (gwosc_pipeline.save_event_strain).
+before_seconds = 16.0
+after_seconds = 16.0
+
+[band_model]
+# Modelos retreinados com os paineis recortados em 20-512 Hz.
+panels_root = "data/gravity_spy_band20_512"
+models_root = "models/gravity_spy_band20_512"
+
+[criteria]
+# Classes com menos amostras de avaliacao que isto ficam fora do macro-F1
+# (sao reportadas, mas nao decidem).
+min_class_samples = 10
+# C1: classificacao no conjunto de fechamento (classe fechada do ensemble).
+macro_f1_min = 0.85
+accuracy_min = 0.85
+# C2: fracao de reject_ood no conjunto de fechamento. O controle in-domain
+# oficial fica em ~1%; 5% da margem para a troca de calibracao (online x C02).
+reject_ood_max = 0.05
+# C0 (pre-condicao do modelo novo, medida nos paineis oficiais recortados).
+band_model_test_macro_f1_min = 0.85
+band_model_ood_control_99_max = 0.02
+
+[bootstrap]
+replicates = 2000
+seed = 20261026
+# Unidade de reamostragem: arquivo GWOSC de 4096 s (glitches proximos no tempo
+# nao sao independentes).
+group_column = "file_start"

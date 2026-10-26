@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<title>Plano de Melhoria 1</title>
+<style>
+@page { size: A4; margin: 17mm 16mm 18mm; }
+:root { --ink:#1d1d1f; --muted:#55575c; --accent:#0b2d55; --rule:#c8ccd2; --soft:#eef2f7; }
+body { font-family: "Segoe UI", Calibri, Arial, sans-serif; font-size: 10.3pt; line-height: 1.5; color: var(--ink); background:#fff; margin:0; }
+.cover { border-bottom: 3px solid var(--accent); padding-bottom: 10px; margin-bottom: 14px; }
+.cover .kicker { font-size: 9pt; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.cover h1 { font-size: 20pt; color: var(--accent); margin: 2px 0 2px; line-height:1.15; }
+.cover .sub { font-size: 11pt; color: var(--muted); }
+h2 { font-size: 13.2pt; color: var(--accent); border-bottom: 1.5px solid var(--accent); padding-bottom: 2px; margin: 22px 0 8px; page-break-after: avoid; }
+h3 { font-size: 11pt; margin: 14px 0 4px; page-break-after: avoid; }
+p { margin: 5px 0 8px; text-align: justify; }
+table { border-collapse: collapse; width: 100%; margin: 6px 0 12px; font-size: 9.3pt; page-break-inside: avoid; }
+th, td { border: 1px solid var(--rule); padding: 4px 7px; vertical-align: top; text-align: left; }
+th { background: var(--soft); font-weight: 600; }
+td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+code { font-family: Consolas, monospace; font-size: 8.8pt; background: #f3f4f6; padding: 0 3px; border-radius: 3px; }
+pre { font-family: Consolas, monospace; font-size: 8.6pt; background: #f3f4f6; padding: 7px 10px; border-radius: 3px; margin: 6px 0 10px; white-space: pre-wrap; page-break-inside: avoid; }
+.callout { border-left: 4px solid var(--accent); background: var(--soft); padding: 7px 12px; margin: 10px 0; page-break-inside: avoid; }
+.warn { border-left: 4px solid #b42318; background: #fdf2f1; padding: 7px 12px; margin: 10px 0; page-break-inside: avoid; }
+.good { border-left: 4px solid #1a7f37; background: #eef8f0; padding: 7px 12px; margin: 10px 0; page-break-inside: avoid; }
+.simple { border: 1px dashed #9aa4b2; background: #fafbfc; padding: 6px 12px; margin: 8px 0 10px; font-size: 9.6pt; page-break-inside: avoid; }
+.simple b:first-child { color: var(--accent); }
+ul, ol { margin: 4px 0 8px 18px; padding: 0; }
+li { margin: 2px 0; }
+.pb { page-break-before: always; }
+.small { font-size: 8.8pt; color: var(--muted); }
+.kpis { display: flex; gap: 8px; margin: 10px 0 12px; page-break-inside: avoid; }
+.kpi { flex: 1; border: 1px solid var(--rule); border-radius: 4px; padding: 7px 9px; background: #fff; }
+.kpi .v { font-size: 17pt; font-weight: 700; color: var(--accent); line-height: 1.1; }
+.kpi .l { font-size: 8.4pt; color: var(--muted); line-height: 1.3; margin-top: 3px; }
+.flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0 12px; page-break-inside: avoid; }
+.step { flex: 1; border: 1px solid var(--rule); background: var(--soft); border-radius: 4px; padding: 6px 7px; font-size: 8.4pt; line-height: 1.35; }
+.step b { display: block; color: var(--accent); font-size: 8.8pt; margin-bottom: 2px; }
+.arrow { align-self: center; color: var(--muted); padding: 0 3px; font-size: 12pt; }
+</style></head><body>
+
+<div class="cover">
+  <div class="kicker">Plano de Melhoria de Resultados · nº 1 · outubro de 2026</div>
+  <h1>Plano 1 — “a mesma câmera”: gerar as imagens dos eventos e do treino do mesmo jeito</h1>
+  <div class="sub">Projeto 3 – Ondas Gravitacionais · PIC Astronomia · linha gwproject 2.0 · critérios fixados em 26 de outubro de 2026, antes de qualquer resultado</div>
+</div>
+
+<h2>Resumo</h2>
+<p>O Relatório de Resultados concluiu que a rede neural melhorou, mas ainda não reconhece os eventos reais: os 475 sinais dos 218 eventos são rejeitados como “fora do domínio”. Antes de ensinar a rede a reconhecer ondas gravitacionais (Plano 2), precisamos saber se o <b>jeito de gerar as imagens</b> — a nossa “câmera” — é parte do problema. As imagens de treino vêm do Gravity Spy; as dos eventos, do nosso código. Elas diferem na faixa de frequência e na escala de intensidade, e só trocar a escala derrubou as rejeições de 475 para cerca de 250.</p>
+<p>Este plano faz duas coisas. Primeiro, <b>iguala a faixa de frequência</b>: as imagens de treino são recortadas em 20–512 Hz, a faixa dos eventos, e as 5 seeds são retreinadas. Depois, faz um <b>teste de fechamento</b>: baixa do GWOSC o strain público nos horários de glitches que o Gravity Spy já rotulou, gera as imagens com o <i>nosso</i> código e verifica se a rede os reconhece. Como a classe verdadeira é conhecida, o teste diz se a câmera funciona antes de olharmos de novo para os eventos.</p>
+
+<div class="kpis">
+  <div class="kpi"><div class="v">646</div><div class="l">glitches de validação/teste reconstruídos pelo nosso código (20 classes com ≥ 10)</div></div>
+  <div class="kpi"><div class="v">150</div><div class="l">arquivos de O1 baixados do GWOSC, um por vez (~19,5 GB, apagados após o uso)</div></div>
+  <div class="kpi"><div class="v">4</div><div class="l">condições: modelos atuais × novos, renderer percentis × Gravity Spy</div></div>
+  <div class="kpi"><div class="v">≈ 1 dia</div><div class="l">de máquina, a maior parte download; ~2 h de GPU para o retreino</div></div>
+</div>
+
+<h2>1. Por que este é o primeiro passo</h2>
+<div class="simple"><b>Em poucas palavras.</b> Ensinamos a rede com fotos tiradas por uma câmera e testamos com fotos de outra. Se ela não reconhece o teste, não sabemos se o problema é o objeto fotografado ou a câmera. Este plano fotografa objetos <i>conhecidos</i> com a nossa câmera.</div>
+<p>O resultado atual mistura duas mudanças ao mesmo tempo: mudou a câmera (Gravity Spy → nosso código) e mudou o objeto (glitches → ondas gravitacionais). O parecer científico do professor chama isso de explicações concorrentes E1 (renderer) e E2 (semântica) e propõe o teste decisivo H-R: o mesmo trigger, renderizado por cadeias diferentes. Este plano é a versão prática desse teste. A auditoria do HDF5 oficial mostrou que ele só contém imagens prontas, não strain; por isso reconstruímos a partir do strain público, como o próprio roteiro previa.</p>
+
+<table>
+<tr><th>Etapa da câmera</th><th>Gravity Spy (treino)</th><th>Nosso código (eventos)</th><th>Neste plano</th></tr>
+<tr><td>Dados</td><td>64 s a 16 kHz (h(t) online)</td><td>32 s a 4 kHz (GWOSC)</td><td>mantém o nosso</td></tr>
+<tr><td>Transformada Q</td><td>Q 4–64, 10–2048 Hz</td><td>Q 4–64, 20–512 Hz</td><td>treino recortado em <b>20–512 Hz</b></td></tr>
+<tr><td>Janela</td><td>1 s (uma das 4 vistas)</td><td>4 s → 1 s central</td><td>igual nos dois</td></tr>
+<tr><td>Intensidade</td><td>energia 0–25,5, viridis → cinza</td><td>percentis (canônico) ou escala Gravity Spy</td><td>os dois renderers são testados</td></tr>
+<tr><td>Centro</td><td>pico do trigger Omicron</td><td>tempo GPS do evento</td><td>GPS do glitch rotulado</td></tr>
+</table>
+<p>Com a faixa diferente, um chirp de 30–300 Hz fica cerca de 1,6× mais esticado na vertical nas nossas imagens do que nas de treino. A escala de intensidade já foi testada (relatório do renderizador), mas sem a faixa igualada e sem classe verdadeira conhecida.</p>
+
+<h2>2. Pergunta, hipótese e critérios</h2>
+<div class="callout"><b>Pergunta.</b> Glitches rotulados, reconstruídos do strain público pela mesma cadeia dos eventos, são reconhecidos pela rede como os painéis oficiais?<br>
+<b>Hipótese.</b> Com a faixa de frequência e a escala de intensidade igualadas (condição B1), sim. Com os modelos atuais (A1, A2), não.</div>
+
+<p>Os critérios abaixo estão em <code>configs/plano1.toml</code> e foram fixados <b>antes</b> de qualquer resultado. Mudá-los depois exige uma nova versão do arquivo e registro neste documento.</p>
+<table>
+<tr><th>Critério</th><th>O que mede</th><th class="n">Limiar</th><th>Onde</th></tr>
+<tr><td>C0 — base do modelo novo</td><td>macro-F1 médio das 5 seeds no teste oficial (painéis recortados)</td><td class="n">≥ 0,85</td><td>lote 3</td></tr>
+<tr><td>C0 — calibração OOD</td><td>pior fração acima do q99 no teste oficial (energy ou Mahalanobis)</td><td class="n">≤ 0,02</td><td>lote 3</td></tr>
+<tr><td>C1 — classificação</td><td>macro-F1 da classe do ensemble no conjunto de fechamento</td><td class="n">≥ 0,85</td><td>lote 4</td></tr>
+<tr><td>C1 — classificação</td><td>acurácia no conjunto de fechamento</td><td class="n">≥ 0,85</td><td>lote 4</td></tr>
+<tr><td>C2 — “conheço isto?”</td><td>fração <code>reject_ood</code> no conjunto de fechamento</td><td class="n">≤ 0,05</td><td>lote 4</td></tr>
+</table>
+<ul>
+<li><b>Condição que decide:</b> B1 (modelos 20–512 Hz + renderer Gravity Spy). As outras três são comparação.</li>
+<li><b>Conjunto que decide:</b> só glitches dos splits de validação e teste. Os de treino vêm nos mesmos arquivos e são relatados à parte, porque a rede já viu esses triggers como PNG.</li>
+<li><b>Macro-F1:</b> conta só classes com pelo menos 10 amostras; as demais aparecem no relatório por classe, mas não decidem.</li>
+<li><b>Incerteza:</b> intervalos de 95% por bootstrap de <i>arquivos</i> (2.000 réplicas, semente 20261026), porque glitches próximos no tempo não são independentes. O veredito usa a estimativa pontual; o intervalo é relatado ao lado.</li>
+<li><b>Referência:</b> no painel oficial, a linha 2.0 tem macro-F1 0,945 e cauda OOD q99 de 0,4–1,4%. O limiar de 0,85 é o mínimo interno do preregistro do professor; 5% de rejeição dá margem à troca de calibração (h(t) online × dados GWOSC).</li>
+</ul>
+
+<h2>3. O conjunto de fechamento</h2>
+<p>Dos 7.807 glitches limpos, 7.209 são de O1, cujo strain é público. Os arquivos do GWOSC têm 4.096 s (130 MB a 4 kHz); baixar todos os que contêm glitches daria mais de 300 GB. Por isso uma seleção gulosa escolhe 150 arquivos (detector + horário) que cobrem o máximo de classes: cada classe vale log(1 + n) até 40 amostras, então a primeira amostra de uma classe rara pesa mais que a vigésima de uma comum. Glitches cuja janela de 32 s sai do arquivo (54 em O1) ficam de fora.</p>
+<table>
+<tr><th>Classe</th><th class="n">Teste</th><th class="n">Validação</th><th class="n">Avaliação</th><th class="n">Treino (secundário)</th></tr>
+<tr><td>Violin_Mode</td><td class="n">29</td><td class="n">22</td><td class="n">51</td><td class="n">90</td></tr>
+<tr><td>Helix</td><td class="n">27</td><td class="n">22</td><td class="n">49</td><td class="n">122</td></tr>
+<tr><td>Blip</td><td class="n">19</td><td class="n">25</td><td class="n">44</td><td class="n">67</td></tr>
+<tr><td>Repeating_Blips</td><td class="n">22</td><td class="n">22</td><td class="n">44</td><td class="n">127</td></tr>
+<tr><td>Light_Modulation</td><td class="n">24</td><td class="n">18</td><td class="n">42</td><td class="n">97</td></tr>
+<tr><td>Scattered_Light, Low_Frequency_Burst, Scratchy, Whistle</td><td class="n">17–24</td><td class="n">16–23</td><td class="n">40 cada</td><td class="n">48–85</td></tr>
+<tr><td>Koi_Fish</td><td class="n">20</td><td class="n">18</td><td class="n">38</td><td class="n">31</td></tr>
+<tr><td>Low_Frequency_Lines</td><td class="n">15</td><td class="n">20</td><td class="n">35</td><td class="n">41</td></tr>
+<tr><td>Power_Line</td><td class="n">15</td><td class="n">15</td><td class="n">30</td><td class="n">11</td></tr>
+<tr><td>Extremely_Loud</td><td class="n">10</td><td class="n">16</td><td class="n">26</td><td class="n">43</td></tr>
+<tr><td>1400Ripples</td><td class="n">8</td><td class="n">13</td><td class="n">21</td><td class="n">52</td></tr>
+<tr><td>No_Glitch</td><td class="n">13</td><td class="n">7</td><td class="n">20</td><td class="n">11</td></tr>
+<tr><td>None_of_the_Above</td><td class="n">9</td><td class="n">9</td><td class="n">18</td><td class="n">31</td></tr>
+<tr><td>Chirp</td><td class="n">9</td><td class="n">8</td><td class="n">17</td><td class="n">24</td></tr>
+<tr><td>Air_Compressor, Tomte</td><td class="n">8–9</td><td class="n">7–8</td><td class="n">16 cada</td><td class="n">2–4</td></tr>
+<tr><td>Wandering_Line</td><td class="n">7</td><td class="n">6</td><td class="n">13</td><td class="n">23</td></tr>
+<tr><td>Paired_Doves, 1080Lines (fora do macro-F1)</td><td class="n">3</td><td class="n">3</td><td class="n">6</td><td class="n">13</td></tr>
+<tr><th>Total</th><th class="n"></th><th class="n"></th><th class="n">646</th><th class="n">1.047</th></tr>
+</table>
+<p class="small">Contagens antes do processamento: alguns glitches podem cair em trechos sem dados válidos e serão registrados como rejeitados, nunca descartados em silêncio. 1080Lines tem só 1 glitch em O1 (os demais são de O2 ou de períodos não públicos). Lista exata dos arquivos: <code>outputs/research/plano1/fechamento/plan_files.csv</code>.</p>
+
+<h3>Cadeia de cada glitch (idêntica à dos eventos)</h3>
+<div class="flow">
+  <div class="step"><b>1. Download</b>arquivo GWOSC de 4.096 s (O1, 4 kHz), com retomada</div>
+  <div class="arrow">→</div>
+  <div class="step"><b>2. Recorte</b>32 s centrados no GPS do glitch, gravados como os eventos (<code>raw/&lt;id&gt;/&lt;ifo&gt;.hdf5</code>)</div>
+  <div class="arrow">→</div>
+  <div class="step"><b>3. Q-gram</b><code>gwpy_qtransform_consistent</code> com <code>configs/processing.toml</code> (20–512 Hz)</div>
+  <div class="arrow">→</div>
+  <div class="step"><b>4. Limpeza</b>apaga o arquivo de 130 MB; marca o arquivo como concluído</div>
+  <div class="arrow">→</div>
+  <div class="step"><b>5. Classificação</b><code>classify-ensemble</code> + <code>closure-report</code>, como nos eventos</div>
+</div>
+
+<h2>4. As quatro condições</h2>
+<table>
+<tr><th>Condição</th><th>Modelos</th><th>Renderer</th><th>Papel</th></tr>
+<tr><td>A1_atual_percentile</td><td>atuais (painel 10–2048 Hz)</td><td>percentis (canônico)</td><td>a situação de hoje, com classe conhecida</td></tr>
+<tr><td>A2_atual_gravity_spy</td><td>atuais</td><td>escala Gravity Spy</td><td>efeito só da intensidade</td></tr>
+<tr><td><b>B1_banda_gravity_spy</b></td><td><b>novos (painel 20–512 Hz)</b></td><td><b>escala Gravity Spy</b></td><td><b>decide o plano</b> (faixa + intensidade iguais)</td></tr>
+<tr><td>B2_banda_percentile</td><td>novos</td><td>percentis</td><td>efeito só da faixa</td></tr>
+</table>
+<p>Comparar A1 → A2 isola a intensidade; A2 → B1 isola a faixa de frequência. Cada condição gera <code>REPORT.md</code>, <code>report.json</code>, tabela por classe e matriz de confusão (300 DPI).</p>
+
+<h2>5. Como ler o resultado</h2>
+<table>
+<tr><th>Resultado</th><th>Interpretação</th><th>Próximo passo</th></tr>
+<tr><td>B1 passa em C1 e C2</td><td>A câmera está validada: glitches conhecidos são reconhecidos pelo nosso código. A rejeição dos eventos passa a refletir sobretudo a diferença de conteúdo (H-S).</td><td>Lote 5 (exploratório) e Plano 2: ensinar a rede o que é uma onda, com esta câmera.</td></tr>
+<tr><td>B1 passa em C1, falha em C2</td><td>A rede classifica bem, mas o detector OOD acha as imagens estranhas: sobra uma diferença de calibração ou de PSD/whitening.</td><td>Investigar por classe e por run antes do Plano 2; comparar energy × Mahalanobis (H-M).</td></tr>
+<tr><td>B1 falha em C1</td><td>Ainda há diferença de câmera não resolvida (whitening de 32 × 64 s, 4 × 16 kHz, centro do trigger, calibração).</td><td>Usar as tabelas por classe para achar o elemento; nova versão do plano.</td></tr>
+<tr><td>A1/A2 já passam</td><td>A faixa não era o problema (inesperado).</td><td>Registrar; o retreino deixa de ser necessário.</td></tr>
+</table>
+<div class="warn"><b>O que este plano não mostra.</b> Mesmo com a câmera validada, a rede continua sendo uma classificadora de glitches: só 60 dos 7.807 exemplos de treino são <code>Chirp</code>. Passar no Plano 1 não significa que ela identifica ondas gravitacionais; isso depende do Plano 2 (injeções de sinais simulados em ruído real) e não pode ser alegado a partir do lote 5.</div>
+
+<h2 class="pb">6. Execução em lotes</h2>
+<p>Os scripts estão em <code>tools/plano1/</code>. Eles chamam o Python do ambiente <code>gwproject</code> diretamente (sem <code>conda</code> no terminal), gravam log em <code>outputs/research/plano1/logs/</code> e param no primeiro erro. Nenhum deles altera os modelos, a referência OOD ou as saídas canônicas da linha 2.0.</p>
+<table>
+<tr><th>Lote</th><th>O que faz</th><th>Recursos</th><th class="n">Tempo</th></tr>
+<tr><td>0 — verificação</td><td>ambiente, entradas, espaço em disco (≥ 8 GB) e testes</td><td>—</td><td class="n">~5 min</td></tr>
+<tr><td>1 — conjunto de fechamento</td><td>baixa 150 arquivos de O1, recorta 1.693 glitches, gera os Q-grams, apaga os arquivos; retomável</td><td>internet, ~19,5 GB baixados</td><td class="n">4–8 h</td></tr>
+<tr><td>2 — linha de base</td><td>condições A1 e A2 (modelos atuais)</td><td>GPU</td><td class="n">~10 min</td></tr>
+<tr><td>3 — treino 20–512 Hz</td><td>painéis recortados, 5 seeds, referência OOD, controle no teste, critério C0</td><td>GPU</td><td class="n">~2 h</td></tr>
+<tr><td>4 — fechamento e veredito</td><td>condições B1 e B2, tabela das 4 condições, veredito de C1/C2</td><td>GPU</td><td class="n">~10 min</td></tr>
+<tr><td>5 — catálogo (exploratório)</td><td>só se B1 passar: modelos novos nos 475 canais, pasta própria</td><td>GPU</td><td class="n">~5 min</td></tr>
+</table>
+
+<h3>Como rodar</h3>
+<p>No PowerShell, na raiz do repositório. Para rodar tudo de uma vez (lotes 0 a 4):</p>
+<pre>powershell -ExecutionPolicy Bypass -File .\tools\plano1\executar_plano1.ps1</pre>
+<p>Ou lote a lote, por exemplo:</p>
+<pre>powershell -ExecutionPolicy Bypass -File .\tools\plano1\lote0_verificacao.ps1
+powershell -ExecutionPolicy Bypass -File .\tools\plano1\lote1_conjunto_fechamento.ps1 -SoPlano   # só mostra o plano, sem rede
+powershell -ExecutionPolicy Bypass -File .\tools\plano1\lote1_conjunto_fechamento.ps1</pre>
+<ul>
+<li><b>Queda de internet no lote 1:</b> rode o mesmo lote de novo. Cada arquivo concluído deixa um marcador em <code>fechamento/done/</code> e não é refeito; o download parcial é retomado.</li>
+<li><b>Recomeçar de um lote:</b> <code>executar_plano1.ps1 -APartirDe 2</code>.</li>
+<li><b>Modelos já treinados:</b> <code>lote3_treino_banda.ps1 -PularTreino</code>.</li>
+<li><b>Outro Python:</b> todos os lotes aceitam <code>-Python &lt;caminho do python.exe&gt;</code>.</li>
+<li>O lote 5 fica fora do <code>executar_plano1.ps1</code> de propósito: só se roda depois de ler o veredito.</li>
+</ul>
+
+<h3>O que guardar e mandar para revisão</h3>
+<ul>
+<li><code>outputs/research/plano1/fechamento/summary.json</code> (cobertura e status de cada glitch);</li>
+<li><code>outputs/research/plano1/condicoes/*/fechamento/REPORT.md</code> e <code>report.json</code>;</li>
+<li><code>outputs/research/plano1/ood_test_control_band20_512.json</code> e <code>models/gravity_spy_band20_512/aggregate_summary.json</code>;</li>
+<li>os logs de <code>outputs/research/plano1/logs/</code>.</li>
+</ul>
+
+<h2>7. Limitações conhecidas</h2>
+<ul>
+<li><b>Calibração.</b> O Gravity Spy usou o h(t) online; o GWOSC distribui o strain recalibrado. A diferença é pequena, mas pode afastar algumas imagens.</li>
+<li><b>Só O1.</b> Os glitches são de 2015–2016; os eventos vão de O1 a O4a. Passar no fechamento valida a câmera, não a estabilidade entre runs (hipótese H-D do professor).</li>
+<li><b>Faixa 20–512 Hz.</b> Classes de alta frequência (Whistle, 1400Ripples, 1080Lines) perdem parte do que as define. Esperamos queda nelas mesmo com a câmera certa; a tabela por classe mostrará.</li>
+<li><b>Classes raras.</b> Paired_Doves e 1080Lines ficam abaixo de 10 amostras e não decidem. No_Glitch tem 20, o que é pouco para a classe mais importante nos eventos fracos.</li>
+<li><b>Conhecimento prévio.</b> O efeito do renderer Gravity Spy nos eventos já foi visto (relatório de 10/10/2026). Por isso a decisão usa glitches com classe conhecida, não os eventos.</li>
+</ul>
+
+<h2>8. Arquivos deste plano</h2>
+<table>
+<tr><th>Arquivo</th><th>Conteúdo</th></tr>
+<tr><td><code>configs/plano1.toml</code></td><td>seleção dos arquivos e critérios preregistrados</td></tr>
+<tr><td><code>src/gwproject/research/closure.py</code></td><td>seleção gulosa, métricas, bootstrap por arquivo e critérios</td></tr>
+<tr><td><code>src/gwproject/commands/build_closure_set.py</code></td><td>comando <code>gwproject research closure-set</code> (download, recorte, Q-gram, retomada)</td></tr>
+<tr><td><code>src/gwproject/commands/closure_report.py</code></td><td>comando <code>gwproject research closure-report</code> (relatório e veredito)</td></tr>
+<tr><td><code>tests/test_closure.py</code></td><td>6 testes, incluindo o ciclo completo com um arquivo GWOSC simulado</td></tr>
+<tr><td><code>tools/plano1/*.ps1</code></td><td>lotes 0 a 5, funções comuns e execução em sequência</td></tr>
+</table>
+<p class="small">Referências: parecer científico e roteiro (<code>research/PARECER_CIENTIFICO_E_ROTEIRO.md</code>, hipóteses H-R, H-S, H-M, H-D e Fase 1); renderizador Gravity Spy (<code>research/RENDERIZADOR_GRAVITY_SPY.md</code>); parâmetros do Gravity Spy em <code>gravityspy/utils/utils.py</code> (github.com/Gravity-Spy/GravitySpy); Relatório de Resultados da linha 2.0.</p>
+
+</body></html>
