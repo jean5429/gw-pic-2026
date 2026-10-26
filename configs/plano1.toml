@@ -21,8 +21,12 @@ run_end_gps = 1137254417
 # mas so aparece como analise secundaria: a rede ja viu esses triggers como PNG.
 evaluation_splits = ["validation", "test"]
 # Selecao gulosa de arquivos de 4096 s: prioriza classes ainda abaixo da meta.
-# 150 arquivos (~19,5 GB, baixados e apagados um a um): 646 glitches de avaliacao
-# e 20 das 22 classes com >= 10 amostras (com 100 arquivos, Tomte ficava com 8).
+# So entram glitches cuja janela esta em trecho publico do GWOSC ({ifo}_DATA):
+# 1.404 dos 7.209 glitches de O1 foram rotulados fora do modo cientifico (strain NaN).
+# 150 arquivos (no maximo ~19,5 GB, baixados e apagados um a um): 455 glitches de
+# avaliacao e 17 classes com >= 10 amostras. A cobertura satura em 257 arquivos
+# (615 glitches, ate ~33 GB). Violin_Mode, Helix e Wandering_Line nao tem glitches de
+# validacao/teste em trecho publico de O1.
 max_files = 150
 per_class_target = 40
 file_seconds = 4096

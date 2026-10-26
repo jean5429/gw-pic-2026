@@ -48,8 +48,8 @@ li { margin: 2px 0; }
 <p>Este plano faz duas coisas. Primeiro, <b>iguala a faixa de frequência</b>: as imagens de treino são recortadas em 20–512 Hz, a faixa dos eventos, e as 5 seeds são retreinadas. Depois, faz um <b>teste de fechamento</b>: baixa do GWOSC o strain público nos horários de glitches que o Gravity Spy já rotulou, gera as imagens com o <i>nosso</i> código e verifica se a rede os reconhece. Como a classe verdadeira é conhecida, o teste diz se a câmera funciona antes de olharmos de novo para os eventos.</p>
 
 <div class="kpis">
-  <div class="kpi"><div class="v">646</div><div class="l">glitches de validação/teste reconstruídos pelo nosso código (20 classes com ≥ 10)</div></div>
-  <div class="kpi"><div class="v">150</div><div class="l">arquivos de O1 baixados do GWOSC, um por vez (~19,5 GB, apagados após o uso)</div></div>
+  <div class="kpi"><div class="v">455</div><div class="l">glitches de validação/teste reconstruídos pelo nosso código (17 classes com ≥ 10)</div></div>
+  <div class="kpi"><div class="v">150</div><div class="l">arquivos de O1 baixados do GWOSC, um por vez (até ~19,5 GB, apagados após o uso)</div></div>
   <div class="kpi"><div class="v">4</div><div class="l">condições: modelos atuais × novos, renderer percentis × Gravity Spy</div></div>
   <div class="kpi"><div class="v">≈ 1 dia</div><div class="l">de máquina, a maior parte download; ~2 h de GPU para o retreino</div></div>
 </div>
@@ -90,27 +90,30 @@ li { margin: 2px 0; }
 </ul>
 
 <h2>3. O conjunto de fechamento</h2>
-<p>Dos 7.807 glitches limpos, 7.209 são de O1, cujo strain é público. Os arquivos do GWOSC têm 4.096 s (130 MB a 4 kHz); baixar todos os que contêm glitches daria mais de 300 GB. Por isso uma seleção gulosa escolhe 150 arquivos (detector + horário) que cobrem o máximo de classes: cada classe vale log(1 + n) até 40 amostras, então a primeira amostra de uma classe rara pesa mais que a vigésima de uma comum. Glitches cuja janela de 32 s sai do arquivo (54 em O1) ficam de fora.</p>
+<p>Dos 7.807 glitches limpos, 7.209 são de O1. Mas o GWOSC só publica o strain dos trechos em modo científico (lista <code>{ifo}_DATA</code>); fora deles o arquivo traz NaN. O Gravity Spy rotulou <b>1.404 glitches de O1 fora desses trechos</b>, que não podem ser reconstruídos. Descobrimos isso no primeiro arquivo baixado (141 de 142 glitches em NaN) e a seleção passou a consultar a lista antes de baixar. Também ficam de fora 54 glitches cuja janela de 32 s sai do arquivo.</p>
+<p>Os arquivos do GWOSC têm 4.096 s (até 130 MB a 4 kHz). Uma seleção gulosa escolhe 150 arquivos (detector + horário) que cobrem o máximo de classes: cada classe vale log(1 + n) até 40 amostras, então a primeira amostra de uma classe rara pesa mais que a vigésima de uma comum. A cobertura satura em 257 arquivos (615 glitches, até ~33 GB); ficamos com 150, que já dão 17 classes acima de 10 amostras.</p>
 <table>
 <tr><th>Classe</th><th class="n">Teste</th><th class="n">Validação</th><th class="n">Avaliação</th><th class="n">Treino (secundário)</th></tr>
-<tr><td>Violin_Mode</td><td class="n">29</td><td class="n">22</td><td class="n">51</td><td class="n">90</td></tr>
-<tr><td>Helix</td><td class="n">27</td><td class="n">22</td><td class="n">49</td><td class="n">122</td></tr>
-<tr><td>Blip</td><td class="n">19</td><td class="n">25</td><td class="n">44</td><td class="n">67</td></tr>
-<tr><td>Repeating_Blips</td><td class="n">22</td><td class="n">22</td><td class="n">44</td><td class="n">127</td></tr>
-<tr><td>Light_Modulation</td><td class="n">24</td><td class="n">18</td><td class="n">42</td><td class="n">97</td></tr>
-<tr><td>Scattered_Light, Low_Frequency_Burst, Scratchy, Whistle</td><td class="n">17–24</td><td class="n">16–23</td><td class="n">40 cada</td><td class="n">48–85</td></tr>
-<tr><td>Koi_Fish</td><td class="n">20</td><td class="n">18</td><td class="n">38</td><td class="n">31</td></tr>
-<tr><td>Low_Frequency_Lines</td><td class="n">15</td><td class="n">20</td><td class="n">35</td><td class="n">41</td></tr>
-<tr><td>Power_Line</td><td class="n">15</td><td class="n">15</td><td class="n">30</td><td class="n">11</td></tr>
-<tr><td>Extremely_Loud</td><td class="n">10</td><td class="n">16</td><td class="n">26</td><td class="n">43</td></tr>
+<tr><td>Blip</td><td class="n">23</td><td class="n">18</td><td class="n">41</td><td class="n">57</td></tr>
+<tr><td>Scattered_Light</td><td class="n">25</td><td class="n">15</td><td class="n">40</td><td class="n">84</td></tr>
+<tr><td>Low_Frequency_Burst</td><td class="n">17</td><td class="n">23</td><td class="n">40</td><td class="n">39</td></tr>
+<tr><td>Light_Modulation</td><td class="n">21</td><td class="n">19</td><td class="n">40</td><td class="n">63</td></tr>
+<tr><td>Low_Frequency_Lines</td><td class="n">16</td><td class="n">18</td><td class="n">34</td><td class="n">45</td></tr>
+<tr><td>Koi_Fish</td><td class="n">17</td><td class="n">15</td><td class="n">32</td><td class="n">29</td></tr>
+<tr><td>Scratchy</td><td class="n">19</td><td class="n">11</td><td class="n">30</td><td class="n">25</td></tr>
+<tr><td>Power_Line</td><td class="n">15</td><td class="n">14</td><td class="n">29</td><td class="n">11</td></tr>
+<tr><td>Whistle</td><td class="n">11</td><td class="n">14</td><td class="n">25</td><td class="n">23</td></tr>
+<tr><td>Extremely_Loud</td><td class="n">12</td><td class="n">13</td><td class="n">25</td><td class="n">35</td></tr>
 <tr><td>1400Ripples</td><td class="n">8</td><td class="n">13</td><td class="n">21</td><td class="n">52</td></tr>
-<tr><td>No_Glitch</td><td class="n">13</td><td class="n">7</td><td class="n">20</td><td class="n">11</td></tr>
-<tr><td>None_of_the_Above</td><td class="n">9</td><td class="n">9</td><td class="n">18</td><td class="n">31</td></tr>
-<tr><td>Chirp</td><td class="n">9</td><td class="n">8</td><td class="n">17</td><td class="n">24</td></tr>
-<tr><td>Air_Compressor, Tomte</td><td class="n">8–9</td><td class="n">7–8</td><td class="n">16 cada</td><td class="n">2–4</td></tr>
-<tr><td>Wandering_Line</td><td class="n">7</td><td class="n">6</td><td class="n">13</td><td class="n">23</td></tr>
-<tr><td>Paired_Doves, 1080Lines (fora do macro-F1)</td><td class="n">3</td><td class="n">3</td><td class="n">6</td><td class="n">13</td></tr>
-<tr><th>Total</th><th class="n"></th><th class="n"></th><th class="n">646</th><th class="n">1.047</th></tr>
+<tr><td>No_Glitch</td><td class="n">12</td><td class="n">7</td><td class="n">19</td><td class="n">6</td></tr>
+<tr><td>Repeating_Blips</td><td class="n">9</td><td class="n">6</td><td class="n">15</td><td class="n">14</td></tr>
+<tr><td>Air_Compressor</td><td class="n">8</td><td class="n">7</td><td class="n">15</td><td class="n">4</td></tr>
+<tr><td>Tomte</td><td class="n">9</td><td class="n">6</td><td class="n">15</td><td class="n">2</td></tr>
+<tr><td>Chirp</td><td class="n">8</td><td class="n">7</td><td class="n">15</td><td class="n">20</td></tr>
+<tr><td>None_of_the_Above</td><td class="n">5</td><td class="n">9</td><td class="n">14</td><td class="n">10</td></tr>
+<tr><td>Paired_Doves, 1080Lines, Wandering_Line (fora do macro-F1)</td><td class="n">2</td><td class="n">3</td><td class="n">5</td><td class="n">9</td></tr>
+<tr><td>Violin_Mode, Helix (sem dado público)</td><td class="n">0</td><td class="n">0</td><td class="n">0</td><td class="n">0</td></tr>
+<tr><th>Total</th><th class="n">237</th><th class="n">218</th><th class="n">455</th><th class="n">528</th></tr>
 </table>
 <p class="small">Contagens antes do processamento: alguns glitches podem cair em trechos sem dados válidos e serão registrados como rejeitados, nunca descartados em silêncio. 1080Lines tem só 1 glitch em O1 (os demais são de O2 ou de períodos não públicos). Lista exata dos arquivos: <code>outputs/research/plano1/fechamento/plan_files.csv</code>.</p>
 
@@ -152,7 +155,7 @@ li { margin: 2px 0; }
 <table>
 <tr><th>Lote</th><th>O que faz</th><th>Recursos</th><th class="n">Tempo</th></tr>
 <tr><td>0 — verificação</td><td>ambiente, entradas, espaço em disco (≥ 8 GB) e testes</td><td>—</td><td class="n">~5 min</td></tr>
-<tr><td>1 — conjunto de fechamento</td><td>baixa 150 arquivos de O1, recorta 1.693 glitches, gera os Q-grams, apaga os arquivos; retomável</td><td>internet, ~19,5 GB baixados</td><td class="n">4–8 h</td></tr>
+<tr><td>1 — conjunto de fechamento</td><td>baixa 150 arquivos de O1, recorta 983 glitches, gera os Q-grams, apaga os arquivos; retomável</td><td>internet, até ~19,5 GB baixados</td><td class="n">4–8 h</td></tr>
 <tr><td>2 — linha de base</td><td>condições A1 e A2 (modelos atuais)</td><td>GPU</td><td class="n">~10 min</td></tr>
 <tr><td>3 — treino 20–512 Hz</td><td>painéis recortados, 5 seeds, referência OOD, controle no teste, critério C0</td><td>GPU</td><td class="n">~2 h</td></tr>
 <tr><td>4 — fechamento e veredito</td><td>condições B1 e B2, tabela das 4 condições, veredito de C1/C2</td><td>GPU</td><td class="n">~10 min</td></tr>
@@ -187,7 +190,8 @@ powershell -ExecutionPolicy Bypass -File .\tools\plano1\lote1_conjunto_fechament
 <li><b>Calibração.</b> O Gravity Spy usou o h(t) online; o GWOSC distribui o strain recalibrado. A diferença é pequena, mas pode afastar algumas imagens.</li>
 <li><b>Só O1.</b> Os glitches são de 2015–2016; os eventos vão de O1 a O4a. Passar no fechamento valida a câmera, não a estabilidade entre runs (hipótese H-D do professor).</li>
 <li><b>Faixa 20–512 Hz.</b> Classes de alta frequência (Whistle, 1400Ripples, 1080Lines) perdem parte do que as define. Esperamos queda nelas mesmo com a câmera certa; a tabela por classe mostrará.</li>
-<li><b>Classes raras.</b> Paired_Doves e 1080Lines ficam abaixo de 10 amostras e não decidem. No_Glitch tem 20, o que é pouco para a classe mais importante nos eventos fracos.</li>
+<li><b>Classes ausentes ou raras.</b> Violin_Mode, Helix e Wandering_Line não têm glitches de validação/teste em trecho público de O1; Paired_Doves e 1080Lines ficam abaixo de 10. Essas classes não decidem. No_Glitch tem 19, pouco para a classe mais importante nos eventos fracos.</li>
+<li><b>Viés de seleção.</b> Só entram glitches em modo científico, justamente o regime dos eventos do catálogo; glitches de períodos de comissionamento não são testados.</li>
 <li><b>Conhecimento prévio.</b> O efeito do renderer Gravity Spy nos eventos já foi visto (relatório de 10/10/2026). Por isso a decisão usa glitches com classe conhecida, não os eventos.</li>
 </ul>
 

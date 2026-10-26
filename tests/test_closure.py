@@ -41,6 +41,16 @@ def test_annotate_marks_windows_crossing_file_edges():
     assert frame["window_inside_file"].tolist() == [True, False]
 
 
+def test_annotate_requires_window_inside_public_segments():
+    frame = annotate_files(
+        _metadata([(150, "H1", "Blip", "test"), (170, "H1", "Blip", "test"), (150, "L1", "Blip", "test")]),
+        run_start_gps=0, run_end_gps=10_000, file_seconds=100, before_seconds=16, after_seconds=16,
+        public_segments={"H1": [(120.0, 180.0)], "L1": []},
+    )
+    assert frame["window_public"].tolist() == [True, False, False]
+    assert frame["usable"].tolist() == [True, False, False]
+
+
 def test_select_files_prefers_classes_still_below_target():
     rows = [(150 + i, "H1", "Blip", "test") for i in range(5)]  # arquivo cheio de Blip
     rows += [(250, "L1", "Chirp", "test")]  # arquivo com a classe rara
@@ -123,6 +133,7 @@ def test_closure_set_and_report_end_to_end(tmp_path, monkeypatch):
         _write_fake_gwosc(destination, start, 64)
         return destination
 
+    monkeypatch.setattr(build_closure_set, "public_segments", lambda *args: None)
     monkeypatch.setattr(build_closure_set, "locate_url", fake_locate)
     monkeypatch.setattr(build_closure_set, "download", fake_download)
     output = tmp_path / "fechamento"
@@ -162,3 +173,30 @@ def test_closure_set_and_report_end_to_end(tmp_path, monkeypatch):
     assert report["evaluation"]["open_world_fractions"]["reject_ood"] == 0.5
     assert report["criteria"]["all_passed"] is False
     assert (ensemble / "fechamento" / "confusion_matrix.png").exists()
+
+
+def test_closure_set_records_files_without_public_data(tmp_path, monkeypatch):
+    start = 1126400000
+    metadata_path = tmp_path / "metadata.csv"
+    _metadata([(start + 30.0, "H1", "Blip", "test")]).to_csv(metadata_path, index=False)
+    config = tmp_path / "plano1.toml"
+    config.write_text(
+        Path("configs/plano1.toml").read_text(encoding="utf-8")
+        .replace("file_seconds = 4096", "file_seconds = 64")
+        .replace("run_start_gps = 1126051217", f"run_start_gps = {start}"),
+        encoding="utf-8",
+    )
+
+    def no_data(ifo, file_start, seconds, rate):
+        raise build_closure_set.NoPublicData("Cannot find a GWOSC dataset")
+
+    monkeypatch.setattr(build_closure_set, "public_segments", lambda *args: None)
+    monkeypatch.setattr(build_closure_set, "locate_url", no_data)
+    output = tmp_path / "fechamento"
+    monkeypatch.setattr(sys, "argv", [
+        "closure-set", "--metadata", str(metadata_path), "--config", str(config),
+        "--output-root", str(output),
+    ])
+    assert build_closure_set.main() == 0  # permanente: nao deixa o lote incompleto
+    channels = pd.read_csv(output / "closure_channels.csv")
+    assert channels["status"].tolist() == ["no_public_data"]

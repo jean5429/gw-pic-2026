@@ -31,14 +31,37 @@ from gwproject.research.closure import annotate_files, coverage_by_class, select
 O1_4KHZ_FILE_BYTES = 130_268_561
 
 
+class NoPublicData(Exception):
+    """O GWOSC nao publica strain nesse intervalo (detector fora do modo cientifico)."""
+
+
 def locate_url(ifo: str, start: int, file_seconds: int, sample_rate: int) -> str:
     from gwosc.locate import get_urls
 
-    urls = get_urls(ifo, start, start + file_seconds, sample_rate=sample_rate, format="hdf5")
+    try:
+        urls = get_urls(ifo, start, start + file_seconds, sample_rate=sample_rate, format="hdf5")
+    except ValueError as exc:
+        if "Cannot find a GWOSC dataset" in str(exc):
+            raise NoPublicData(str(exc)) from exc
+        raise
     matches = [url for url in urls if re.search(rf"-{start}-{file_seconds}\.hdf5$", url)]
     if len(matches) != 1:
         raise ValueError(f"URL GWOSC ambigua ou ausente para {ifo} {start}: {urls}")
     return matches[0]
+
+
+def public_segments(
+    ifos: list[str], start: float, end: float, cache: Path
+) -> dict[str, list[tuple[float, float]]]:
+    """Trechos ``{ifo}_DATA`` do GWOSC (onde o strain publico nao e NaN), com cache local."""
+    if cache.exists():
+        return {ifo: [tuple(item) for item in value] for ifo, value in json.loads(cache.read_text()).items()}
+    from gwosc.timeline import get_segments
+
+    segments = {ifo: [tuple(item) for item in get_segments(f"{ifo}_DATA", start, end)] for ifo in ifos}
+    cache.parent.mkdir(parents=True, exist_ok=True)
+    cache.write_text(json.dumps(segments), encoding="utf-8")
+    return segments
 
 
 def download(url: str, destination: Path) -> Path:
@@ -142,6 +165,12 @@ def main() -> int:
     output_root.mkdir(parents=True, exist_ok=True)
 
     metadata = pd.read_csv(args.metadata)
+    segments = public_segments(
+        sorted(metadata["ifo"].unique()),
+        float(selection["run_start_gps"]),
+        float(selection["run_end_gps"]),
+        output_root / "public_segments.json",
+    )
     annotated = annotate_files(
         metadata,
         run_start_gps=float(selection["run_start_gps"]),
@@ -149,6 +178,7 @@ def main() -> int:
         file_seconds=int(selection["file_seconds"]),
         before_seconds=float(selection["before_seconds"]),
         after_seconds=float(selection["after_seconds"]),
+        public_segments=segments,
     )
     splits = [str(value) for value in selection["evaluation_splits"]]
     plan = select_files(
@@ -166,6 +196,7 @@ def main() -> int:
         "evaluation_glitches": int(coverage["evaluation"].sum()),
         "train_glitches_in_same_files": int(coverage["train"].sum()),
         "o1_glitches_outside_file_window": int((~annotated["window_inside_file"]).sum()),
+        "o1_glitches_without_public_data": int((~annotated["window_public"]).sum()),
     }
     print(json.dumps(plan_summary, indent=2))
     print(coverage.to_string())
@@ -177,7 +208,7 @@ def main() -> int:
 
     done_dir = output_root / "done"
     done_dir.mkdir(exist_ok=True)
-    inside = annotated[annotated["window_inside_file"]]
+    inside = annotated[annotated["usable"]]
     failures: list[dict] = []
     for position, file_row in enumerate(plan.itertuples(index=False), start=1):
         marker = done_dir / f"{file_row.ifo}_{file_row.file_start}.json"
@@ -197,6 +228,17 @@ def main() -> int:
                 processing=processing,
                 keep_files=args.keep_files,
             )
+        except NoPublicData as exc:  # permanente: registra e nao tenta de novo
+            rows = [
+                {
+                    "event": glitch.gravityspy_id, "detector": file_row.ifo, "label": glitch.label,
+                    "sample_type": glitch.sample_type, "event_time": float(glitch.event_time),
+                    "file_start": int(file_row.file_start), "qgram_path": None,
+                    "status": "no_public_data", "reason": str(exc),
+                }
+                for glitch in glitches.itertuples(index=False)
+            ]
+            print("  sem dado publico no GWOSC; registrado")
         except Exception as exc:  # rede ou arquivo: fica sem marcador e e refeito na retomada
             failures.append({"ifo": file_row.ifo, "file_start": int(file_row.file_start), "error": str(exc)})
             print(f"  FALHOU: {exc}")

@@ -31,8 +31,15 @@ def annotate_files(
     file_seconds: int,
     before_seconds: float,
     after_seconds: float,
+    public_segments: dict[str, list[tuple[float, float]]] | None = None,
 ) -> pd.DataFrame:
-    """Restringe ao run e marca arquivo e se a janela inteira cabe nele."""
+    """Restringe ao run e marca arquivo, se a janela cabe nele e se o dado e publico.
+
+    ``public_segments`` traz, por detector, os trechos ``{ifo}_DATA`` do GWOSC. Fora
+    deles o arquivo publico tem NaN (detector fora do modo cientifico), e o Gravity Spy
+    rotulou muitos glitches nesses periodos. Sem segmentos, todos contam como publicos.
+    A coluna ``usable`` combina as duas condicoes e e a usada na selecao.
+    """
     frame = metadata[
         (metadata["event_time"] >= run_start_gps) & (metadata["event_time"] < run_end_gps)
     ].copy()
@@ -41,6 +48,22 @@ def annotate_files(
         (frame["event_time"] - before_seconds >= frame["file_start"])
         & (frame["event_time"] + after_seconds <= frame["file_start"] + file_seconds)
     )
+    if public_segments is None:
+        frame["window_public"] = True
+    else:
+        public = np.zeros(len(frame), dtype=bool)
+        for ifo, segments in public_segments.items():
+            mask = (frame["ifo"] == ifo).to_numpy()
+            if not mask.any() or not segments:
+                continue
+            bounds = np.asarray(segments, dtype=float)
+            starts = frame["event_time"].to_numpy()[mask] - before_seconds
+            stops = frame["event_time"].to_numpy()[mask] + after_seconds
+            public[mask] = (
+                (bounds[None, :, 0] <= starts[:, None]) & (bounds[None, :, 1] >= stops[:, None])
+            ).any(axis=1)
+        frame["window_public"] = public
+    frame["usable"] = frame["window_inside_file"] & frame["window_public"]
     return frame
 
 
@@ -58,10 +81,10 @@ def select_files(
     amostra de uma classe rara (Tomte, No_Glitch aparecem um por arquivo) vale mais que
     a vigesima de uma classe comum. Empates vao para o arquivo com mais amostras de
     avaliacao. Para quando o orcamento acaba ou nenhum arquivo acrescenta cobertura.
-    So conta glitches cuja janela cabe no arquivo.
+    So conta glitches utilizaveis (janela no arquivo e em dado publico).
     """
     usable = annotated[
-        annotated["window_inside_file"] & annotated["sample_type"].isin(evaluation_splits)
+        annotated["usable"] & annotated["sample_type"].isin(evaluation_splits)
     ]
     if usable.empty:
         raise ValueError("nenhum glitch de avaliacao cabe nos arquivos do run")
@@ -97,7 +120,7 @@ def select_files(
             "evaluation_glitches": int(matrix[index].sum()),
         })
     plan = pd.DataFrame(chosen)
-    all_in_files = annotated[annotated["window_inside_file"]]
+    all_in_files = annotated[annotated["usable"]]
     per_file = all_in_files.groupby(["ifo", "file_start"]).size().rename("all_glitches")
     return plan.merge(per_file, left_on=["ifo", "file_start"], right_index=True, how="left")
 
@@ -107,7 +130,7 @@ def coverage_by_class(
 ) -> pd.DataFrame:
     """Quantos glitches por classe e split entram com os arquivos escolhidos."""
     keys = set(zip(plan["ifo"], plan["file_start"]))
-    inside = annotated[annotated["window_inside_file"]]
+    inside = annotated[annotated["usable"]]
     mask = [key in keys for key in zip(inside["ifo"], inside["file_start"])]
     selected = inside[mask]
     table = selected.groupby(["label", "sample_type"]).size().unstack(fill_value=0)
