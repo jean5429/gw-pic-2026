@@ -200,3 +200,22 @@ def test_closure_set_records_files_without_public_data(tmp_path, monkeypatch):
     assert build_closure_set.main() == 0  # permanente: nao deixa o lote incompleto
     channels = pd.read_csv(output / "closure_channels.csv")
     assert channels["status"].tolist() == ["no_public_data"]
+
+
+def test_mark_render_invalid_excludes_qgrams_any_renderer_rejects(tmp_path):
+    from gwproject.config import load_toml
+
+    good = np.ones((40, 8), dtype=np.float32) + np.random.default_rng(1).random((40, 8))
+    bad = good.copy()
+    bad[:, 3] = -5.0  # mediana negativa num bin de frequencia
+    paths = []
+    for name, array in (("good", good), ("bad", bad)):
+        path = tmp_path / f"{name}.npy"
+        np.save(path, array)
+        paths.append(str(path))
+    channels = pd.DataFrame({"event": ["g", "b"], "status": ["ok", "ok"], "reason": [None, None],
+                             "qgram_path": paths})
+    cfg = load_toml(Path("configs/research_program.toml"))["harmonized_inference"]
+    marked = build_closure_set.mark_render_invalid(channels, cfg)
+    assert marked["status"].tolist() == ["ok", "render_invalid"]
+    assert pd.isna(marked.loc[1, "qgram_path"]) and "percentile" in marked.loc[1, "reason"]

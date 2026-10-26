@@ -205,6 +205,41 @@ powershell -ExecutionPolicy Bypass -File .\tools\plano1\lote1_conjunto_fechament
 <tr><td><code>tests/test_closure.py</code></td><td>6 testes, incluindo o ciclo completo com um arquivo GWOSC simulado</td></tr>
 <tr><td><code>tools/plano1/*.ps1</code></td><td>lotes 0 a 5, funções comuns e execução em sequência</td></tr>
 </table>
+<h2 class="pb">Anexo — Resultados da execução (26/10/2026)</h2>
+<div class="warn"><b>Veredito: câmera NÃO validada.</b> Nenhuma condição atingiu os critérios preregistrados. A condição decisiva (B1) chegou a macro-F1 0,714 e 6,0% de rejeição OOD, contra limiares de 0,85 e 5%.</div>
+
+<h3>Execução</h3>
+<ul>
+<li><b>Lote 1:</b> 150 de 150 arquivos (4 refeitos por queda de conexão com o GWOSC); 983 glitches reconstruídos, todos com Q-gram válido.</li>
+<li><b>Exclusão comum às 4 condições:</b> 17 Q-grams (15 Extremely_Loud, 1 Scattered_Light, 1 Scratchy; só 4 de validação/teste) têm mediana negativa em algum bin de frequência, efeito da interpolação do Q-transform em glitches muito fortes, e o renderer por percentis os recusa. Ficaram 451 glitches de avaliação em 147 arquivos e 17 classes decisivas.</li>
+<li><b>C0 atendida, por pouco:</b> macro-F1 médio de 0,854 no teste oficial (mínimo 0,85) e pior cauda OOD q99 de 0,014 (máximo 0,02). O treino de cada seed acusou F1 &lt; 0,40 em 1400Ripples (sinal em ~1.400 Hz, fora da faixa recortada), como previsto nas limitações.</li>
+</ul>
+
+<table>
+<tr><th>Condição</th><th class="n">Acurácia</th><th class="n">Macro-F1 [IC 95%]</th><th class="n">reject_ood [IC 95%]</th><th class="n">review</th><th class="n">in_domain</th><th>Veredito</th></tr>
+<tr><td>A1 — atuais + percentis</td><td class="n">0,086</td><td class="n">0,043 [0,023; 0,059]</td><td class="n">1,000 [1,00; 1,00]</td><td class="n">0,000</td><td class="n">0,000</td><td>não passou</td></tr>
+<tr><td>A2 — atuais + Gravity Spy</td><td class="n">0,659</td><td class="n">0,642 [0,585; 0,676]</td><td class="n">0,341 [0,283; 0,406]</td><td class="n">0,483</td><td class="n">0,175</td><td>não passou</td></tr>
+<tr><td><b>B1 — 20–512 Hz + Gravity Spy</b></td><td class="n"><b>0,716</b></td><td class="n"><b>0,714 [0,660; 0,747]</b></td><td class="n"><b>0,060 [0,032; 0,094]</b></td><td class="n">0,206</td><td class="n">0,734</td><td><b>não passou</b></td></tr>
+<tr><td>B2 — 20–512 Hz + percentis</td><td class="n">0,060</td><td class="n">0,022 [0,014; 0,030]</td><td class="n">1,000 [1,00; 1,00]</td><td class="n">0,000</td><td class="n">0,000</td><td>não passou</td></tr>
+</table>
+
+<h3>O que os resultados mostram</h3>
+<ul>
+<li><b>A renderização por percentis é incompatível com a rede.</b> Com ela, mesmo glitches de classe conhecida são 100% rejeitados e quase nunca classificados corretamente (A1, B2). Isso é forte evidência de que a rejeição total dos 475 canais do catálogo vinha, em boa parte, da câmera, e não só do conteúdo dos eventos (hipótese H-R).</li>
+<li><b>Igualar intensidade e faixa ajuda muito, mas não basta.</b> A1 → A2 (só intensidade) leva o macro-F1 de 0,04 a 0,64; A2 → B1 (faixa) a 0,71 e derruba a rejeição de 34% para 6%.</li>
+<li><b>Exploratório (observado depois dos resultados):</b> em B1 os glitches curtos são reconhecidos quase como no painel oficial — Blip 0,94, Koi_Fish 0,96, Tomte 0,97, Extremely_Loud 0,98 e <b>Chirp 0,97</b>. As falhas se concentram em estruturas longas ou estacionárias: Low_Frequency_Lines 0,05, No_Glitch 0,21, Whistle 0,51, quase sempre confundidas com Violin_Mode, além de 1400Ripples 0 (fora da faixa).</li>
+<li><b>Hipótese para a próxima versão:</b> linhas e ruído de fundo dependem fortemente do branqueamento. O Gravity Spy branqueia com 64 s de dados; nossa cadeia, com a janela de 32 s. Esta hipótese não foi testada aqui.</li>
+</ul>
+
+<figure><img src="plano1/matriz_fechamento_B1.png" style="max-width:82%"><figcaption>Matriz de confusão normalizada da condição B1 nos 451 glitches de avaliação (ensemble de 5 modelos, 20–512 Hz, escala Gravity Spy). As classes curtas ficam na diagonal; Low_Frequency_Lines, No_Glitch e Whistle migram para Violin_Mode.</figcaption></figure>
+
+<h3>Decisões</h3>
+<ul>
+<li>O lote 5 (catálogo) <b>não foi executado</b>, conforme a regra do plano.</li>
+<li>O renderer canônico continua <code>percentile</code> na configuração; este resultado é a evidência a ser discutida antes de qualquer troca.</li>
+<li>Próximo passo: Plano 1, versão 1.1, com branqueamento em 64 s e critérios fixados antes de rodar (documento <code>Plano_Melhoria_1_1_Branqueamento.pdf</code>).</li>
+</ul>
+
 <p class="small">Referências: parecer científico e roteiro (<code>research/PARECER_CIENTIFICO_E_ROTEIRO.md</code>, hipóteses H-R, H-S, H-M, H-D e Fase 1); renderizador Gravity Spy (<code>research/RENDERIZADOR_GRAVITY_SPY.md</code>); parâmetros do Gravity Spy em <code>gravityspy/utils/utils.py</code> (github.com/Gravity-Spy/GravitySpy); Relatório de Resultados da linha 2.0.</p>
 
 </body></html>

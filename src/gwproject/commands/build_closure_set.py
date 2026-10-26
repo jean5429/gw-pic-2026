@@ -21,6 +21,7 @@ import json
 import re
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 
 from gwproject.config import load_toml
@@ -137,6 +138,38 @@ def process_file(
     return rows
 
 
+def mark_render_invalid(channels: pd.DataFrame, inference_cfg: dict) -> pd.DataFrame:
+    """Marca Q-grams que algum renderer recusa, para que todas as condicoes usem o mesmo conjunto.
+
+    Glitches muito fortes (sobretudo Extremely_Loud) podem gerar valores negativos na
+    interpolacao do Q-transform; o renderer ``percentile`` recusa a mediana por
+    frequencia nao positiva. Esses canais saem de todas as condicoes, com o motivo.
+    """
+    from gwproject.qgram_inference import RENDER_MODES, qgram_to_uint8
+
+    channels = channels.copy()
+    for index, row in channels[channels["status"] == "ok"].iterrows():
+        array = np.load(row["qgram_path"])
+        for mode in RENDER_MODES:
+            try:
+                qgram_to_uint8(
+                    array,
+                    lower_percentile=float(inference_cfg["lower_percentile"]),
+                    upper_percentile=float(inference_cfg["upper_percentile"]),
+                    source_duration_seconds=float(inference_cfg["source_outseg_seconds"]),
+                    target_duration_seconds=float(inference_cfg["target_duration_seconds"]),
+                    baseline_mode=str(inference_cfg["baseline_mode"]),
+                    flip_frequency=bool(inference_cfg["flip_frequency"]),
+                    render_mode=mode,
+                )
+            except ValueError as exc:
+                channels.loc[index, ["status", "reason", "qgram_path"]] = [
+                    "render_invalid", f"{mode}: {exc}", None,
+                ]
+                break
+    return channels
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="Plano 1: reconstroi glitches Gravity Spy de O1 pela cadeia do catalogo."
@@ -146,6 +179,9 @@ def main() -> int:
     )
     parser.add_argument("--config", type=Path, default=Path("configs/plano1.toml"))
     parser.add_argument("--processing-config", type=Path, default=Path("configs/processing.toml"))
+    parser.add_argument(
+        "--research-config", type=Path, default=Path("configs/research_program.toml")
+    )
     parser.add_argument(
         "--output-root", type=Path, default=Path("outputs/research/plano1/fechamento")
     )
@@ -249,6 +285,8 @@ def main() -> int:
     for marker in sorted(done_dir.glob("*.json")):
         rows.extend(json.loads(marker.read_text(encoding="utf-8")))
     channels = pd.DataFrame(rows)
+    research_cfg = load_toml(args.research_config)
+    channels = mark_render_invalid(channels, research_cfg["harmonized_inference"])
     channels.to_csv(output_root / "closure_channels.csv", index=False)
     ok = channels[channels["status"] == "ok"]
     summary = {

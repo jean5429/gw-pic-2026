@@ -16,8 +16,14 @@ if ($SoPlano) {
     return
 }
 
-& $Python -m gwproject.research_cli closure-set --output-root $Closure
-$code = $LASTEXITCODE
+# O GWOSC as vezes corta a conexao; cada rodada refaz so os arquivos que falharam.
+for ($tentativa = 1; $tentativa -le 4; $tentativa++) {
+    Write-Host "-- Rodada $tentativa de 4"
+    & $Python -m gwproject.research_cli closure-set --output-root $Closure
+    $code = $LASTEXITCODE
+    if ($code -eq 0) { break }
+    Start-Sleep -Seconds 60
+}
 $summary = Get-Content "$Closure\summary.json" -Raw | ConvertFrom-Json
 Write-Host ("  arquivos concluidos: {0} de {1} | Q-grams ok: {2} de {3}" -f `
     $summary.files_done, $summary.files, $summary.qgrams_ok, $summary.glitches_processed)
