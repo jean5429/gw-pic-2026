@@ -124,6 +124,7 @@ def process_file(
                 q_path,
                 frange=(float(qcfg["fmin_hz"]), float(qcfg["fmax_hz"])),
                 config=processing,
+                recipe=str(selection.get("qtransform_recipe", "catalog")),
             )
             row["status"] = result.get("status")
             row["reason"] = result.get("reason")
@@ -187,6 +188,15 @@ def main() -> int:
     )
     parser.add_argument("--download-dir", type=Path, default=None)
     parser.add_argument("--max-files", type=int, default=None, help="sobrepoe [selection].max_files")
+    parser.add_argument("--sample-rate", type=int, default=None, help="sobrepoe [selection].sample_rate")
+    parser.add_argument(
+        "--window-seconds", type=float, default=None,
+        help="janela total centrada no glitch; sobrepoe before/after_seconds",
+    )
+    parser.add_argument(
+        "--recipe", choices=["catalog", "gravity_spy"], default=None,
+        help="sobrepoe [selection].qtransform_recipe",
+    )
     parser.add_argument("--dry-run", action="store_true", help="so grava o plano; sem rede")
     parser.add_argument("--keep-files", action="store_true", help="nao apaga os arquivos baixados")
     args = parser.parse_args()
@@ -195,6 +205,12 @@ def main() -> int:
     selection = dict(plan_cfg["selection"])
     if args.max_files is not None:
         selection["max_files"] = int(args.max_files)
+    if args.sample_rate is not None:
+        selection["sample_rate"] = int(args.sample_rate)
+    if args.window_seconds is not None:
+        selection["before_seconds"] = selection["after_seconds"] = float(args.window_seconds) / 2
+    if args.recipe is not None:
+        selection["qtransform_recipe"] = args.recipe
     processing = load_toml(args.processing_config)
     output_root = args.output_root
     download_dir = args.download_dir or output_root / "_download"
@@ -228,7 +244,12 @@ def main() -> int:
     coverage.to_csv(output_root / "plan_coverage_by_class.csv")
     plan_summary = {
         "files": int(len(plan)),
-        "estimated_download_gb": round(len(plan) * O1_4KHZ_FILE_BYTES / 1e9, 1),
+        "estimated_download_gb": round(
+            len(plan) * O1_4KHZ_FILE_BYTES * int(selection["sample_rate"]) / 4096 / 1e9, 1
+        ),
+        "sample_rate": int(selection["sample_rate"]),
+        "window_seconds": float(selection["before_seconds"]) + float(selection["after_seconds"]),
+        "qtransform_recipe": str(selection.get("qtransform_recipe", "catalog")),
         "evaluation_glitches": int(coverage["evaluation"].sum()),
         "train_glitches_in_same_files": int(coverage["train"].sum()),
         "o1_glitches_outside_file_window": int((~annotated["window_inside_file"]).sum()),

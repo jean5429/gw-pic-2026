@@ -1,0 +1,69 @@
+# Plano 1, versao 1.1: "a mesma camera" com a receita de Q-scan do Gravity Spy.
+#
+# Fixado em 26/10/2026, DEPOIS do veredito da versao 1.0 (camera nao validada) e de
+# uma ablacao exploratoria de pixels em 70 glitches de avaliacao ja usados na 1.0.
+# Por isso a escolha da variante usa um piloto so com glitches do split de TREINO, e o
+# conjunto de avaliacao (validacao + teste) so e aberto uma vez, no lote V2.
+#
+# Documento: docs/relatorios/Plano_Melhoria_1_1_Receita_Gravity_Spy.pdf
+# Lotes:     tools/plano1/v1_1/
+
+[metadata]
+plan = "Plano 1 v1.1 - receita Gravity Spy"
+version = "1.1"
+status = "preregistrado"
+fixed_on = "2026-10-26"
+supersedes = "configs/plano1.toml (v1.0, camera nao validada)"
+
+[pilot]
+# Piloto de pixels: compara cada variante com o painel oficial recortado em 20-512 Hz
+# do MESMO glitch. Nao usa a rede neural. So glitches do split de treino.
+max_files = 12
+classes = ["No_Glitch", "Low_Frequency_Lines", "Whistle", "Power_Line", "Scattered_Light", "Blip", "Koi_Fish", "Tomte"]
+max_glitches_per_class = 15
+panels_root = "data/gravity_spy_band20_512"
+# Variantes: taxa de amostragem (Hz), janela total (s) e receita do Q-transform.
+variants = [
+    { name = "v10_atual",        sample_rate = 4096,  seconds = 32, recipe = "catalog" },
+    { name = "gs_4k_32s",        sample_rate = 4096,  seconds = 32, recipe = "gravity_spy" },
+    { name = "gs_4k_64s",        sample_rate = 4096,  seconds = 64, recipe = "gravity_spy" },
+    { name = "gs_16k_64s",       sample_rate = 16384, seconds = 64, recipe = "gravity_spy" },
+]
+# Regra de escolha (fixada antes do piloto): maior media, entre as classes do piloto,
+# da correlacao mediana de pixels com o painel oficial. Diferencas menores que
+# min_gain_to_prefer_costlier nao justificam a variante mais cara (16 kHz ou 64 s);
+# nesse caso vence a mais barata entre as empatadas.
+min_gain_to_prefer_costlier = 0.02
+
+[selection]
+# Igual a v1.0, exceto janela/taxa/receita, que vem da variante escolhida no piloto
+# (o lote V2 grava a escolha em outputs/research/plano1_v1_1/piloto/escolha.json).
+run_start_gps = 1126051217
+run_end_gps = 1137254417
+evaluation_splits = ["validation", "test"]
+max_files = 150
+per_class_target = 40
+file_seconds = 4096
+sample_rate = 4096
+before_seconds = 16.0
+after_seconds = 16.0
+qtransform_recipe = "gravity_spy"
+
+[band_model]
+# Mesmos modelos da v1.0 (C0 ja atendida): sem retreino.
+panels_root = "data/gravity_spy_band20_512"
+models_root = "models/gravity_spy_band20_512"
+
+[criteria]
+# Mesmos limiares da v1.0.
+min_class_samples = 10
+macro_f1_min = 0.85
+accuracy_min = 0.85
+reject_ood_max = 0.05
+band_model_test_macro_f1_min = 0.85
+band_model_ood_control_99_max = 0.02
+
+[bootstrap]
+replicates = 2000
+seed = 20261027
+group_column = "file_start"

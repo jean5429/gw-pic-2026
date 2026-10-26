@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<title>Plano de Melhoria 1.1</title>
+<style>
+@page { size: A4; margin: 17mm 16mm 18mm; }
+:root { --ink:#1d1d1f; --muted:#55575c; --accent:#0b2d55; --rule:#c8ccd2; --soft:#eef2f7; }
+body { font-family: "Segoe UI", Calibri, Arial, sans-serif; font-size: 10.3pt; line-height: 1.5; color: var(--ink); background:#fff; margin:0; }
+.cover { border-bottom: 3px solid var(--accent); padding-bottom: 10px; margin-bottom: 14px; }
+.cover .kicker { font-size: 9pt; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.cover h1 { font-size: 20pt; color: var(--accent); margin: 2px 0 2px; line-height:1.15; }
+.cover .sub { font-size: 11pt; color: var(--muted); }
+h2 { font-size: 13.2pt; color: var(--accent); border-bottom: 1.5px solid var(--accent); padding-bottom: 2px; margin: 22px 0 8px; page-break-after: avoid; }
+h3 { font-size: 11pt; margin: 14px 0 4px; page-break-after: avoid; }
+p { margin: 5px 0 8px; text-align: justify; }
+table { border-collapse: collapse; width: 100%; margin: 6px 0 12px; font-size: 9.3pt; page-break-inside: avoid; }
+th, td { border: 1px solid var(--rule); padding: 4px 7px; vertical-align: top; text-align: left; }
+th { background: var(--soft); font-weight: 600; }
+td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+code { font-family: Consolas, monospace; font-size: 8.8pt; background: #f3f4f6; padding: 0 3px; border-radius: 3px; }
+pre { font-family: Consolas, monospace; font-size: 8.6pt; background: #f3f4f6; padding: 7px 10px; border-radius: 3px; margin: 6px 0 10px; white-space: pre-wrap; page-break-inside: avoid; }
+.callout { border-left: 4px solid var(--accent); background: var(--soft); padding: 7px 12px; margin: 10px 0; page-break-inside: avoid; }
+.warn { border-left: 4px solid #b42318; background: #fdf2f1; padding: 7px 12px; margin: 10px 0; page-break-inside: avoid; }
+.good { border-left: 4px solid #1a7f37; background: #eef8f0; padding: 7px 12px; margin: 10px 0; page-break-inside: avoid; }
+.simple { border: 1px dashed #9aa4b2; background: #fafbfc; padding: 6px 12px; margin: 8px 0 10px; font-size: 9.6pt; page-break-inside: avoid; }
+.simple b:first-child { color: var(--accent); }
+ul, ol { margin: 4px 0 8px 18px; padding: 0; }
+li { margin: 2px 0; }
+.pb { page-break-before: always; }
+.small { font-size: 8.8pt; color: var(--muted); }
+.kpis { display: flex; gap: 8px; margin: 10px 0 12px; page-break-inside: avoid; }
+.kpi { flex: 1; border: 1px solid var(--rule); border-radius: 4px; padding: 7px 9px; background: #fff; }
+.kpi .v { font-size: 17pt; font-weight: 700; color: var(--accent); line-height: 1.1; }
+.kpi .l { font-size: 8.4pt; color: var(--muted); line-height: 1.3; margin-top: 3px; }
+.flow { display: flex; align-items: stretch; gap: 0; margin: 8px 0 12px; page-break-inside: avoid; }
+.step { flex: 1; border: 1px solid var(--rule); background: var(--soft); border-radius: 4px; padding: 6px 7px; font-size: 8.4pt; line-height: 1.35; }
+.step b { display: block; color: var(--accent); font-size: 8.8pt; margin-bottom: 2px; }
+.arrow { align-self: center; color: var(--muted); padding: 0 3px; font-size: 12pt; }
+</style></head><body>
+</head><body>
+
+<div class="cover">
+  <div class="kicker">Plano de Melhoria de Resultados · nº 1, versão 1.1 · outubro de 2026</div>
+  <h1>Plano 1.1 — a receita de Q-scan do Gravity Spy</h1>
+  <div class="sub">Projeto 3 – Ondas Gravitacionais · PIC Astronomia · continuação do Plano 1 (câmera não validada) · critérios fixados em 26 de outubro de 2026, antes de qualquer resultado desta versão</div>
+</div>
+
+<h2>Resumo</h2>
+<p>O Plano 1 não validou a nossa “câmera”. A melhor condição chegou a macro-F1 0,714 e 6% de rejeição OOD, contra limiares de 0,85 e 5%. Os glitches curtos (Blip, Koi_Fish, Tomte, Chirp) foram reconhecidos quase como no painel oficial. As falhas se concentraram em estruturas longas ou estacionárias — Low_Frequency_Lines, No_Glitch e Whistle —, quase sempre confundidas com Violin_Mode.</p>
+<p>Uma investigação feita depois do veredito apontou a causa provável: o <b>jeito de calcular o Q-transform</b>. O Gravity Spy procura o fator Q em 10–2048 Hz, com frequência linear e resoluções fixas (<code>tres = 0,002 s</code>, <code>fres = 0,5 Hz</code>), sobre 64 s de dados a 16 kHz. A nossa cadeia calcula direto em 20–512 Hz com frequência logarítmica, sobre 32 s a 4 kHz. Esta versão escolhe, com um <b>piloto que não toca nos glitches de avaliação</b>, a variante mais fiel ao Gravity Spy e repete o teste de fechamento com ela, <b>sem retreinar</b> a rede.</p>
+
+<div class="kpis">
+  <div class="kpi"><div class="v">4</div><div class="l">variantes de câmera comparadas no piloto, pixel a pixel, com o painel oficial</div></div>
+  <div class="kpi"><div class="v">82</div><div class="l">glitches do split de treino no piloto (12 arquivos, até ~7,8 GB)</div></div>
+  <div class="kpi"><div class="v">0</div><div class="l">retreinos: usa os modelos 20–512 Hz da v1.0 (pré-condição C0 já atendida)</div></div>
+  <div class="kpi"><div class="v">≈ 6–7 h</div><div class="l">de máquina com a variante a 4 kHz (quase tudo download)</div></div>
+</div>
+
+<h2>1. O que a investigação mostrou</h2>
+<div class="simple"><b>Em poucas palavras.</b> Colocamos lado a lado a foto oficial e a nossa foto do mesmo glitch. Nos glitches curtos elas são quase iguais. No ruído de fundo, a nossa tem listras horizontais que a oficial não tem, e a rede as lê como uma “linha” (Violin_Mode).</div>
+<figure><img src="plano1/oficial_vs_nosso_v10.png" style="max-width:96%"><figcaption>Painel oficial recortado em 20–512 Hz (esquerda de cada par) e imagem da nossa cadeia na v1.0 (direita), para glitches de avaliação; acima de cada imagem nossa, a classe dada pelo ensemble B1. Blip, Koi_Fish e Power_Line coincidem; em Low_Frequency_Lines e No_Glitch a nossa imagem tem listras horizontais.</figcaption></figure>
+<table>
+<tr><th>Hipótese</th><th>Teste</th><th>Resultado</th></tr>
+<tr><td>Branqueamento com 32 s em vez de 64 s</td><td>leitura do código do gwpy</td><td>fraca: nos dois casos o ruído é a mediana de trechos de 2 s; muda só o número de trechos (~30 × ~60)</td></tr>
+<tr><td>Q escolhido em faixa diferente (20–512 × 10–2048 Hz)</td><td>Q selecionado em 48 glitches, nas duas faixas</td><td>rejeitada: Q mediano igual em todas as classes</td></tr>
+<tr><td>Receita completa do Gravity Spy (linear, <code>tres</code>, <code>fres</code>, 10–2048 Hz)</td><td>correlação de pixels com o painel oficial em 70 glitches</td><td><b>apoiada</b>: Low_Frequency_Lines 0,48 → 0,58; No_Glitch 0,50 → 0,60; Whistle 0,51 → 0,66; Blip e Koi_Fish ~iguais</td></tr>
+<tr><td>Sobra diferença</td><td>mesma comparação</td><td>fundo ainda 4 tons mais claro e correlação longe de 1 no ruído; candidatos restantes: 16 kHz e 64 s, só testáveis com novo download</td></tr>
+</table>
+<div class="warn"><b>Atenção metodológica.</b> A investigação usou glitches de avaliação da v1.0. Para não escolher a câmera olhando para o conjunto que vai decidir, a escolha da variante desta versão usa <b>só glitches do split de treino</b>, e a rede neural só vê o conjunto de avaliação uma vez, no lote B.</div>
+
+<h2>2. Desenho</h2>
+<h3>Lote A — piloto de pixels (sem rede neural)</h3>
+<p>Para 82 glitches de treino de 8 classes (as que falharam e as que funcionaram), em 12 arquivos de O1 escolhidos com dado público em janela de 64 s, cada variante gera a imagem de entrada da CNN. Ela é comparada com o painel oficial recortado do mesmo glitch.</p>
+<table>
+<tr><th>Variante</th><th>Taxa</th><th>Janela</th><th>Q-transform</th></tr>
+<tr><td>v10_atual</td><td>4 kHz</td><td>32 s</td><td>receita da linha 2.0 (log, 20–512 Hz)</td></tr>
+<tr><td>gs_4k_32s</td><td>4 kHz</td><td>32 s</td><td>receita Gravity Spy</td></tr>
+<tr><td>gs_4k_64s</td><td>4 kHz</td><td>64 s</td><td>receita Gravity Spy</td></tr>
+<tr><td>gs_16k_64s</td><td>16 kHz</td><td>64 s</td><td>receita Gravity Spy (a mais fiel)</td></tr>
+</table>
+<p><b>Regra de escolha (fixada antes):</b> vence a maior média, entre as 8 classes, da correlação mediana de pixels. Se a diferença para uma variante mais barata for menor que 0,02, vence a mais barata (4 kHz antes de 16 kHz; 32 s antes de 64 s). A 4 kHz o gwpy limita a busca de Q a ~1.290 Hz, pela frequência de Nyquist; só a variante a 16 kHz cobre os 2.048 Hz do Gravity Spy.</p>
+
+<h3>Lote B — fechamento com a variante escolhida</h3>
+<p>O conjunto de fechamento é remontado com a variante escolhida: mesma seleção de arquivos da v1.0, ajustada para a janela nova. A rede avalia duas condições, com os modelos existentes:</p>
+<table>
+<tr><th>Condição</th><th>Modelos</th><th>Renderer</th><th>Papel</th></tr>
+<tr><td><b>B1v11</b></td><td>20–512 Hz (v1.0, sem retreino)</td><td>escala Gravity Spy</td><td><b>decide</b></td></tr>
+<tr><td>A2v11</td><td>atuais (painel 10–2048 Hz)</td><td>escala Gravity Spy</td><td>comparação</td></tr>
+</table>
+<p>As condições com renderer por percentis não são repetidas: na v1.0 elas rejeitaram 100% dos glitches conhecidos.</p>
+
+<h3>Critérios (os mesmos da v1.0)</h3>
+<table>
+<tr><th>Critério</th><th class="n">Limiar</th></tr>
+<tr><td>C1 — macro-F1 (classes com ≥ 10 amostras)</td><td class="n">≥ 0,85</td></tr>
+<tr><td>C1 — acurácia</td><td class="n">≥ 0,85</td></tr>
+<tr><td>C2 — fração <code>reject_ood</code></td><td class="n">≤ 0,05</td></tr>
+</table>
+<p>Intervalos de 95% por bootstrap de arquivos (2.000 réplicas, semente 20261027). Tudo está em <code>configs/plano1_v1_1.toml</code>.</p>
+
+<h2>3. Como ler o resultado</h2>
+<table>
+<tr><th>Resultado</th><th>Interpretação</th><th>Próximo passo</th></tr>
+<tr><td>B1v11 passa</td><td>A câmera reproduz o Gravity Spy o bastante para glitches conhecidos.</td><td>Regerar os Q-grams dos eventos com a mesma receita (os recortes atuais têm 32 s a 4 kHz) e rodar o catálogo como exploratório; em seguida, o Plano 2.</td></tr>
+<tr><td>Melhora, mas não passa</td><td>A receita explica parte da diferença; o resto pode vir da calibração (h(t) online × GWOSC), que não temos como reproduzir.</td><td>Discutir com o professor treinar com imagens geradas pela nossa própria câmera (os 966 glitches já reconstruídos são o embrião desse conjunto).</td></tr>
+<tr><td>Não melhora</td><td>A receita não era a causa principal.</td><td>Registrar; seguir para a câmera própria no treino.</td></tr>
+</table>
+
+<h2>4. Execução</h2>
+<table>
+<tr><th>Lote</th><th>O que faz</th><th>Recursos</th><th class="n">Tempo</th></tr>
+<tr><td>A — piloto</td><td>12 arquivos a 4 e a 16 kHz, 4 variantes, escolha da variante</td><td>internet, até ~7,8 GB</td><td class="n">~1 h</td></tr>
+<tr><td>B — fechamento</td><td>150 arquivos com a variante escolhida, 2 condições, veredito</td><td>internet + GPU; até ~19,5 GB a 4 kHz (até ~78 GB a 16 kHz)</td><td class="n">5–6 h</td></tr>
+</table>
+<pre>powershell -ExecutionPolicy Bypass -File .\tools\plano1\v1_1\executar_v1_1.ps1</pre>
+<ul>
+<li>Se o piloto escolher 16 kHz, o lote B para e pede confirmação explícita (<code>-Aceito16k</code>), por causa do download quatro vezes maior.</li>
+<li>Os dois lotes tentam de novo sozinhos quando a conexão com o GWOSC cai.</li>
+<li>Saídas em <code>outputs/research/plano1_v1_1/</code> (piloto, fechamento, condições e logs).</li>
+<li>A opção nova <code>recipe="gravity_spy"</code> de <code>gwpy_qtransform_consistent</code> não altera nada na linha 2.0: o padrão continua sendo a receita do catálogo, com os mesmos arquivos de saída.</li>
+</ul>
+
+<h2>5. Limitações</h2>
+<ul>
+<li><b>Calibração.</b> O Gravity Spy usou o h(t) online; o GWOSC publica o recalibrado. Isso não tem como ser igualado.</li>
+<li><b>Escolha após ver dados.</b> As variantes foram sugeridas por uma investigação que olhou glitches de avaliação. O piloto em treino e a regra fixada reduzem, mas não eliminam, esse viés; o resultado deve ser descrito como confirmatório só para a escolha feita no piloto.</li>
+<li><b>Classes ausentes.</b> As mesmas da v1.0: Violin_Mode, Helix e Wandering_Line não têm glitches de avaliação em trecho público de O1.</li>
+</ul>
+
+<p class="small">Arquivos: <code>configs/plano1_v1_1.toml</code>; <code>src/gwproject/commands/closure_pilot.py</code> (comando <code>gwproject research closure-pilot</code>); opção <code>recipe</code> em <code>src/gwproject/gwosc_pipeline.py</code>; opções <code>--sample-rate</code>, <code>--window-seconds</code> e <code>--recipe</code> em <code>closure-set</code>; <code>tests/test_closure_pilot.py</code>; <code>tools/plano1/v1_1/</code>. Parâmetros do Gravity Spy: <code>gravityspy/utils/utils.py</code>, função <code>make_q_scans</code> (github.com/Gravity-Spy/GravitySpy).</p>
+</body></html>

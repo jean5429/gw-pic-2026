@@ -341,8 +341,20 @@ def gwpy_qtransform_consistent(
     frange: tuple[float, float] = (20.0, 512.0),
     outseg_seconds: float = 4.0,
     config: dict[str, Any] | None = None,
+    recipe: str = "catalog",
+    output_bins: int = 500,
 ) -> dict[str, Any]:
-    """Gera somente Q-transform GWPy; falhas nunca viram STFT silenciosamente."""
+    """Gera somente Q-transform GWPy; falhas nunca viram STFT silenciosamente.
+
+    ``recipe="catalog"`` (padrao, linha 2.0): Q-transform com ``logf=True`` direto em
+    ``frange``. ``recipe="gravity_spy"`` (Plano 1 v1.1): parametros de
+    ``gravityspy.utils.make_q_scans`` -- busca de Q em 10-2048 Hz, ``search=0.5``,
+    ``tres=0.002``, ``fres=0.5``, frequencia linear -- e so depois interpolacao para
+    ``output_bins`` frequencias log-espacadas em ``frange``, como o eixo log do PNG.
+    Nos dois casos o array salvo segue o contrato ``(n_tempo, n_frequencia)``.
+    """
+    if recipe not in ("catalog", "gravity_spy"):
+        raise ValueError("recipe deve ser catalog ou gravity_spy")
 
     _, _, TimeSeries = _require_gw()
     raw = TimeSeries.read(raw_path, format="hdf5")
@@ -375,15 +387,33 @@ def gwpy_qtransform_consistent(
             "transform_type": "gwpy_qtransform",
         }
     try:
-        qgram = selected_raw.q_transform(
-            qrange=qrange,
-            frange=frange,
-            outseg=(start, end),
-            logf=True,
-            norm="median",
-            whiten=True,
-        )
-        array = np.asarray(qgram, dtype=float)
+        if recipe == "catalog":
+            qgram = selected_raw.q_transform(
+                qrange=qrange,
+                frange=frange,
+                outseg=(start, end),
+                logf=True,
+                norm="median",
+                whiten=True,
+            )
+            array = np.asarray(qgram, dtype=float)
+        else:
+            nyquist = float(selected_raw.sample_rate.value) / 2.0
+            qgram = selected_raw.q_transform(
+                qrange=qrange,
+                frange=(10.0, min(2048.0, nyquist)),
+                gps=gps,
+                search=0.5,
+                tres=0.002,
+                fres=0.5,
+                outseg=(start, end),
+                whiten=True,
+            )
+            frequencies = np.asarray(qgram.frequencies.value, dtype=float)
+            target = np.geomspace(float(frange[0]), float(frange[1]), int(output_bins))
+            array = np.array(
+                [np.interp(target, frequencies, column) for column in np.asarray(qgram.value)]
+            )
         if not np.all(np.isfinite(array)) or float(np.std(array)) <= 0:
             raise ValueError("Q-transform vazio ou invalido")
         target = Path(output_path)
@@ -402,6 +432,10 @@ def gwpy_qtransform_consistent(
             "qgram_sha256": sha256_file(target),
             "finite_segment": segment_info,
         }
+        if recipe != "catalog":  # mantem identico o JSON da linha 2.0
+            metadata["recipe"] = recipe
+            metadata["output_bins"] = int(output_bins)
+            metadata["selected_q"] = float(getattr(qgram, "q", float("nan")))
         target.with_suffix(".json").write_text(
             json.dumps(metadata, indent=2), encoding="utf-8"
         )

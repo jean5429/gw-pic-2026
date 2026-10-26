@@ -56,12 +56,15 @@ function Get-Checkpoints([string]$Root) {
     return $found
 }
 
-function Invoke-ClosureCondition([string]$Nome, [string]$Models, [string]$Ood, [string]$Render) {
+function Invoke-ClosureCondition(
+    [string]$Nome, [string]$Models, [string]$Ood, [string]$Render,
+    [string]$Csv = $ClosureCsv, [string]$Root = $Plano1, [string]$Config = ".\configs\plano1.toml"
+) {
     # Uma condicao = (modelos, renderer) aplicada ao conjunto de fechamento + relatorio.
-    $out = "$Plano1\condicoes\$Nome"
+    $out = "$Root\condicoes\$Nome"
     $checkpoints = Get-Checkpoints $Models
     Write-Host "-- Condicao $Nome (renderer $Render)"
-    Invoke-Gw classify-ensemble @checkpoints --approved $ClosureCsv --ood-reference $Ood `
+    Invoke-Gw classify-ensemble @checkpoints --approved $Csv --ood-reference $Ood `
         --render-mode $Render --output-dir $out
-    Invoke-Gw closure-report $out --closure $ClosureCsv --label $Nome
+    Invoke-Gw closure-report $out --closure $Csv --label $Nome --config $Config
 }
